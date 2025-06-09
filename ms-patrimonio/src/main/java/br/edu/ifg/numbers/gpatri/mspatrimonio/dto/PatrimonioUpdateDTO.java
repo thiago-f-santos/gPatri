@@ -1,9 +1,6 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.dto;
 
-import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.Categoria;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 

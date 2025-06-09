@@ -1,6 +1,5 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.controller;
 
-import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.Patrimonio;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.PatrimonioCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.PatrimonioResponseDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.PatrimonioUpdateDTO;

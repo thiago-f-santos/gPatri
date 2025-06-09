@@ -1,6 +1,5 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.dto;
 
-import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.Categoria;
 import lombok.Getter;
 import lombok.Setter;
 

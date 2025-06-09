@@ -2,13 +2,11 @@ package br.edu.ifg.numbers.gpatri.mspatrimonio.service;
 
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.Categoria;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.Patrimonio;
-import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.CategoriaResponseDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.PatrimonioCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.PatrimonioResponseDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.PatrimonioUpdateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.mapper.CategoriaMapper;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.mapper.PatrimonioMapper;
-import br.edu.ifg.numbers.gpatri.mspatrimonio.repository.CategoriaRepository;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.repository.PatrimonioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
