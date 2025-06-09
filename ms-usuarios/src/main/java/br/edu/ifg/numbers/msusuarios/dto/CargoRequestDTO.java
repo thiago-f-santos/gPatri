@@ -13,5 +13,5 @@ public class CargoRequestDTO {
 
     @NotBlank(message = "O nome do cargo é obrigatório")
     @Size(min = 3, max = 50, message = "O nome do cargo deve ter entre 3 e 50 caracteres")
-    private String nomeCargo;
+    private String nome;
 }

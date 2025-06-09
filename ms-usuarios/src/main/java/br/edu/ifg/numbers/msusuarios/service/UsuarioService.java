@@ -4,6 +4,7 @@ import br.edu.ifg.numbers.msusuarios.domain.Cargo;
 import br.edu.ifg.numbers.msusuarios.domain.Usuario;
 import br.edu.ifg.numbers.msusuarios.dto.UserRequestDTO;
 import br.edu.ifg.numbers.msusuarios.dto.UserResponseDTO;
+import br.edu.ifg.numbers.msusuarios.mapper.UsuarioMapper;
 import br.edu.ifg.numbers.msusuarios.repository.CargoRepository;
 import br.edu.ifg.numbers.msusuarios.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -19,11 +20,13 @@ public class UsuarioService {
 
     private final UserRepository userRepository;
     private final CargoRepository cargoRepository;
+    private final UsuarioMapper usuarioMapper;
 
     @Autowired
-    public UsuarioService(UserRepository userRepository, CargoRepository cargoRepository) {
+    public UsuarioService(UserRepository userRepository, CargoRepository cargoRepository, UsuarioMapper usuarioMapper) {
         this.userRepository = userRepository;
         this.cargoRepository = cargoRepository;
+        this.usuarioMapper = usuarioMapper;
     }
 
     //Criar um novo usuário;
@@ -34,23 +37,14 @@ public class UsuarioService {
             throw new IllegalArgumentException("Usuário com o email já cadastrado: " + userRequestDTO.getEmail());
         }
 
-        // Verificar se o cargo existe;
-        Cargo cargo = cargoRepository.findByNome(userRequestDTO.getCargo())
-                .orElseThrow(() -> new IllegalArgumentException("O cargo de nome '" + userRequestDTO.getCargo() + "' não foi encontrado."));
+        Cargo cargo = cargoRepository.findById(userRequestDTO.getIdCargo())
+                .orElseThrow(() -> new IllegalArgumentException("Cargo de ID '" + userRequestDTO.getIdCargo() + "' não encontrado."));
 
-        Usuario usuario = new Usuario();
-        usuario.setNome(userRequestDTO.getNome());
-        usuario.setSobrenome(userRequestDTO.getSobrenome());
-        usuario.setEmail(userRequestDTO.getEmail());
-        // Depois tem que criptografar a senha antes de salvar no banco de dados. Temporariamente ta assim.
-        usuario.setSenha(userRequestDTO.getSenha());
-        usuario.setCargo(cargo);
+        Usuario usuario = usuarioMapper.toEntity(userRequestDTO, cargo);
 
-        //Salvar o usuário no banco de dados;
         Usuario novoUsuario = userRepository.save(usuario);
 
-        //Converter o usuário salvo para um UserResponseDTO e retornar;
-        return responseDTO(novoUsuario);
+        return usuarioMapper.toDto(novoUsuario);
     }
 
     //Buscar um usuário pelo ID;
@@ -58,7 +52,7 @@ public class UsuarioService {
         //Verificar se o usuário existe se não lançar uma exceção;
         Usuario usuario = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Usuário de ID '" + id + "' não encontrado."));
-        return responseDTO(usuario);
+        return usuarioMapper.toDto(usuario);
     }
 
     //Buscar todos os usuários;
@@ -66,10 +60,7 @@ public class UsuarioService {
         //Buscar todos os usuários do banco de dados;
         List<Usuario> usuarios = userRepository.findAll();
 
-        //Converter a lista de usuários para uma lista de UserResponseDTO e retornar;
-        return usuarios.stream()
-                .map(this::responseDTO)
-                .collect(Collectors.toList());
+        return usuarioMapper.toDtoList(usuarios);
     }
 
     //Atualizar um usuário;
@@ -83,28 +74,19 @@ public class UsuarioService {
         if (!usuario.getEmail().equals(userRequestDTO.getEmail()) && userRepository.findByEmail(userRequestDTO.getEmail()).isPresent()) {
             throw new IllegalArgumentException("O email '" + userRequestDTO.getEmail() + "' já está cadastrado por outro usuário.");
         }
+        Cargo novoCargo = usuario.getCargo();
 
-        //Buscar o cargo pelo nome, se não existir lançar uma exceção (Caso o cargo seja alterado);
-        //So buscar o cargo se o nome do cargo no DTO for diferente do cargo atual do usuário, se não, manter o cargo atual;
-        Cargo novoCargo = usuario.getCargo(); //cargo atual
-        if (!usuario.getCargo().getNome().equals(userRequestDTO.getCargo())) {
-            novoCargo = cargoRepository.findByNome(userRequestDTO.getCargo())
-                    .orElseThrow(() -> new IllegalArgumentException("O cargo de nome '" + userRequestDTO.getCargo() + "' não foi encontrado."));
+        if (!usuario.getCargo().getId().equals(userRequestDTO.getIdCargo())) {
+            novoCargo = cargoRepository.findById(userRequestDTO.getIdCargo())
+                    .orElseThrow(() -> new IllegalArgumentException("Cargo de ID '" + userRequestDTO.getIdCargo() + "' não encontrado."));
+        } else {
+            novoCargo = usuario.getCargo();
         }
-
-        //Atualizar os dados do usuário com os dados do DTO;
-        usuario.setNome(userRequestDTO.getNome());
-        usuario.setSobrenome(userRequestDTO.getSobrenome());
-        usuario.setEmail(userRequestDTO.getEmail());
-        // Depois tem que criptografar a senha antes de salvar no banco de dados. Temporariamente ta assim.
-        usuario.setSenha(userRequestDTO.getSenha());
-        usuario.setCargo(novoCargo); //Atribuindo o novo cargo ao usuário
-
+        usuarioMapper.updateEntityFromDto(userRequestDTO, usuario, novoCargo);
         //Salvar o usuário atualizado no banco de dados;
         Usuario usuarioAtualizado = userRepository.save(usuario);
 
-        //Converter o usuário atualizado para um UserResponseDTO e retornar;
-        return responseDTO(usuarioAtualizado);
+        return usuarioMapper.toDto(usuarioAtualizado);
     }
 
     @Transactional
@@ -115,17 +97,5 @@ public class UsuarioService {
         }
         //Deletar o usuário do banco de dados;
         userRepository.deleteById(id);
-    }
-
-    private UserResponseDTO responseDTO(Usuario usuario) {
-        UserResponseDTO responseDTO = new UserResponseDTO();
-        responseDTO.setId(usuario.getId());
-        responseDTO.setNome(usuario.getNome());
-        responseDTO.setSobrenome(usuario.getSobrenome());
-        responseDTO.setEmail(usuario.getEmail());
-        if (usuario.getCargo() != null) {
-            responseDTO.setCargo(usuario.getCargo().getNome());
-        }
-        return responseDTO;
     }
 }

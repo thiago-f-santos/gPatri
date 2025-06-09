@@ -1,6 +1,5 @@
 package br.edu.ifg.numbers.msusuarios.dto;
 
-import br.edu.ifg.numbers.msusuarios.domain.Cargo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,4 +16,8 @@ public class UserResponseDTO {
     private String sobrenome;
     private String email;
     private String cargo;
+    private UUID idCargo;
+
+    public UserResponseDTO(Object o, String message, Object o1, Object o2, Object o3) {
+    }
 }
