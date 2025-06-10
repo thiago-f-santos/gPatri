@@ -4,6 +4,10 @@ import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemPatrimonioCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemPatrimonioResponseDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemPatrimonioUpdateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.service.ItemPatrimonioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +22,18 @@ import java.util.UUID;
 @Controller
 @RequestMapping("/api/v1/itenspatrimonio")
 @RequiredArgsConstructor
+@Tag(name = "Item Patrimônio", description = "Endpoints relacionados ao gerenciamento de itens de um determinado patrimônio")
 public class ItemPatrimonioController {
 
     private final ItemPatrimonioService itemPatrimonioService;
 
+    @Operation(summary = "Salva um item patrimônio no banco de dados")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Item Patrimonio salvo com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Campos inválidos para criação"),
+            @ApiResponse(responseCode = "404", description = "Patrimônio ou Condição não encontrada"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado")
+    })
     @PostMapping
     public ResponseEntity<ItemPatrimonioResponseDTO> save(@RequestBody @Valid ItemPatrimonioCreateDTO itemPatrimonioCreateDTO){
         ItemPatrimonioResponseDTO itemPatrimonioResponseDTO = itemPatrimonioService.save(itemPatrimonioCreateDTO);
@@ -29,24 +41,47 @@ public class ItemPatrimonioController {
         return ResponseEntity.created(location).body(itemPatrimonioResponseDTO);
     }
 
+    @Operation(summary = "Atualiza um item patrimônio")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Item Patrimonio atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Item Patrimônio / Patrimônio / Condição não encontrada"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<ItemPatrimonioResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid ItemPatrimonioUpdateDTO itemPatrimonioUpdateDTO) {
         ItemPatrimonioResponseDTO itemPatrimonioResponseDTO = itemPatrimonioService.update(id, itemPatrimonioUpdateDTO);
         return ResponseEntity.ok().body(itemPatrimonioResponseDTO);
     }
 
+    @Operation(summary = "Deleta um item patrimônio")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Item Patrimonio deletado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Item Patrimônio não encontrado"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<ItemPatrimonioResponseDTO> delete(@PathVariable UUID id) {
         itemPatrimonioService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Retorna um item patrimônio por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Item Patrimonio retornado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Item Patrimônio não encontrado"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<ItemPatrimonioResponseDTO> findById(@PathVariable UUID id) {
         ItemPatrimonioResponseDTO itemPatrimonioResponseDTO = itemPatrimonioService.findById(id);
         return ResponseEntity.ok().body(itemPatrimonioResponseDTO);
     }
 
+    @Operation(summary = "Retorna uma lista com todos item patrimônio")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Item Patrimonio retornado com sucesso"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado")
+    })
     @GetMapping
     public ResponseEntity<List<ItemPatrimonioResponseDTO>> findAll() {
         List<ItemPatrimonioResponseDTO> itensPatrimonio = itemPatrimonioService.findAll();
