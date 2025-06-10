@@ -5,7 +5,6 @@ import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.CategoriaResponseDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.CategoriaUpdateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.service.CategoriaService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
