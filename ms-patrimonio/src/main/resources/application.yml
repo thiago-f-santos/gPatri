@@ -19,3 +19,12 @@ spring:
     database-platform: org.hibernate.dialect.H2Dialect
 server:
   port: 8080
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /docs.html
+  api-docs:
+    enabled: true
+    path: /docs
+    version: openapi_3_1
+  writer-with-order-by-keys: true
