@@ -23,14 +23,14 @@ public class PatrimonioController {
     private final PatrimonioService patrimonioService;
 
     @PostMapping
-    public ResponseEntity<PatrimonioResponseDTO> save(@Valid @RequestBody PatrimonioCreateDTO patrimonioCreateDTO) {
+    public ResponseEntity<PatrimonioResponseDTO> save(@RequestBody @Valid PatrimonioCreateDTO patrimonioCreateDTO) {
         PatrimonioResponseDTO patrimonioResponseDTO = patrimonioService.save(patrimonioCreateDTO);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(patrimonioResponseDTO.getId()).toUri();
         return ResponseEntity.created(location).body(patrimonioResponseDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PatrimonioResponseDTO> update(@PathVariable UUID id, @Valid @RequestBody PatrimonioUpdateDTO patrimonioUpdateDTO) {
+    public ResponseEntity<PatrimonioResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid PatrimonioUpdateDTO patrimonioUpdateDTO) {
         PatrimonioResponseDTO patrimonioResponseDTO = patrimonioService.update(id, patrimonioUpdateDTO);
         return ResponseEntity.ok().body(patrimonioResponseDTO);
     }
