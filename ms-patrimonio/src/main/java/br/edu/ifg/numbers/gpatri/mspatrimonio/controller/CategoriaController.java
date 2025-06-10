@@ -4,6 +4,7 @@ import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.CategoriaCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.CategoriaResponseDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.CategoriaUpdateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.service.CategoriaService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,8 +22,9 @@ public class CategoriaController {
 
     private final CategoriaService categoriaService;
 
+
     @PostMapping
-    public ResponseEntity<CategoriaResponseDTO> save(@RequestBody CategoriaCreateDTO categoriaDTO) {
+    public ResponseEntity<CategoriaResponseDTO> save(@RequestBody @Valid CategoriaCreateDTO categoriaDTO) {
         CategoriaResponseDTO categoriaResponseDTO = categoriaService.save(categoriaDTO);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(categoriaResponseDTO.getId()).toUri();
         return ResponseEntity.created(location).body(categoriaResponseDTO);
@@ -41,7 +43,7 @@ public class CategoriaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoriaResponseDTO> update(@PathVariable UUID id, @RequestBody CategoriaUpdateDTO categoriaUpdateDTO) {
+    public ResponseEntity<CategoriaResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid CategoriaUpdateDTO categoriaUpdateDTO) {
         CategoriaResponseDTO categoriaAtualizada = categoriaService.update(id, categoriaUpdateDTO);
         return ResponseEntity.ok().body(categoriaAtualizada);
     }
