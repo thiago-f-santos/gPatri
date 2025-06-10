@@ -4,10 +4,8 @@ import br.edu.ifg.numbers.msusuarios.domain.Cargo;
 import br.edu.ifg.numbers.msusuarios.domain.Usuario;
 import br.edu.ifg.numbers.msusuarios.dto.UserRequestDTO;
 import br.edu.ifg.numbers.msusuarios.dto.UserResponseDTO;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.MappingTarget;
+import br.edu.ifg.numbers.msusuarios.dto.UserUpdateDTO;
+import org.mapstruct.*;
 
 import java.util.List;
 
@@ -31,12 +29,11 @@ public interface UsuarioMapper {
 
     List<UserResponseDTO> toDtoList(List<Usuario> usuarios);
 
-    @Mapping(target = "nome", source = "dto.nome", ignore = true)
-    @Mapping(target = "sobrenome", source = "dto.sobrenome", ignore = true)
-    @Mapping(target = "email", source = "dto.email", ignore = true)
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "cargo", source = "cargoObj")
-    @Mapping(target = "senha", source = "dto.senha", ignore = true)
-    void updateEntityFromDto(UserRequestDTO dto, @MappingTarget Usuario usuario, Cargo cargoObj);
+    @Mapping(target = "nome", source = "dto.nome")
+    void updateEntityFromDto(UserUpdateDTO dto, @MappingTarget Usuario usuario, Cargo cargoObj);
 
 }

@@ -18,6 +18,4 @@ public class UserResponseDTO {
     private String cargo;
     private UUID idCargo;
 
-    public UserResponseDTO(Object o, String message, Object o1, Object o2, Object o3) {
-    }
 }
