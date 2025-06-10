@@ -2,8 +2,10 @@ package br.edu.ifg.numbers.msusuarios.controller;
 
 import br.edu.ifg.numbers.msusuarios.dto.UserRequestDTO;
 import br.edu.ifg.numbers.msusuarios.dto.UserResponseDTO;
+import br.edu.ifg.numbers.msusuarios.dto.UserUpdateDTO;
 import br.edu.ifg.numbers.msusuarios.service.UsuarioService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,23 +25,15 @@ public class UsuarioController {
     //Rota para criar um novo usuário
     @PostMapping
     public ResponseEntity<UserResponseDTO> criarUsuario(@RequestBody @Valid UserRequestDTO userRequestDTO) {
-        try {
-            UserResponseDTO novoUsuario = usuarioService.criarUsuario(userRequestDTO);
-            return ResponseEntity.status(201).body(novoUsuario);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new UserResponseDTO(null, e.getMessage(), null, null, null));
-        }
+        UserResponseDTO novoUsuario = usuarioService.criarUsuario(userRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
     }
 
     // Rota para buscar um usuário pelo ID
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> buscarPorId(@PathVariable UUID id) {
-        try {
-            UserResponseDTO usuario = usuarioService.buscarPid(id);
-            return ResponseEntity.ok(usuario);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
+        UserResponseDTO usuario = usuarioService.buscarPid(id);
+        return ResponseEntity.ok(usuario);
     }
 
     // Rota para buscar todos os usuários
@@ -49,23 +43,15 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarios);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<UserResponseDTO> atualizarUsuario(@PathVariable UUID id, @RequestBody @Valid UserRequestDTO userRequestDTO) {
-        try {
-            UserResponseDTO usuarioAtualizado = usuarioService.atualizarUsuario(id, userRequestDTO);
-            return ResponseEntity.ok(usuarioAtualizado);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new UserResponseDTO(null, e.getMessage(), null, null, null));
-        }
+    @PatchMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> atualizarUsuario(@PathVariable UUID id, @RequestBody @Valid UserUpdateDTO userUpdateDTO) {
+        UserResponseDTO usuarioAtualizado = usuarioService.atualizarUsuario(id, userUpdateDTO);
+        return ResponseEntity.ok(usuarioAtualizado);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarUsuario(@PathVariable UUID id) {
-        try {
-            usuarioService.deletarUsuario(id);
-            return ResponseEntity.noContent().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletarUsuario(@PathVariable UUID id) {
+        usuarioService.deletarUsuario(id);
     }
 }

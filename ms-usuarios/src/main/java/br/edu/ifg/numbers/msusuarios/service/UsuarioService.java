@@ -4,6 +4,10 @@ import br.edu.ifg.numbers.msusuarios.domain.Cargo;
 import br.edu.ifg.numbers.msusuarios.domain.Usuario;
 import br.edu.ifg.numbers.msusuarios.dto.UserRequestDTO;
 import br.edu.ifg.numbers.msusuarios.dto.UserResponseDTO;
+import br.edu.ifg.numbers.msusuarios.dto.UserUpdateDTO;
+import br.edu.ifg.numbers.msusuarios.exception.BadRequestException;
+import br.edu.ifg.numbers.msusuarios.exception.ConflictException;
+import br.edu.ifg.numbers.msusuarios.exception.ResourceNotFoundException;
 import br.edu.ifg.numbers.msusuarios.mapper.UsuarioMapper;
 import br.edu.ifg.numbers.msusuarios.repository.CargoRepository;
 import br.edu.ifg.numbers.msusuarios.repository.UserRepository;
@@ -34,11 +38,11 @@ public class UsuarioService {
     public UserResponseDTO criarUsuario(UserRequestDTO userRequestDTO) {
         //Verificar se ja existe um usuário com o mesmo email;
         if (userRepository.findByEmail(userRequestDTO.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Usuário com o email já cadastrado: " + userRequestDTO.getEmail());
+            throw new ConflictException("O email '" + userRequestDTO.getEmail() + "' já está cadastrado por outro usuário.");
         }
 
         Cargo cargo = cargoRepository.findById(userRequestDTO.getIdCargo())
-                .orElseThrow(() -> new IllegalArgumentException("Cargo de ID '" + userRequestDTO.getIdCargo() + "' não encontrado."));
+                .orElseThrow(() -> new BadRequestException("Cargo de ID '" + userRequestDTO.getIdCargo() + "' não foi encontrado."));
 
         Usuario usuario = usuarioMapper.toEntity(userRequestDTO, cargo);
 
@@ -51,7 +55,7 @@ public class UsuarioService {
     public UserResponseDTO buscarPid(UUID id) {
         //Verificar se o usuário existe se não lançar uma exceção;
         Usuario usuario = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário de ID '" + id + "' não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário de ID '" + id + "' não encontrado."));
         return usuarioMapper.toDto(usuario);
     }
 
@@ -65,27 +69,26 @@ public class UsuarioService {
 
     //Atualizar um usuário;
     @Transactional
-    public UserResponseDTO atualizarUsuario(UUID id, UserRequestDTO userRequestDTO) {
+    public UserResponseDTO atualizarUsuario(UUID id, UserUpdateDTO userUpdateDTO) {
         //Verificar se o usuário do ID passado existe no BD, se não existir lançar uma exceção;
         Usuario usuario = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Usuário de ID '" + id + "' não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário de ID '" + id + "' não encontrado."));
 
-        //Verificar se o email foi alterado e se o novo já está cadastrado por outro usuário, se sim lançar uma exceção;
-        if (!usuario.getEmail().equals(userRequestDTO.getEmail()) && userRepository.findByEmail(userRequestDTO.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("O email '" + userRequestDTO.getEmail() + "' já está cadastrado por outro usuário.");
+        if (userUpdateDTO.getEmail() != null && !usuario.getEmail().equals(userUpdateDTO.getEmail())) {
+            if (userRepository.findByEmail(userUpdateDTO.getEmail()).isPresent()) {
+                throw new ConflictException("O email '" + userUpdateDTO.getEmail() + "' já está cadastrado por outro usuário.");
+            }
         }
-        Cargo novoCargo = usuario.getCargo();
 
-        if (!usuario.getCargo().getId().equals(userRequestDTO.getIdCargo())) {
-            novoCargo = cargoRepository.findById(userRequestDTO.getIdCargo())
-                    .orElseThrow(() -> new IllegalArgumentException("Cargo de ID '" + userRequestDTO.getIdCargo() + "' não encontrado."));
-        } else {
-            novoCargo = usuario.getCargo();
+        Cargo cargo = usuario.getCargo();
+        if(userUpdateDTO.getIdCargo() != null && !usuario.getCargo().getId().equals(userUpdateDTO.getIdCargo())) {
+            cargo = cargoRepository.findById(userUpdateDTO.getIdCargo())
+                    .orElseThrow(() -> new BadRequestException("Cargo de ID '" + userUpdateDTO.getIdCargo() + "' não foi encontrado."));
         }
-        usuarioMapper.updateEntityFromDto(userRequestDTO, usuario, novoCargo);
-        //Salvar o usuário atualizado no banco de dados;
+
+        usuarioMapper.updateEntityFromDto(userUpdateDTO, usuario, cargo);
+
         Usuario usuarioAtualizado = userRepository.save(usuario);
-
         return usuarioMapper.toDto(usuarioAtualizado);
     }
 
@@ -93,7 +96,7 @@ public class UsuarioService {
     public void deletarUsuario(UUID id) {
         //Verificar se o usuário existe, se não existir lançar uma exceção;
         if (!userRepository.existsById(id)) {
-            throw new IllegalArgumentException("Usuário de ID '" + id + "' não encontrado.");
+            throw new ResourceNotFoundException("Usuário de ID '" + id + "' não encontrado.");
         }
         //Deletar o usuário do banco de dados;
         userRepository.deleteById(id);

@@ -3,10 +3,13 @@ package br.edu.ifg.numbers.msusuarios.service;
 import br.edu.ifg.numbers.msusuarios.domain.Cargo;
 import br.edu.ifg.numbers.msusuarios.dto.CargoRequestDTO;
 import br.edu.ifg.numbers.msusuarios.dto.CargoResponseDTO;
+import br.edu.ifg.numbers.msusuarios.exception.ConflictException;
+import br.edu.ifg.numbers.msusuarios.exception.ResourceNotFoundException;
 import br.edu.ifg.numbers.msusuarios.mapper.CargoMapper;
 import br.edu.ifg.numbers.msusuarios.repository.CargoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,7 +35,7 @@ public class CargoService {
     public CargoResponseDTO criarCargo(CargoRequestDTO cargoRequestDTO) {
         // Verifica se já existe um cargo com o mesmo nome
         if(cargoRepository.findByNome(cargoRequestDTO.getNome()).isPresent()) {
-            throw new IllegalArgumentException("Já existe um cargo com o nome: " + cargoRequestDTO.getNome());
+            throw new ConflictException("Já existe um cargo com o nome: " + cargoRequestDTO.getNome());
         }
 
         Cargo cargo = cargoMapper.toEntity(cargoRequestDTO);
@@ -45,14 +48,14 @@ public class CargoService {
     // Buscar um cargo pelo ID;
     public CargoResponseDTO buscarPorId(UUID id) {
         Cargo cargo = cargoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cargo de ID '" + id + "' não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo de ID '" + id + "' não encontrado."));
         return cargoMapper.toDto(cargo);
     }
 
     // Buscar cargo pelo nome;
     public CargoResponseDTO buscarPorNome(String nome) {
         Cargo cargo = cargoRepository.findByNome(nome)
-                .orElseThrow(() -> new IllegalArgumentException("Cargo de nome '" + nome + "' não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo de nome '" + nome + "' não encontrado."));
         return cargoMapper.toDto(cargo);
     }
 
@@ -66,10 +69,10 @@ public class CargoService {
     @Transactional
     public CargoResponseDTO atualizarCargo(UUID id, CargoRequestDTO cargoRequestDTO) {
         Cargo cargo = cargoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Cargo de ID '" + id + "' não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo de ID '" + id + "' não encontrado."));
 
         if (!cargo.getNome().equals(cargoRequestDTO.getNome()) && cargoRepository.findByNome(cargoRequestDTO.getNome()).isPresent()) {
-            throw new IllegalArgumentException("Já existe um cargo com o nome: " + cargoRequestDTO.getNome());
+            throw new ConflictException("Já existe um cargo com o nome: " + cargoRequestDTO.getNome());
         }
 
         cargoMapper.updateEntityFromDto(cargoRequestDTO, cargo);
@@ -81,9 +84,12 @@ public class CargoService {
     @Transactional
     public void deletarCargo(UUID id) {
         if (!cargoRepository.existsById(id)) {
-            throw new IllegalArgumentException("Cargo de ID '" + id + "' não encontrado.");
+            throw new ResourceNotFoundException("Cargo de ID '" + id + "' não encontrado.");
         }
-        // Incrementar posteriormente uma verificação para garantir que não exista nenhum usuário vinculado a esse cargo
-        cargoRepository.deleteById(id);
+        try {
+            cargoRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException("Não é possivel deletar o cargo de ID '" + id + "' pois ele está vinculado a um ou mais usuários. Antes de deletar, remova os usuários vinculados a este cargo.");
+        }
     }
 }

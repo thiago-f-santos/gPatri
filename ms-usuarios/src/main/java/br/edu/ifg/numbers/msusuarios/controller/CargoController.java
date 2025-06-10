@@ -5,6 +5,7 @@ import br.edu.ifg.numbers.msusuarios.dto.CargoResponseDTO;
 import br.edu.ifg.numbers.msusuarios.service.CargoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,22 +25,14 @@ public class CargoController {
 
     @PostMapping
     public ResponseEntity<CargoResponseDTO> criarCargo(@RequestBody @Valid CargoRequestDTO cargoRequestDTO) {
-        try {
-            CargoResponseDTO novoCargo = cargoService.criarCargo(cargoRequestDTO);
-            return ResponseEntity.status(201).body(novoCargo);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new CargoResponseDTO(null, e.getMessage()));
-        }
+        CargoResponseDTO novoCargo = cargoService.criarCargo(cargoRequestDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novoCargo);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<CargoResponseDTO> buscarPorId(@PathVariable UUID id) {
-        try {
-            CargoResponseDTO cargo = cargoService.buscarPorId(id);
-            return ResponseEntity.ok(cargo);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
+        CargoResponseDTO cargo = cargoService.buscarPorId(id);
+        return ResponseEntity.ok(cargo);
     }
 
     @GetMapping
@@ -48,24 +41,15 @@ public class CargoController {
         return ResponseEntity.ok(cargos);
     }
 
-    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
     public ResponseEntity<CargoResponseDTO> atualizarCargo(@PathVariable UUID id, @RequestBody @Valid CargoRequestDTO cargoRequestDTO) {
-        try {
-            CargoResponseDTO cargoAtualizado = cargoService.atualizarCargo(id, cargoRequestDTO);
-            return ResponseEntity.ok(cargoAtualizado);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new CargoResponseDTO(null, e.getMessage()));
-        }
+        CargoResponseDTO cargoAtualizado = cargoService.atualizarCargo(id, cargoRequestDTO);
+        return ResponseEntity.ok(cargoAtualizado);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarCargo(@PathVariable UUID id) {
-        try {
-            cargoService.deletarCargo(id);
-            return ResponseEntity.noContent().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletarCargo(@PathVariable UUID id) {
+        cargoService.deletarCargo(id);
     }
-
 }
