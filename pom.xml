@@ -92,6 +92,12 @@
                 <artifactId>flyway-core</artifactId>
                 <version>${org.flywaydb.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-database-postgresql</artifactId>
+                <version>${org.flywaydb.version}</version>
+                <scope>runtime</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
