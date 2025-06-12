@@ -1,8 +1,8 @@
-package br.edu.ifg.numbers.msusuarios.controller;
+package br.edu.ifg.numbers.gpatri.msusuarios.controller;
 
-import br.edu.ifg.numbers.msusuarios.dto.CargoRequestDTO;
-import br.edu.ifg.numbers.msusuarios.dto.CargoResponseDTO;
-import br.edu.ifg.numbers.msusuarios.service.CargoService;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoRequestDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoResponseDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.service.CargoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

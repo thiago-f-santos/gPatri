@@ -1,9 +1,9 @@
-package br.edu.ifg.numbers.msusuarios.handler;
+package br.edu.ifg.numbers.gpatri.msusuarios.handler;
 
-import br.edu.ifg.numbers.msusuarios.dto.ErrorResponseDTO;
-import br.edu.ifg.numbers.msusuarios.exception.BadRequestException;
-import br.edu.ifg.numbers.msusuarios.exception.ConflictException;
-import br.edu.ifg.numbers.msusuarios.exception.ResourceNotFoundException;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.ErrorResponseDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.exception.BadRequestException;
+import br.edu.ifg.numbers.gpatri.msusuarios.exception.ConflictException;
+import br.edu.ifg.numbers.gpatri.msusuarios.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -11,9 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.servlet.View;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 

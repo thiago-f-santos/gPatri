@@ -1,12 +1,12 @@
-package br.edu.ifg.numbers.msusuarios.service;
+package br.edu.ifg.numbers.gpatri.msusuarios.service;
 
-import br.edu.ifg.numbers.msusuarios.domain.Cargo;
-import br.edu.ifg.numbers.msusuarios.dto.CargoRequestDTO;
-import br.edu.ifg.numbers.msusuarios.dto.CargoResponseDTO;
-import br.edu.ifg.numbers.msusuarios.exception.ConflictException;
-import br.edu.ifg.numbers.msusuarios.exception.ResourceNotFoundException;
-import br.edu.ifg.numbers.msusuarios.mapper.CargoMapper;
-import br.edu.ifg.numbers.msusuarios.repository.CargoRepository;
+import br.edu.ifg.numbers.gpatri.msusuarios.domain.Cargo;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoRequestDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoResponseDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.exception.ConflictException;
+import br.edu.ifg.numbers.gpatri.msusuarios.exception.ResourceNotFoundException;
+import br.edu.ifg.numbers.gpatri.msusuarios.mapper.CargoMapper;
+import br.edu.ifg.numbers.gpatri.msusuarios.repository.CargoRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class CargoService {

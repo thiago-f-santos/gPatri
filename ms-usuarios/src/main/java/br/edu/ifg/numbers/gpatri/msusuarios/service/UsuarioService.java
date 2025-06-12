@@ -1,23 +1,22 @@
-package br.edu.ifg.numbers.msusuarios.service;
+package br.edu.ifg.numbers.gpatri.msusuarios.service;
 
-import br.edu.ifg.numbers.msusuarios.domain.Cargo;
-import br.edu.ifg.numbers.msusuarios.domain.Usuario;
-import br.edu.ifg.numbers.msusuarios.dto.UserRequestDTO;
-import br.edu.ifg.numbers.msusuarios.dto.UserResponseDTO;
-import br.edu.ifg.numbers.msusuarios.dto.UserUpdateDTO;
-import br.edu.ifg.numbers.msusuarios.exception.BadRequestException;
-import br.edu.ifg.numbers.msusuarios.exception.ConflictException;
-import br.edu.ifg.numbers.msusuarios.exception.ResourceNotFoundException;
-import br.edu.ifg.numbers.msusuarios.mapper.UsuarioMapper;
-import br.edu.ifg.numbers.msusuarios.repository.CargoRepository;
-import br.edu.ifg.numbers.msusuarios.repository.UserRepository;
+import br.edu.ifg.numbers.gpatri.msusuarios.domain.Cargo;
+import br.edu.ifg.numbers.gpatri.msusuarios.domain.Usuario;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserRequestDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserResponseDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserUpdateDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.exception.BadRequestException;
+import br.edu.ifg.numbers.gpatri.msusuarios.exception.ConflictException;
+import br.edu.ifg.numbers.gpatri.msusuarios.exception.ResourceNotFoundException;
+import br.edu.ifg.numbers.gpatri.msusuarios.mapper.UsuarioMapper;
+import br.edu.ifg.numbers.gpatri.msusuarios.repository.CargoRepository;
+import br.edu.ifg.numbers.gpatri.msusuarios.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class UsuarioService {

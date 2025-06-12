@@ -1,9 +1,9 @@
-package br.edu.ifg.numbers.msusuarios.controller;
+package br.edu.ifg.numbers.gpatri.msusuarios.controller;
 
-import br.edu.ifg.numbers.msusuarios.dto.UserRequestDTO;
-import br.edu.ifg.numbers.msusuarios.dto.UserResponseDTO;
-import br.edu.ifg.numbers.msusuarios.dto.UserUpdateDTO;
-import br.edu.ifg.numbers.msusuarios.service.UsuarioService;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserRequestDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserResponseDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserUpdateDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
