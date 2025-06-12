@@ -1,4 +1,4 @@
-package br.edu.ifg.numbers.msusuarios.dto;
+package br.edu.ifg.numbers.gpatri.msusuarios.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

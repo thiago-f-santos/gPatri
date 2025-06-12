@@ -1,6 +1,6 @@
-package br.edu.ifg.numbers.msusuarios.repository;
+package br.edu.ifg.numbers.gpatri.msusuarios.repository;
 
-import br.edu.ifg.numbers.msusuarios.domain.Cargo;
+import br.edu.ifg.numbers.gpatri.msusuarios.domain.Cargo;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

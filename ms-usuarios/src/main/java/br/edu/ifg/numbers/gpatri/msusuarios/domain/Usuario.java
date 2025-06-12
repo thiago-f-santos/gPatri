@@ -1,6 +1,5 @@
-package br.edu.ifg.numbers.msusuarios.domain;
+package br.edu.ifg.numbers.gpatri.msusuarios.domain;
 
-import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
