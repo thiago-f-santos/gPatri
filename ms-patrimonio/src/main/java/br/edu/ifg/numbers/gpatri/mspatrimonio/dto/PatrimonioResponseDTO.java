@@ -1,5 +1,6 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.dto;
 
+import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.TipoControle;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,5 +20,7 @@ public class PatrimonioResponseDTO {
     private UUID idCategoria;
 
     private String nomeCategoria;
+
+    private TipoControle tipoControle;
 
 }
