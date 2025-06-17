@@ -1,8 +1,8 @@
-package br.edu.ifg.numbers.msusuarios.mapper;
+package br.edu.ifg.numbers.gpatri.msusuarios.mapper;
 
-import br.edu.ifg.numbers.msusuarios.domain.Cargo;
-import br.edu.ifg.numbers.msusuarios.dto.CargoRequestDTO;
-import br.edu.ifg.numbers.msusuarios.dto.CargoResponseDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.domain.Cargo;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoRequestDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoResponseDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;

@@ -1,10 +1,10 @@
-package br.edu.ifg.numbers.msusuarios.mapper;
+package br.edu.ifg.numbers.gpatri.msusuarios.mapper;
 
-import br.edu.ifg.numbers.msusuarios.domain.Cargo;
-import br.edu.ifg.numbers.msusuarios.domain.Usuario;
-import br.edu.ifg.numbers.msusuarios.dto.UserRequestDTO;
-import br.edu.ifg.numbers.msusuarios.dto.UserResponseDTO;
-import br.edu.ifg.numbers.msusuarios.dto.UserUpdateDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.domain.Cargo;
+import br.edu.ifg.numbers.gpatri.msusuarios.domain.Usuario;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserRequestDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserResponseDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserUpdateDTO;
 import org.mapstruct.*;
 
 import java.util.List;

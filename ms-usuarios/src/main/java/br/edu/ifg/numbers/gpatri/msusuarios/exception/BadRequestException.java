@@ -1,4 +1,4 @@
-package br.edu.ifg.numbers.msusuarios.exception;
+package br.edu.ifg.numbers.gpatri.msusuarios.exception;
 
 public class BadRequestException extends RuntimeException{
 
