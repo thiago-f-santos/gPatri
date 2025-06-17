@@ -22,6 +22,7 @@ public class ItemPatrimonio {
     private Patrimonio patrimonio;
 
     @Column(name = "condicao_produto")
+    @Enumerated(EnumType.STRING)
     private CondicaoProduto condicaoProduto;
 
     @Column(name = "condicao_descricao")

@@ -27,6 +27,7 @@ public class Patrimonio {
     private Double precoEstimado;
 
     @Column(name = "tipo_controle")
+    @Enumerated(EnumType.STRING)
     private TipoControle tipoControle;
 
     @ManyToOne
