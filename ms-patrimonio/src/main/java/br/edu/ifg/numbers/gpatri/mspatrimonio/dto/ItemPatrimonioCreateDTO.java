@@ -15,7 +15,7 @@ public class ItemPatrimonioCreateDTO {
     @NotNull(message = "O id de patrimônio não pode ser nulo")
     private UUID idPatrimonio;
 
-    @NotBlank(message = "A condição do produto não pode ser nula ou vazia")
+    @NotNull(message = "A condição do produto não pode ser nula ou vazia")
     private CondicaoProduto condicaoProduto;
 
     @NotBlank(message = "A descrição da condição não pode ser nula ou vazia")

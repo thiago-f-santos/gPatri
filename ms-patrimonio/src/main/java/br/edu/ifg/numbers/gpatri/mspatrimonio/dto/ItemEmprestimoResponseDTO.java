@@ -6,10 +6,10 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Getter @Setter
-public class CondicaoResponseDTO {
+public class ItemEmprestimoResponseDTO {
 
-    private UUID id;
+    private ItemPatrimonioResponseDTO itemPatrimonio;
 
-    private String condicao;
+    private Integer quantidade;
 
 }

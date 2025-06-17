@@ -6,8 +6,8 @@ import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemPatrimonioCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemPatrimonioResponseDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemPatrimonioUpdateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.mapper.ItemPatrimonioMapper;
-import br.edu.ifg.numbers.gpatri.mspatrimonio.mapper.PatrimonioMapper;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.repository.ItemPatrimonioRepository;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.repository.PatrimonioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,13 +24,13 @@ public class ItemPatrimonioService {
     private final ItemPatrimonioRepository itemPatrimonioRepository;
     private final ItemPatrimonioMapper itemPatrimonioMapper;
 
-    private final PatrimonioService patrimonioService;
-    private final PatrimonioMapper patrimonioMapper;
+    private final PatrimonioRepository patrimonioRepository;
 
     @Transactional
     public ItemPatrimonioResponseDTO save(ItemPatrimonioCreateDTO itemPatrimonioCreateDTO) {
-        ItemPatrimonio itemPatrimonio = new ItemPatrimonio();
-        Patrimonio patrimonio = patrimonioMapper.responseDtoToPatrimonio(patrimonioService.findById(itemPatrimonioCreateDTO.getIdPatrimonio()));
+        ItemPatrimonio itemPatrimonio = itemPatrimonioMapper.createDtoToItemPatrimonio(itemPatrimonioCreateDTO);
+        Patrimonio patrimonio = patrimonioRepository.findById(itemPatrimonioCreateDTO.getIdPatrimonio()).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Patrimonio '%s' não encontrado", itemPatrimonioCreateDTO.getIdPatrimonio())));
         itemPatrimonio.setPatrimonio(patrimonio);
         itemPatrimonio.setCreatedAt(Instant.now());
         itemPatrimonio = itemPatrimonioRepository.save(itemPatrimonio);
@@ -42,7 +42,8 @@ public class ItemPatrimonioService {
         ItemPatrimonio itemPatrimonio = itemPatrimonioRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Item não encontrado"));
         if (itemPatrimonioUpdateDTO.getIdPatrimonio() != null) {
-            Patrimonio patrimonio = patrimonioMapper.responseDtoToPatrimonio(patrimonioService.findById(itemPatrimonioUpdateDTO.getIdPatrimonio()));
+            Patrimonio patrimonio = patrimonioRepository.findById(itemPatrimonioUpdateDTO.getIdPatrimonio()).orElseThrow(
+                    () -> new EntityNotFoundException(String.format("Patrimonio '%s' não encontrado", itemPatrimonioUpdateDTO.getIdPatrimonio())));
             itemPatrimonio.setPatrimonio(patrimonio);
         }
         if (itemPatrimonioUpdateDTO.getCondicaoProduto() != null) {
