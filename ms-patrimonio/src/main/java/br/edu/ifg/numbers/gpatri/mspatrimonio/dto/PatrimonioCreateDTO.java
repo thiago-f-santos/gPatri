@@ -23,7 +23,7 @@ public class PatrimonioCreateDTO {
     @NotNull(message = "O id da categoria do patrimonio não pode ser nulo")
     private UUID idCategoria;
 
-    @NotBlank(message = "O tipo de controle do patrimonio não pode ser nulo")
+    @NotNull(message = "O tipo de controle do patrimonio não pode ser nulo")
     private TipoControle tipoControle;
 
 }
