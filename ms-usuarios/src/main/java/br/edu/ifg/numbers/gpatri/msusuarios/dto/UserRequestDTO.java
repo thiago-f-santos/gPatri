@@ -1,13 +1,10 @@
-package br.edu.ifg.numbers.msusuarios.dto;
+package br.edu.ifg.numbers.gpatri.msusuarios.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -30,5 +27,7 @@ public class UserRequestDTO {
     @Size(min = 6, max = 100, message = "A senha deve ter entre 6 e 100 caracteres")
     private String senha;
 
-    private UUID idCargo;
+    @NotBlank(message = "O nome do cargo é obrigatório")
+    @Size(min = 3, max = 50, message = "O nome do cargo deve ter entre 3 e 50 caracteres")
+    private String cargo;
 }

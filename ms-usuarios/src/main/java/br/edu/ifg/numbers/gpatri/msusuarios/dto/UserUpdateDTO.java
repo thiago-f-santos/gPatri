@@ -1,11 +1,9 @@
-package br.edu.ifg.numbers.msusuarios.dto;
+package br.edu.ifg.numbers.gpatri.msusuarios.dto;
 
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -21,5 +19,6 @@ public class UserUpdateDTO {
     @Size(min = 5, max = 500, message = "O email deve ter entre 5 e 100 caracteres")
     private String email;
 
-    private UUID idCargo;
+    @Size(max = 50, message = "O nome do cargo deve ter no máximo 50 caracteres")
+    private String cargo;
 }
