@@ -1,23 +1,23 @@
-package br.edu.ifg.numbers.msusuarios.service;
+package br.edu.ifg.numbers.gpatri.msusuarios.service;
 
-import br.edu.ifg.numbers.msusuarios.domain.Cargo;
-import br.edu.ifg.numbers.msusuarios.domain.Usuario;
-import br.edu.ifg.numbers.msusuarios.dto.UserRequestDTO;
-import br.edu.ifg.numbers.msusuarios.dto.UserResponseDTO;
-import br.edu.ifg.numbers.msusuarios.dto.UserUpdateDTO;
-import br.edu.ifg.numbers.msusuarios.exception.BadRequestException;
-import br.edu.ifg.numbers.msusuarios.exception.ConflictException;
-import br.edu.ifg.numbers.msusuarios.exception.ResourceNotFoundException;
-import br.edu.ifg.numbers.msusuarios.mapper.UsuarioMapper;
-import br.edu.ifg.numbers.msusuarios.repository.CargoRepository;
-import br.edu.ifg.numbers.msusuarios.repository.UserRepository;
+import br.edu.ifg.numbers.gpatri.msusuarios.domain.Cargo;
+import br.edu.ifg.numbers.gpatri.msusuarios.domain.Usuario;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserRequestDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserResponseDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserUpdateDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.exception.BadRequestException;
+import br.edu.ifg.numbers.gpatri.msusuarios.exception.ConflictException;
+import br.edu.ifg.numbers.gpatri.msusuarios.exception.ResourceNotFoundException;
+import br.edu.ifg.numbers.gpatri.msusuarios.mapper.UsuarioMapper;
+import br.edu.ifg.numbers.gpatri.msusuarios.repository.CargoRepository;
+import br.edu.ifg.numbers.gpatri.msusuarios.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 public class UsuarioService {
@@ -25,12 +25,14 @@ public class UsuarioService {
     private final UserRepository userRepository;
     private final CargoRepository cargoRepository;
     private final UsuarioMapper usuarioMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UsuarioService(UserRepository userRepository, CargoRepository cargoRepository, UsuarioMapper usuarioMapper) {
+    public UsuarioService(UserRepository userRepository, CargoRepository cargoRepository, UsuarioMapper usuarioMapper, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.cargoRepository = cargoRepository;
         this.usuarioMapper = usuarioMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     //Criar um novo usuário;
@@ -41,10 +43,12 @@ public class UsuarioService {
             throw new ConflictException("O email '" + userRequestDTO.getEmail() + "' já está cadastrado por outro usuário.");
         }
 
-        Cargo cargo = cargoRepository.findById(userRequestDTO.getIdCargo())
-                .orElseThrow(() -> new BadRequestException("Cargo de ID '" + userRequestDTO.getIdCargo() + "' não foi encontrado."));
+        Cargo cargo = cargoRepository.findByNome(userRequestDTO.getCargo())
+                .orElseThrow(() -> new BadRequestException("Cargo de nome '" + userRequestDTO.getNome() + "' não foi encontrado."));
 
         Usuario usuario = usuarioMapper.toEntity(userRequestDTO, cargo);
+
+        usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
 
         Usuario novoUsuario = userRepository.save(usuario);
 
@@ -81,9 +85,9 @@ public class UsuarioService {
         }
 
         Cargo cargo = usuario.getCargo();
-        if(userUpdateDTO.getIdCargo() != null && !usuario.getCargo().getId().equals(userUpdateDTO.getIdCargo())) {
-            cargo = cargoRepository.findById(userUpdateDTO.getIdCargo())
-                    .orElseThrow(() -> new BadRequestException("Cargo de ID '" + userUpdateDTO.getIdCargo() + "' não foi encontrado."));
+        if(userUpdateDTO.getCargo() != null && !usuario.getCargo().getId().equals(userUpdateDTO.getCargo())) {
+            cargo = cargoRepository.findByNome(userUpdateDTO.getCargo())
+                    .orElseThrow(() -> new BadRequestException("Cargo de ID '" + userUpdateDTO.getCargo() + "' não foi encontrado."));
         }
 
         usuarioMapper.updateEntityFromDto(userUpdateDTO, usuario, cargo);
