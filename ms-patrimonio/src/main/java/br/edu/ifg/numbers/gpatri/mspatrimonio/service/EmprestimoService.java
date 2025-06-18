@@ -72,6 +72,7 @@ public class EmprestimoService {
                 itemEmprestimo.setQuantidade(itemEmprestimoCreateDTO.getQuantidade());
                 itemEmprestimo.setCreatedAt(Instant.now());
                 itemEmprestimoRepository.save(itemEmprestimo);
+
                 emprestimo.getItensEmprestimo().add(itemEmprestimo);
             }
         } else throw new EmprestimoVazioException("O emprestimo precisa de itens para ser criado");
