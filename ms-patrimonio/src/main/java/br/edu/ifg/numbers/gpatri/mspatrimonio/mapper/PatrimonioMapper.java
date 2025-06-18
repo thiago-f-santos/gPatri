@@ -5,7 +5,9 @@ import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.PatrimonioCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.PatrimonioResponseDTO;
 import org.mapstruct.*;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface PatrimonioMapper {
 
     @Mapping(target = "id", ignore = true)
