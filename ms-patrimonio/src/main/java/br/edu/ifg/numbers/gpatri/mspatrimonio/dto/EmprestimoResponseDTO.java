@@ -14,6 +14,8 @@ public class EmprestimoResponseDTO {
 
     private UUID idUsuario;
 
+    private boolean aprovado;
+
     private List<ItemEmprestimoResponseDTO> itensEmprestimo;
 
     private Date dataEmprestimo;
