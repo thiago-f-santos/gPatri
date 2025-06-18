@@ -15,7 +15,7 @@ public class ItemPatrimonioResponseDTO {
 
     private UUID id;
 
-    private Patrimonio patrimonio;
+    private PatrimonioResponseDTO patrimonio;
 
     private CondicaoProduto condicaoProduto;
 
