@@ -19,7 +19,7 @@ public class Emprestimo {
     private UUID idUsuario;
 
     @Column(name = "aprovado")
-    private Boolean aprovado;
+    private Boolean aprovado = false;
 
     @Column(name = "data_emprestimo", nullable = false)
     @Temporal(TemporalType.DATE)
