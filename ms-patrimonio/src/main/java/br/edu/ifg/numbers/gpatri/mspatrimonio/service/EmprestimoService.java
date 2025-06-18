@@ -4,7 +4,10 @@ import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.Emprestimo;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.ItemEmprestimo;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.ItemEmprestimoId;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.ItemPatrimonio;
-import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.*;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoCreateDTO;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoResponseDTO;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoUpdateDTO;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemEmprestimoCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.EmprestimoVazioException;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.ItemEmUsoException;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.QuantidadeItemIndisponivelException;
@@ -154,63 +157,5 @@ public class EmprestimoService {
         emprestimo = emprestimoRepository.save(emprestimo);
 
         return emprestimoMapper.emprestimoToEmprestimoResponseDto(emprestimo);
-    }
-
-    @Transactional
-    public ItemEmprestimoResponseDTO atualizaItemEmprestimo(UUID idEmprestimo, ItemEmprestimoUpdateDTO itemEmprestimoUpdateDTO) {
-        Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
-                () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
-
-        ItemPatrimonio itemPatrimonio = itemPatrimonioRepository.findById(itemEmprestimoUpdateDTO.getIdItemPatrimonio())
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Item patrimonio '%s' não encontrado", itemEmprestimoUpdateDTO.getIdItemPatrimonio())));
-
-        if (itemPatrimonio.getQuantidade() < itemEmprestimoUpdateDTO.getQuantidade()) {
-            throw new QuantidadeItemIndisponivelException(String.format("A quantidade solicitada do item '%s' é maior do que o disponivel em estoque", itemPatrimonio.getId()));
-        }
-
-        ItemEmprestimo itemEmprestimo = itemEmprestimoRepository.findByEmprestimo_IdEqualsAndItemPatrimonio_IdEquals(idEmprestimo, itemEmprestimoUpdateDTO.getIdItemPatrimonio());
-        if (itemEmprestimo == null) {
-            itemEmprestimo = new ItemEmprestimo();
-            itemEmprestimo.setEmprestimo(emprestimo);
-            itemEmprestimo.setItemPatrimonio(itemPatrimonio);
-            itemEmprestimo.setQuantidade(itemEmprestimoUpdateDTO.getQuantidade());
-            itemEmprestimo.setCreatedAt(Instant.now());
-
-            itemPatrimonio.setQuantidade(itemPatrimonio.getQuantidade() - itemEmprestimoUpdateDTO.getQuantidade());
-        } else {
-            int diff = itemEmprestimo.getQuantidade() - itemEmprestimoUpdateDTO.getQuantidade();
-            itemEmprestimo.setEmprestimo(emprestimo);
-            itemEmprestimo.setItemPatrimonio(itemPatrimonio);
-            itemEmprestimo.setQuantidade(itemEmprestimoUpdateDTO.getQuantidade());
-            itemEmprestimo.setUpdatedAt(Instant.now());
-
-            itemPatrimonio.setQuantidade(itemPatrimonio.getQuantidade() + (diff*-1));
-        }
-
-        itemPatrimonioRepository.save(itemPatrimonio);
-
-        itemEmprestimo = itemEmprestimoRepository.save(itemEmprestimo);
-        emprestimo.getItensEmprestimo().add(itemEmprestimo);
-        emprestimo.setAprovado(false);
-        emprestimo.setUpdatedAt(Instant.now());
-        emprestimoRepository.save(emprestimo);
-
-        return itemEmprestimoMapper.itemEmprestimoToItemEmprestimoResponseDTO(itemEmprestimo);
-    }
-
-
-    @Transactional
-    public void removeItemEmprestimo(UUID idItemEmprestimo) {
-        ItemEmprestimo itemEmprestimo = itemEmprestimoRepository.findById(idItemEmprestimo).orElseThrow(
-                () -> new EntityNotFoundException(String.format("Item Emprestimo '%s' não encontrado", idItemEmprestimo)));
-
-        ItemPatrimonio itemPatrimonio = itemPatrimonioRepository.findById(itemEmprestimo.getItemPatrimonio().getId()).orElseThrow(
-                () -> new EntityNotFoundException(String.format("Item patrimonio '%s' não encontrado", itemEmprestimo.getItemPatrimonio().getId())));
-
-        itemPatrimonio.setQuantidade(itemPatrimonio.getQuantidade() + itemEmprestimo.getQuantidade());
-        itemPatrimonio.setUpdatedAt(Instant.now());
-        itemPatrimonioRepository.save(itemPatrimonio);
-
-        itemEmprestimoRepository.delete(itemEmprestimo);
     }
 }
