@@ -11,9 +11,10 @@ import org.mapstruct.*;
 public interface PatrimonioMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "categoria", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     Patrimonio createDtoToPatrimonio(PatrimonioCreateDTO patrimonioCreateDTO);
-
-    Patrimonio responseDtoToPatrimonio(PatrimonioResponseDTO patrimonioResponseDTO);
 
     @Mapping(target = "idCategoria", source = "categoria.id")
     @Mapping(target = "nomeCategoria", source = "categoria.nome")
