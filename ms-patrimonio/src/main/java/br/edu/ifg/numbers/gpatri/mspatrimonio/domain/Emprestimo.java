@@ -5,9 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Data @NoArgsConstructor
@@ -32,7 +30,7 @@ public class Emprestimo {
     private Date dataDevolucao;
 
     @OneToMany(mappedBy = "emprestimo")
-    private List<ItemEmprestimo> itensEmprestimo;
+    private List<ItemEmprestimo> itensEmprestimo = new LinkedList<>();
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
