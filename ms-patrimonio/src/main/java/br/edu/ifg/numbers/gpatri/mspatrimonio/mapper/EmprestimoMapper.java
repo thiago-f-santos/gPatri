@@ -15,7 +15,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 public interface EmprestimoMapper {
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "itensEmprestimo", source = "itensEmprestimo")
+    @Mapping(target = "itensEmprestimo", ignore = true)
     Emprestimo createDtoToEmprestimo(EmprestimoCreateDTO emprestimoCreateDTO);
 
     @Mapping(target = "itensEmprestimo", source = "itensEmprestimo")
