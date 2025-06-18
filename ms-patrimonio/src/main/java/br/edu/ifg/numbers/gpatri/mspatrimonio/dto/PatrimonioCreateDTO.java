@@ -20,10 +20,10 @@ public class PatrimonioCreateDTO {
     @DecimalMin(value = "0.0", message = "O preço não pode ser menor que 0.0")
     private Double precoEstimado;
 
-    @NotNull(message = "O id da categoria do patrimonio não pode ser nulo")
-    private UUID idCategoria;
-
     @NotNull(message = "O tipo de controle do patrimonio não pode ser nulo")
     private TipoControle tipoControle;
+
+    @NotNull(message = "O id da categoria do patrimonio não pode ser nulo")
+    private UUID idCategoria;
 
 }
