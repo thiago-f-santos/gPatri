@@ -1,5 +1,6 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -29,7 +30,8 @@ public class Categoria {
     @JoinColumn(name = "id_categoria_mae")
     private Categoria categoriaMae;
 
-    @OneToMany(mappedBy = "categoriaMae", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "categoriaMae")
+    @JsonIgnore
     private Set<Categoria> subcategorias = new HashSet<>();
 
     @Column(name = "created_at", nullable = false, updatable = false)

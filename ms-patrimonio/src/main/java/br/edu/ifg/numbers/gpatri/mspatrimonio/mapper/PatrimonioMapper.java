@@ -3,15 +3,14 @@ package br.edu.ifg.numbers.gpatri.mspatrimonio.mapper;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.Patrimonio;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.PatrimonioCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.PatrimonioResponseDTO;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.*;
 
-@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface PatrimonioMapper {
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
     Patrimonio createDtoToPatrimonio(PatrimonioCreateDTO patrimonioCreateDTO);
 
     Patrimonio responseDtoToPatrimonio(PatrimonioResponseDTO patrimonioResponseDTO);

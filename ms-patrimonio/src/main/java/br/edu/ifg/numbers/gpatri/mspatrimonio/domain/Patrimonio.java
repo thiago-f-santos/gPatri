@@ -1,5 +1,6 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.domain;
 
+import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.TipoControle;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,6 +25,10 @@ public class Patrimonio {
 
     @Column(name = "preco_estimado", nullable = false)
     private Double precoEstimado;
+
+    @Column(name = "tipo_controle")
+    @Enumerated(EnumType.STRING)
+    private TipoControle tipoControle;
 
     @ManyToOne
     @JoinColumn(name = "id_categoria")

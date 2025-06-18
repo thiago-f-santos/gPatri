@@ -5,10 +5,12 @@ import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.CategoriaCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.CategoriaResponseDTO;
 import org.mapstruct.*;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+)
 public interface CategoriaMapper {
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
     Categoria createDtoToCategoria(CategoriaCreateDTO categoriaCreateDTO);
 
     Categoria responseDtoToCategoria(CategoriaResponseDTO categoriaResponseDTO);

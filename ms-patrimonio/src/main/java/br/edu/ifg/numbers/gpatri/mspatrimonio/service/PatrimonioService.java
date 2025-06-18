@@ -55,6 +55,9 @@ public class PatrimonioService {
         if (patrimonioUpdateDTO.getPrecoEstimado() != null) {
             patrimonio.setPrecoEstimado(patrimonioUpdateDTO.getPrecoEstimado());
         }
+        if (patrimonioUpdateDTO.getTipoControle() != null) {
+            patrimonio.setTipoControle(patrimonioUpdateDTO.getTipoControle());
+        }
         patrimonio.setUpdatedAt(Instant.now());
         patrimonio = patrimonioRepository.save(patrimonio);
         return patrimonioMapper.patrimonioToPatrimonioResponseDto(patrimonio);
