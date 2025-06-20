@@ -4,16 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
-import java.util.UUID;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CargoResponseDTO {
+public class LoginResponseDTO {
 
-    private UUID id;
-    private String nome;
-    private Set<String> permissoes;
-
+    String token;
+    String username;
+    List<String> permissoes;
 }

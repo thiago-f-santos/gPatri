@@ -21,5 +21,9 @@ public class UserUpdateDTO {
     @Size(min = 5, max = 500, message = "O email deve ter entre 5 e 100 caracteres")
     private String email;
 
+    @Size(max = 50, message = "O nome do cargo deve ter no máximo 50 caracteres")
+    private String cargo;
+
     private UUID idCargo;
+  
 }

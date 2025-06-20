@@ -27,9 +27,6 @@ public class CargoService {
         this.cargoMapper = cargoMapper;
     }
 
-    // Criar um novo cargo no sistema;
-    // Não sei como vai funcionar as permissões aqui ainda, por enquanto ainda não tem nenhuma validação.
-    // Futuramente provavelmente vai ser necessário um usuário com cargo específico para criar cargos.
     @Transactional
     public CargoResponseDTO criarCargo(CargoRequestDTO cargoRequestDTO) {
         // Verifica se já existe um cargo com o mesmo nome
