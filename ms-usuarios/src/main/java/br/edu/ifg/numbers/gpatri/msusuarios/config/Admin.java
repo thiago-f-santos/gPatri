@@ -76,7 +76,7 @@ public class Admin implements CommandLineRunner {
             cargo.setPermissoes(permissoes);
             cargoRepository.save(cargo);
         } else {
-            logger.info("Cargo admin já existe: ", nomeCargo);
+            logger.info("Cargo admin já existe.");
         }
     }
 }

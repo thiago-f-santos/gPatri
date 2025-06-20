@@ -2,7 +2,6 @@ package br.edu.ifg.numbers.gpatri.msusuarios.service;
 import br.edu.ifg.numbers.gpatri.msusuarios.domain.Cargo;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoRequestDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoResponseDTO;
-import br.edu.ifg.numbers.gpatri.msusuarios.enums.PermissaoEnum;
 import br.edu.ifg.numbers.gpatri.msusuarios.exception.ConflictException;
 import br.edu.ifg.numbers.gpatri.msusuarios.exception.ResourceNotFoundException;
 import br.edu.ifg.numbers.gpatri.msusuarios.mapper.CargoMapper;
