@@ -1,4 +1,4 @@
-package br.edu.ifg.numbers.gpatri.msusuarios.enums;
+package br.edu.ifg.numbers.gpatri.msusuarios.domain.enums;
 
 public enum PermissaoEnum {
 

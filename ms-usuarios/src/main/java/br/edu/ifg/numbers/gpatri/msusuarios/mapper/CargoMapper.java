@@ -3,7 +3,7 @@ package br.edu.ifg.numbers.gpatri.msusuarios.mapper;
 import br.edu.ifg.numbers.gpatri.msusuarios.domain.Cargo;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoRequestDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoResponseDTO;
-import br.edu.ifg.numbers.gpatri.msusuarios.enums.PermissaoEnum;
+import br.edu.ifg.numbers.gpatri.msusuarios.domain.enums.PermissaoEnum;
 import br.edu.ifg.numbers.gpatri.msusuarios.exception.BadRequestException;
 
 import org.mapstruct.Mapper;
@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CargoMapper {

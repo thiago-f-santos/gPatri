@@ -1,6 +1,6 @@
 package br.edu.ifg.numbers.gpatri.msusuarios.domain;
 
-import br.edu.ifg.numbers.gpatri.msusuarios.enums.PermissaoEnum;
+import br.edu.ifg.numbers.gpatri.msusuarios.domain.enums.PermissaoEnum;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

@@ -2,7 +2,7 @@ package br.edu.ifg.numbers.gpatri.msusuarios.config;
 
 import br.edu.ifg.numbers.gpatri.msusuarios.domain.Cargo;
 import br.edu.ifg.numbers.gpatri.msusuarios.domain.Usuario;
-import br.edu.ifg.numbers.gpatri.msusuarios.enums.PermissaoEnum;
+import br.edu.ifg.numbers.gpatri.msusuarios.domain.enums.PermissaoEnum;
 import br.edu.ifg.numbers.gpatri.msusuarios.repository.CargoRepository;
 import br.edu.ifg.numbers.gpatri.msusuarios.repository.UserRepository;
 import org.slf4j.Logger;
