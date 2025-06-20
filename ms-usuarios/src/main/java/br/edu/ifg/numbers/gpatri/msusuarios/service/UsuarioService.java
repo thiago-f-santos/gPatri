@@ -34,15 +34,8 @@ public class UsuarioService {
         this.cargoRepository = cargoRepository;
         this.usuarioMapper = usuarioMapper;
         this.passwordEncoder = passwordEncoder;
-
-    @Autowired
-    public UsuarioService(UserRepository userRepository, CargoRepository cargoRepository, UsuarioMapper usuarioMapper) {
-        this.userRepository = userRepository;
-        this.cargoRepository = cargoRepository;
-        this.usuarioMapper = usuarioMapper;
     }
 
-    //Criar um novo usuário;
     @Transactional
     public UserResponseDTO criarUsuario(UserRequestDTO userRequestDTO) {
         //Verificar se ja existe um usuário com o mesmo email;
@@ -56,11 +49,6 @@ public class UsuarioService {
         Usuario usuario = usuarioMapper.toEntity(userRequestDTO, cargo);
 
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
-
-        Cargo cargo = cargoRepository.findById(userRequestDTO.getIdCargo())
-                .orElseThrow(() -> new BadRequestException("Cargo de ID '" + userRequestDTO.getIdCargo() + "' não foi encontrado."));
-
-        Usuario usuario = usuarioMapper.toEntity(userRequestDTO, cargo);
 
         Usuario novoUsuario = userRepository.save(usuario);
 
@@ -97,10 +85,6 @@ public class UsuarioService {
         if(userUpdateDTO.getCargo() != null && !usuario.getCargo().getId().equals(userUpdateDTO.getCargo())) {
             cargo = cargoRepository.findByNome(userUpdateDTO.getCargo())
                     .orElseThrow(() -> new BadRequestException("Cargo de ID '" + userUpdateDTO.getCargo() + "' não foi encontrado."));
-
-        if(userUpdateDTO.getIdCargo() != null && !usuario.getCargo().getId().equals(userUpdateDTO.getIdCargo())) {
-            cargo = cargoRepository.findById(userUpdateDTO.getIdCargo())
-                    .orElseThrow(() -> new BadRequestException("Cargo de ID '" + userUpdateDTO.getIdCargo() + "' não foi encontrado."));
         }
 
         usuarioMapper.updateEntityFromDto(userUpdateDTO, usuario, cargo);
