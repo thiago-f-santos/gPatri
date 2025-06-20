@@ -1,5 +1,8 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.dto;
 
+import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.CondicaoProduto;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,8 +13,11 @@ public class ItemPatrimonioUpdateDTO {
 
     private UUID idPatrimonio;
 
-    private UUID idCondicao;
+    private CondicaoProduto condicaoProduto;
 
-    private boolean emUso;
+    private String condicaoDescricao;
+
+    @Min(value = 0, message = "A quantidade não pode ser menor que 0")
+    private Integer quantidade;
 
 }

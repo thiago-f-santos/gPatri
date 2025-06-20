@@ -1,4 +1,5 @@
 package br.edu.ifg.numbers.gpatri.msusuarios.service;
+
 import br.edu.ifg.numbers.gpatri.msusuarios.domain.Cargo;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoRequestDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoResponseDTO;

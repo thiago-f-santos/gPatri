@@ -1,6 +1,7 @@
 package br.edu.ifg.numbers.gpatri.msusuarios.domain;
 
 import jakarta.persistence.Entity;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,6 +14,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "usuarios")

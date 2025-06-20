@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -30,4 +32,6 @@ public class UserRequestDTO {
     @NotBlank(message = "O nome do cargo é obrigatório")
     @Size(min = 3, max = 50, message = "O nome do cargo deve ter entre 3 e 50 caracteres")
     private String cargo;
+    private UUID idCargo;
+  
 }

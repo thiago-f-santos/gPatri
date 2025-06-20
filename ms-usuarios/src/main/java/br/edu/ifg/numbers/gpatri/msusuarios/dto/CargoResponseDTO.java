@@ -15,4 +15,5 @@ public class CargoResponseDTO {
     private UUID id;
     private String nome;
     private Set<String> permissoes;
+
 }

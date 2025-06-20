@@ -2,6 +2,7 @@ package br.edu.ifg.numbers.gpatri.msusuarios.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,4 +21,5 @@ public class CargoRequestDTO {
 
     @NotEmpty(message = "As permissões são obrigatórias")
     private Set<String> permissoes;
+
 }

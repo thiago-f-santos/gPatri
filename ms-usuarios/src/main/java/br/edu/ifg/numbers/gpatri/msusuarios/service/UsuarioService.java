@@ -14,6 +14,7 @@ import br.edu.ifg.numbers.gpatri.msusuarios.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,6 +34,12 @@ public class UsuarioService {
         this.cargoRepository = cargoRepository;
         this.usuarioMapper = usuarioMapper;
         this.passwordEncoder = passwordEncoder;
+
+    @Autowired
+    public UsuarioService(UserRepository userRepository, CargoRepository cargoRepository, UsuarioMapper usuarioMapper) {
+        this.userRepository = userRepository;
+        this.cargoRepository = cargoRepository;
+        this.usuarioMapper = usuarioMapper;
     }
 
     //Criar um novo usuário;
@@ -50,20 +57,22 @@ public class UsuarioService {
 
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
 
+        Cargo cargo = cargoRepository.findById(userRequestDTO.getIdCargo())
+                .orElseThrow(() -> new BadRequestException("Cargo de ID '" + userRequestDTO.getIdCargo() + "' não foi encontrado."));
+
+        Usuario usuario = usuarioMapper.toEntity(userRequestDTO, cargo);
+
         Usuario novoUsuario = userRepository.save(usuario);
 
         return usuarioMapper.toDto(novoUsuario);
     }
 
-    //Buscar um usuário pelo ID;
     public UserResponseDTO buscarPid(UUID id) {
-        //Verificar se o usuário existe se não lançar uma exceção;
         Usuario usuario = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário de ID '" + id + "' não encontrado."));
         return usuarioMapper.toDto(usuario);
     }
 
-    //Buscar todos os usuários;
     public List<UserResponseDTO> buscarTodos() {
         //Buscar todos os usuários do banco de dados;
         List<Usuario> usuarios = userRepository.findAll();
@@ -88,6 +97,10 @@ public class UsuarioService {
         if(userUpdateDTO.getCargo() != null && !usuario.getCargo().getId().equals(userUpdateDTO.getCargo())) {
             cargo = cargoRepository.findByNome(userUpdateDTO.getCargo())
                     .orElseThrow(() -> new BadRequestException("Cargo de ID '" + userUpdateDTO.getCargo() + "' não foi encontrado."));
+
+        if(userUpdateDTO.getIdCargo() != null && !usuario.getCargo().getId().equals(userUpdateDTO.getIdCargo())) {
+            cargo = cargoRepository.findById(userUpdateDTO.getIdCargo())
+                    .orElseThrow(() -> new BadRequestException("Cargo de ID '" + userUpdateDTO.getIdCargo() + "' não foi encontrado."));
         }
 
         usuarioMapper.updateEntityFromDto(userUpdateDTO, usuario, cargo);

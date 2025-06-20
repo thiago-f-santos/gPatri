@@ -5,16 +5,17 @@ import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoRequestDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoResponseDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.enums.PermissaoEnum;
 import br.edu.ifg.numbers.gpatri.msusuarios.exception.BadRequestException;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.List;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface CargoMapper {
@@ -32,7 +33,6 @@ public interface CargoMapper {
 
     @Mapping(target = "id", ignore = true)
     void updateEntityFromDto(CargoRequestDTO dto, @MappingTarget Cargo cargo);
-
     default Set<String> convertPermissoesToString(Set<PermissaoEnum> permissoes) {
         if (permissoes == null) {
             return Collections.emptySet();
@@ -57,4 +57,5 @@ public interface CargoMapper {
                 })
                 .collect(Collectors.toSet());
     }
+  
 }

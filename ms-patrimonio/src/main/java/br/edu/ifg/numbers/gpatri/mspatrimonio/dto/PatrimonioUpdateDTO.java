@@ -1,6 +1,8 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.dto;
 
+import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.TipoControle;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,5 +19,7 @@ public class PatrimonioUpdateDTO {
     private Double precoEstimado;
 
     private UUID idCategoria;
+
+    private TipoControle tipoControle;
 
 }

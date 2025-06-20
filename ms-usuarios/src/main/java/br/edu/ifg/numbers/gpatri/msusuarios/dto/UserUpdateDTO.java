@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -21,4 +23,7 @@ public class UserUpdateDTO {
 
     @Size(max = 50, message = "O nome do cargo deve ter no máximo 50 caracteres")
     private String cargo;
+
+    private UUID idCargo;
+  
 }

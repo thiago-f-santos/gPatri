@@ -1,5 +1,6 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.dto;
 
+import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.CondicaoProduto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,8 +13,10 @@ public class ItemPatrimonioResponseDTO {
 
     private PatrimonioResponseDTO patrimonio;
 
-    private CondicaoResponseDTO condicao;
+    private CondicaoProduto condicaoProduto;
 
-    private boolean emUso;
+    private String condicaoDescricao;
+
+    private Integer quantidade;
 
 }

@@ -1,5 +1,6 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.domain;
 
+import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.CondicaoProduto;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,12 +21,15 @@ public class ItemPatrimonio {
     @JoinColumn(name = "id_patrimonio")
     private Patrimonio patrimonio;
 
-    @ManyToOne
-    @JoinColumn(name = "id_condicao")
-    private Condicao condicao;
+    @Column(name = "condicao_produto")
+    @Enumerated(EnumType.STRING)
+    private CondicaoProduto condicaoProduto;
 
-    @Column(name = "em_uso", columnDefinition = "boolean")
-    private boolean emUso;
+    @Column(name = "condicao_descricao")
+    private String condicaoDescricao;
+
+    @Column(name = "quantidade")
+    private Integer quantidade;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
