@@ -17,6 +17,8 @@ public interface ItemEmprestimoMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "emprestimo", ignore = true)
     @Mapping(target = "itemPatrimonio", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     ItemEmprestimo createDtoToItemEmprestimo(ItemEmprestimoCreateDTO itemEmprestimoCreateDTO);
 
     @Mapping(target = "itemPatrimonio", source = "itemPatrimonio")

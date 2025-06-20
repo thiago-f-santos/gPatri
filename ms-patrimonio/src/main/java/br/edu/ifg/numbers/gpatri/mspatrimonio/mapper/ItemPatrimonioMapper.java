@@ -20,6 +20,7 @@ public interface ItemPatrimonioMapper {
     @Mapping(target = "updatedAt", ignore = true)
     ItemPatrimonio createDtoToItemPatrimonio(ItemPatrimonioCreateDTO itemPatrimonioCreateDTO);
 
+    @Mapping(target = "patrimonio", source = "patrimonio")
     ItemPatrimonioResponseDTO itemPatrimonioToPatrimonioResponseDto(ItemPatrimonio itemPatrimonio);
 
 }

@@ -11,8 +11,16 @@ import org.mapstruct.*;
 public interface CategoriaMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "categoriaMae", ignore = true)
+    @Mapping(target = "subcategorias", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     Categoria createDtoToCategoria(CategoriaCreateDTO categoriaCreateDTO);
 
+    @Mapping(target = "categoriaMae", ignore = true)
+    @Mapping(target = "subcategorias", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     Categoria responseDtoToCategoria(CategoriaResponseDTO categoriaResponseDTO);
 
     @Mapping(target = "idCategoriaMae", source = "categoriaMae.id")

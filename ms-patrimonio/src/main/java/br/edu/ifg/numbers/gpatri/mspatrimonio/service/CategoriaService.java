@@ -74,13 +74,11 @@ public class CategoriaService {
         categoriaRepository.delete(categoria);
     }
 
-    @Transactional(readOnly = true)
     public CategoriaResponseDTO findById(UUID id) {
         Categoria categoria = categoriaRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Categoria não foi encontrada"));
         return categoriaMapper.categoriaToCategoriaResponseDTO(categoria);
     }
 
-    @Transactional(readOnly = true)
     public List<CategoriaResponseDTO> findAll() {
         List<Categoria> categorias = categoriaRepository.findAll();
         return categorias.stream().map(categoriaMapper::categoriaToCategoriaResponseDTO).toList();

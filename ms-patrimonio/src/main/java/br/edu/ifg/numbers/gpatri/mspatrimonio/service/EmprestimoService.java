@@ -115,17 +115,6 @@ public class EmprestimoService {
         emprestimoRepository.delete(emprestimo);
     }
 
-    public EmprestimoResponseDTO findById(UUID idEmprestimo) {
-        Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
-                () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
-        return emprestimoMapper.emprestimoToEmprestimoResponseDto(emprestimo);
-    }
-
-    public List<EmprestimoResponseDTO> findAll() {
-        List<Emprestimo> emprestimos = emprestimoRepository.findAll();
-        return emprestimos.stream().map(emprestimoMapper::emprestimoToEmprestimoResponseDto).toList();
-    }
-
     @Transactional
     public EmprestimoResponseDTO aprovarEmprestimo(UUID idEmprestimo) {
         Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
@@ -159,4 +148,16 @@ public class EmprestimoService {
 
         return emprestimoMapper.emprestimoToEmprestimoResponseDto(emprestimo);
     }
+
+    public EmprestimoResponseDTO findById(UUID idEmprestimo) {
+        Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
+        return emprestimoMapper.emprestimoToEmprestimoResponseDto(emprestimo);
+    }
+
+    public List<EmprestimoResponseDTO> findAll() {
+        List<Emprestimo> emprestimos = emprestimoRepository.findAll();
+        return emprestimos.stream().map(emprestimoMapper::emprestimoToEmprestimoResponseDto).toList();
+    }
+
 }
