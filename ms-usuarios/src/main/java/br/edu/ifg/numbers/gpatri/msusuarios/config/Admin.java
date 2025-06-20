@@ -10,8 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -22,13 +25,13 @@ public class Admin implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final CargoRepository cargoRepository;
-    private final PasswordEncoderConfig passwordEncoderConfig;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public Admin(UserRepository userRepository, CargoRepository cargoRepository, PasswordEncoderConfig passwordEncoderConfig) {
+    public Admin(UserRepository userRepository, CargoRepository cargoRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.cargoRepository = cargoRepository;
-        this.passwordEncoderConfig = passwordEncoderConfig;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -49,7 +52,7 @@ public class Admin implements CommandLineRunner {
                 adminUsuario.setNome("Administrador");
                 adminUsuario.setSobrenome("Geral");
                 adminUsuario.setEmail("admin@gmail.com");
-                adminUsuario.setSenha(passwordEncoderConfig.passwordEncoder().encode("senha123"));
+                adminUsuario.setSenha(passwordEncoder.encode("senha123"));
                 adminUsuario.setCargo(cargoAdmin);
 
                 userRepository.save(adminUsuario);
@@ -69,7 +72,7 @@ public class Admin implements CommandLineRunner {
     private void cargoAdmin(String nomeCargo) {
         if (cargoRepository.findByNome(nomeCargo).isEmpty()) {
             Cargo cargo = new Cargo(nomeCargo);
-            Set<PermissaoEnum> permissoes = CargoPermissaoProvider.getPermissoes(nomeCargo);
+            Set<PermissaoEnum> permissoes = new HashSet<>(Arrays.asList(PermissaoEnum.values()));
             cargo.setPermissoes(permissoes);
             cargoRepository.save(cargo);
         } else {

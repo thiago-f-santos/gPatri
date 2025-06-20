@@ -1,6 +1,4 @@
 package br.edu.ifg.numbers.gpatri.msusuarios.service;
-
-import br.edu.ifg.numbers.gpatri.msusuarios.config.CargoPermissaoProvider;
 import br.edu.ifg.numbers.gpatri.msusuarios.domain.Cargo;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoRequestDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.CargoResponseDTO;
@@ -15,7 +13,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -30,9 +27,6 @@ public class CargoService {
         this.cargoMapper = cargoMapper;
     }
 
-    // Criar um novo cargo no sistema;
-    // Não sei como vai funcionar as permissões aqui ainda, por enquanto ainda não tem nenhuma validação.
-    // Futuramente provavelmente vai ser necessário um usuário com cargo específico para criar cargos.
     @Transactional
     public CargoResponseDTO criarCargo(CargoRequestDTO cargoRequestDTO) {
         // Verifica se já existe um cargo com o mesmo nome
@@ -41,9 +35,6 @@ public class CargoService {
         }
 
         Cargo cargo = cargoMapper.toEntity(cargoRequestDTO);
-
-        Set<PermissaoEnum> permissoes = CargoPermissaoProvider.getPermissoes(cargoRequestDTO.getNome());
-        cargo.setPermissoes(permissoes);
 
         Cargo cargoSalvo = cargoRepository.save(cargo);
 
@@ -81,7 +72,6 @@ public class CargoService {
         }
 
         cargoMapper.updateEntityFromDto(cargoRequestDTO, cargo);
-        Set<PermissaoEnum> permissoes = CargoPermissaoProvider.getPermissoes(cargoRequestDTO.getNome());
         Cargo cargoAtualizado = cargoRepository.save(cargo);
         return cargoMapper.toDto(cargoAtualizado);
     }
