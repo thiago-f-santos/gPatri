@@ -1,16 +1,16 @@
 package br.edu.ifg.numbers.gpatri.msusuarios.security;
 
+import br.edu.ifg.numbers.gpatri.msusuarios.domain.Usuario;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -25,23 +25,24 @@ public class JwtTokenProvider {
     private String jwtSecret;
 
     @Value("${app.jwtExpirationMs}")
-    private int jwtExpirationMs;
+    private long jwtExpirationMs;
 
     public String generateToken(Authentication authentication) {
-        UserDetails userPrincipal = (UserDetails) authentication.getPrincipal();
+        Usuario userPrincipal = (Usuario) authentication.getPrincipal();
 
         String authorities = userPrincipal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
-        Algorithm algoritimo = Algorithm.HMAC512(jwtSecret);
+        Algorithm algoritmo = Algorithm.HMAC512(jwtSecret);
 
         return JWT.create()
                 .withSubject(userPrincipal.getUsername())
+                .withClaim("userId", userPrincipal.getId().toString())
                 .withClaim("permissoes", authorities)
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date((new Date()).getTime() + jwtExpirationMs))
-                .sign(algoritimo);
+                .sign(algoritmo);
     }
 
     public boolean validaToken(String token) {
@@ -51,9 +52,9 @@ public class JwtTokenProvider {
             verifier.verify(token);
             return true;
         } catch (JWTVerificationException e) {
-            logger.error("Token inválido ou expirado: ", e.getMessage());
+            logger.error("Token inválido ou expirado: {}", e.getMessage());
         } catch (Exception e) {
-            logger.error("Erro ao validar token: ", e.getMessage());
+            logger.error("Erro ao validar token: {}", e.getMessage());
         }
         return false;
     }
@@ -63,7 +64,7 @@ public class JwtTokenProvider {
             DecodedJWT jwt = JWT.decode(token);
             return jwt.getSubject();
         } catch (JWTVerificationException e) {
-            logger.error("Erro ao decodificar o token: ", e.getMessage());
+            logger.error("Erro ao decodificar o token: {}", e.getMessage());
             return null;
         }
     }
@@ -73,7 +74,7 @@ public class JwtTokenProvider {
             DecodedJWT jwt = JWT.decode(token);
             return jwt.getClaim("permissoes").asString();
         } catch (JWTVerificationException e) {
-            logger.error("Erro ao decodificar o token: ", e.getMessage());
+            logger.error("Erro ao decodificar o token: {}", e.getMessage());
             return null;
         }
     }

@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/cargos")
+@RequestMapping("/api/v1/cargos")
 public class CargoController {
 
     private final CargoService cargoService;

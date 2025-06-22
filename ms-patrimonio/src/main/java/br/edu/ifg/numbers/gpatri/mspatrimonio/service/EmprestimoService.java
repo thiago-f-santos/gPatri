@@ -160,4 +160,9 @@ public class EmprestimoService {
         return emprestimos.stream().map(emprestimoMapper::emprestimoToEmprestimoResponseDto).toList();
     }
 
+    public boolean isOwner(UUID idEmprestimo, UUID idUsuario) {
+        Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(() -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
+        return emprestimo.getIdUsuario().equals(idUsuario);
+    }
+
 }

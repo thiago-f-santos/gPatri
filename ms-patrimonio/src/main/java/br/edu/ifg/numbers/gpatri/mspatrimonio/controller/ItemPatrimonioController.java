@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -34,6 +35,7 @@ public class ItemPatrimonioController {
             @ApiResponse(responseCode = "404", description = "Patrimônio ou Condição não encontrada"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
+    @PreAuthorize("hasAuthority('CADASTRAR_ITEM_PATRIMONIO')")
     @PostMapping
     public ResponseEntity<ItemPatrimonioResponseDTO> save(@RequestBody @Valid ItemPatrimonioCreateDTO itemPatrimonioCreateDTO){
         ItemPatrimonioResponseDTO itemPatrimonioResponseDTO = itemPatrimonioService.save(itemPatrimonioCreateDTO);
@@ -47,6 +49,7 @@ public class ItemPatrimonioController {
             @ApiResponse(responseCode = "404", description = "Item Patrimônio / Patrimônio / Condição não encontrada"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
+    @PreAuthorize("hasAuthority('EDITAR_ITEM_PATRIMONIO')")
     @PutMapping("/{id}")
     public ResponseEntity<ItemPatrimonioResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid ItemPatrimonioUpdateDTO itemPatrimonioUpdateDTO) {
         ItemPatrimonioResponseDTO itemPatrimonioResponseDTO = itemPatrimonioService.update(id, itemPatrimonioUpdateDTO);
@@ -59,6 +62,7 @@ public class ItemPatrimonioController {
             @ApiResponse(responseCode = "404", description = "Item Patrimônio não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
+    @PreAuthorize("hasAuthority('EXCLUIR_ITEM_PATRIMONIO')")
     @DeleteMapping("/{id}")
     public ResponseEntity<ItemPatrimonioResponseDTO> delete(@PathVariable UUID id) {
         itemPatrimonioService.deleteById(id);
@@ -71,6 +75,7 @@ public class ItemPatrimonioController {
             @ApiResponse(responseCode = "404", description = "Item Patrimônio não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
+    @PreAuthorize("hasAuthority('LISTAR_ITEM_PATRIMONIO')")
     @GetMapping("/{id}")
     public ResponseEntity<ItemPatrimonioResponseDTO> findById(@PathVariable UUID id) {
         ItemPatrimonioResponseDTO itemPatrimonioResponseDTO = itemPatrimonioService.findById(id);
@@ -82,6 +87,7 @@ public class ItemPatrimonioController {
             @ApiResponse(responseCode = "200", description = "Item Patrimonio retornado com sucesso"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
+    @PreAuthorize("hasAuthority('LISTAR_ITEM_PATRIMONIO')")
     @GetMapping
     public ResponseEntity<List<ItemPatrimonioResponseDTO>> findAll() {
         List<ItemPatrimonioResponseDTO> itensPatrimonio = itemPatrimonioService.findAll();

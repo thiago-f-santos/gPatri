@@ -1,4 +1,4 @@
-package br.edu.ifg.numbers.gpatri.msusuarios.config;
+package br.edu.ifg.numbers.gpatri.mspatrimonio.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
