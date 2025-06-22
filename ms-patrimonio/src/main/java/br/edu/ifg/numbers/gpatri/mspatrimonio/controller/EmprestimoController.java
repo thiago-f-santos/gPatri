@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -34,6 +35,7 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "404", description = "Item Patrimonio não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
+    @PreAuthorize("hasAuthority('SOLICITAR_EMPRESTIMO')")
     @PostMapping
     public ResponseEntity<EmprestimoResponseDTO> save(@RequestBody @Valid EmprestimoCreateDTO emprestimoCreateDTO) {
         EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.save(emprestimoCreateDTO);
@@ -47,6 +49,7 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "404", description = "Emprestimo não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
+    @PreAuthorize("hasAuthority('ATUALIZAR_TODOS_EMPRESTIMOS') or (hasAuthority('ATUALIZAR_EMPRESTIMO') and @emprestimoService.isOwner(#id, authentication.principal.id))")
     @PutMapping("/{id}")
     public ResponseEntity<EmprestimoResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid EmprestimoUpdateDTO emprestimoUpdateDTO) {
         EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.update(id, emprestimoUpdateDTO);
@@ -59,6 +62,7 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "404", description = "Emprestimo não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
+    @PreAuthorize("hasAuthority('DELETAR_TODOS_EMPRESTIMOS') or (hasAuthority('DELETAR_EMPRESTIMO') and @emprestimoService.isOwner(#id, authentication.principal.id))")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         emprestimoService.delete(id);
@@ -71,6 +75,7 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "404", description = "Emprestimo não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
+    @PreAuthorize("hasAuthority('VISUALIZAR_TODOS_EMPRESTIMOS') or (hasAuthority('VISUALIZAR_EMPRESTIMO') and @emprestimoService.isOwner(#id, authentication.principal.id))")
     @GetMapping("/{id}")
     public ResponseEntity<EmprestimoResponseDTO> findEmprestimoById(@PathVariable UUID id) {
         EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.findById(id);
@@ -82,6 +87,7 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
+    @PreAuthorize("hasAuthority('VISUALIZAR_TODOS_EMPRESTIMOS')")
     @GetMapping
     public ResponseEntity<List<EmprestimoResponseDTO>> findAll() {
         List<EmprestimoResponseDTO> emprestimos = emprestimoService.findAll();
@@ -94,6 +100,7 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "404", description = "Emprestimo não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
+    @PreAuthorize("hasAuthority('LIBERAR_EMPRESTIMO')")
     @PatchMapping("/{id}/aprovar")
     public ResponseEntity<EmprestimoResponseDTO> aprovar(@PathVariable UUID id) {
         EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.aprovarEmprestimo(id);
@@ -107,6 +114,7 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "404", description = "Item Patrimonio não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
+    @PreAuthorize("hasAuthority('LIBERAR_EMPRESTIMO')")
     @PatchMapping("/{id}/negar")
     public ResponseEntity<EmprestimoResponseDTO> negar(@PathVariable UUID id) {
         EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.negarEmprestimo(id);
