@@ -35,7 +35,7 @@ public class PatrimonioController {
             @ApiResponse(responseCode = "404", description = "Categoria não encontrada"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('CADASTRAR_PATRIMONIO')")
+    @PreAuthorize("hasAuthority('PATRIMONIO_CADASTRAR')")
     @PostMapping
     public ResponseEntity<PatrimonioResponseDTO> save(@RequestBody @Valid PatrimonioCreateDTO patrimonioCreateDTO) {
         PatrimonioResponseDTO patrimonioResponseDTO = patrimonioService.save(patrimonioCreateDTO);
@@ -50,7 +50,7 @@ public class PatrimonioController {
             @ApiResponse(responseCode = "404", description = "Patrimônio ou Categoria não encontrada"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('EDITAR_PATRIMONIO')")
+    @PreAuthorize("hasAuthority('PATRIMONIO_EDITAR')")
     @PutMapping("/{id}")
     public ResponseEntity<PatrimonioResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid PatrimonioUpdateDTO patrimonioUpdateDTO) {
         PatrimonioResponseDTO patrimonioResponseDTO = patrimonioService.update(id, patrimonioUpdateDTO);
@@ -63,7 +63,7 @@ public class PatrimonioController {
             @ApiResponse(responseCode = "404", description = "Patrimônio não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('EXCLUIR_PATRIMONIO')")
+    @PreAuthorize("hasAuthority('PATRIMONIO_EXCLUIR')")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         patrimonioService.deleteById(id);
@@ -76,7 +76,7 @@ public class PatrimonioController {
             @ApiResponse(responseCode = "404", description = "Patrimônio não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('LISTAR_PATRIMONIO')")
+    @PreAuthorize("hasAuthority('PATRIMONIO_LISTAR')")
     @GetMapping("/{id}")
     public ResponseEntity<PatrimonioResponseDTO> findById(@PathVariable UUID id) {
         PatrimonioResponseDTO patrimonioResponseDTO = patrimonioService.findById(id);
@@ -88,7 +88,7 @@ public class PatrimonioController {
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('LISTAR_PATRIMONIO')")
+    @PreAuthorize("hasAuthority('PATRIMONIO_LISTAR')")
     @GetMapping
     public ResponseEntity<List<PatrimonioResponseDTO>> findAll() {
         List<PatrimonioResponseDTO> patrimonioResponseDTO = patrimonioService.findAll();

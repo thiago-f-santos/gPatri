@@ -36,7 +36,7 @@ public class CategoriaController {
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
     @PostMapping
-    @PreAuthorize("hasAuthority('CADASTRAR_CATEGORIA')")
+    @PreAuthorize("hasAuthority('CATEGORIA_CADASTRAR')")
     public ResponseEntity<CategoriaResponseDTO> save(@RequestBody @Valid CategoriaCreateDTO categoriaDTO) {
         CategoriaResponseDTO categoriaResponseDTO = categoriaService.save(categoriaDTO);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(categoriaResponseDTO.getId()).toUri();
@@ -49,7 +49,7 @@ public class CategoriaController {
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
     @GetMapping
-    @PreAuthorize("hasAuthority('LISTAR_CATEGORIA')")
+    @PreAuthorize("hasAuthority('CATEGORIA_LISTAR')")
     public ResponseEntity<List<CategoriaResponseDTO>> findAll() {
         List<CategoriaResponseDTO> categorias = categoriaService.findAll();
         return ResponseEntity.ok().body(categorias);
@@ -62,7 +62,7 @@ public class CategoriaController {
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('LISTAR_CATEGORIA')")
+    @PreAuthorize("hasAuthority('CATEGORIA_LISTAR')")
     public ResponseEntity<CategoriaResponseDTO> findById(@PathVariable UUID id) {
         CategoriaResponseDTO categoria = categoriaService.findById(id);
         return ResponseEntity.ok().body(categoria);
@@ -75,7 +75,7 @@ public class CategoriaController {
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('EDITAR_CATEGORIA')")
+    @PreAuthorize("hasAuthority('CATEGORIA_EDITAR')")
     public ResponseEntity<CategoriaResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid CategoriaUpdateDTO categoriaUpdateDTO) {
         CategoriaResponseDTO categoriaAtualizada = categoriaService.update(id, categoriaUpdateDTO);
         return ResponseEntity.ok().body(categoriaAtualizada);
@@ -88,7 +88,7 @@ public class CategoriaController {
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('EXCLUIR_CATEGORIA')")
+    @PreAuthorize("hasAuthority('CATEGORIA_EXCLUIR')")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         categoriaService.deleteById(id);
         return ResponseEntity.noContent().build();
