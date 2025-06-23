@@ -3,6 +3,7 @@ package br.edu.ifg.numbers.gpatri.msusuarios.controller;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserRequestDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserResponseDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserUpdateDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.UsuarioCargoUpdateDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.service.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -40,7 +41,7 @@ public class UsuarioController {
 
     // Rota para buscar todos os usuários
     @GetMapping
-    @PreAuthorize("hasAuthority('LISTAR_USUARIOS')")
+    @PreAuthorize("hasAuthority('LISTAR_USUARIO')")
     public ResponseEntity<List<UserResponseDTO>> buscarTodos() {
         List<UserResponseDTO> usuarios = usuarioService.buscarTodos();
         return ResponseEntity.ok(usuarios);
@@ -58,5 +59,12 @@ public class UsuarioController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletarUsuario(@PathVariable UUID id) {
         usuarioService.deletarUsuario(id);
+    }
+
+    @PatchMapping("/{id}/cargo")
+    @PreAuthorize("hasAuthority('ATRIBUIR_CARGO')")
+    public ResponseEntity<UserResponseDTO> atribuirCargo(@PathVariable UUID id, @RequestBody @Valid UsuarioCargoUpdateDTO cargoId) {
+        UserResponseDTO usuarioAtualizado = usuarioService.atribuirCargo(id, cargoId);
+        return ResponseEntity.ok(usuarioAtualizado);
     }
 }
