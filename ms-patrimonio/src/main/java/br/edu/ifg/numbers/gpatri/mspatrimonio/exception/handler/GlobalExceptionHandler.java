@@ -1,5 +1,9 @@
-package br.edu.ifg.numbers.gpatri.mspatrimonio.exception;
+package br.edu.ifg.numbers.gpatri.mspatrimonio.exception.handler;
 
+import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.EmprestimoVazioException;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.ItemEmUsoException;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.ItemEmprestimoJaExistenteException;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.QuantidadeItemIndisponivelException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +17,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
 @RestControllerAdvice
-public class ApiExceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ErrorMessage> entityNotFoundException(EntityNotFoundException ex, HttpServletRequest request) {
