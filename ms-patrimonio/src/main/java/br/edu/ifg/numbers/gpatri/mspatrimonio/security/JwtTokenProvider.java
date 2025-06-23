@@ -5,17 +5,15 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+@Slf4j
 @Component
 public class JwtTokenProvider {
-
-    private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);
 
     @Value("${app.jwtSecret}")
     private String jwtSecret;
@@ -27,9 +25,9 @@ public class JwtTokenProvider {
             verifier.verify(token); // Tenta verificar a assinatura e a expiração do token
             return true;
         } catch (JWTVerificationException e) {
-            logger.error("Token inválido ou expirado: {}", e.getMessage());
+            log.error("Token inválido ou expirado: {}", e.getMessage());
         } catch (Exception e) {
-            logger.error("Erro ao validar token: {}", e.getMessage());
+            log.error("Erro ao validar token: {}", e.getMessage());
         }
         return false;
     }
@@ -39,7 +37,7 @@ public class JwtTokenProvider {
             DecodedJWT jwt = JWT.decode(token);
             return jwt.getSubject();
         } catch (JWTVerificationException e) {
-            logger.error("Erro ao decodificar o token para obter o username: {}", e.getMessage());
+            log.error("Erro ao decodificar o token para obter o username: {}", e.getMessage());
             return null;
         }
     }
@@ -49,7 +47,7 @@ public class JwtTokenProvider {
             DecodedJWT jwt = JWT.decode(token);
             return jwt.getClaim("permissoes").asString();
         } catch (JWTVerificationException e) {
-            logger.error("Erro ao decodificar o token para obter as permissões: {}", e.getMessage());
+            log.error("Erro ao decodificar o token para obter as permissões: {}", e.getMessage());
             return null;
         }
     }
@@ -63,10 +61,10 @@ public class JwtTokenProvider {
             }
             return null;
         } catch (JWTVerificationException e) {
-            logger.error("Erro ao decodificar o token para obter o userId: {}", e.getMessage());
+            log.error("Erro ao decodificar o token para obter o userId: {}", e.getMessage());
             return null;
         } catch (IllegalArgumentException e) {
-            logger.error("Claim 'userId' no token não é um UUID válido: {}", e.getMessage());
+            log.error("Claim 'userId' no token não é um UUID válido: {}", e.getMessage());
             return null;
         }
     }
