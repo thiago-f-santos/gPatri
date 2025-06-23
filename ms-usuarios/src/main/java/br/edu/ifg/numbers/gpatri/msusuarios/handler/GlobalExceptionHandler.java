@@ -72,6 +72,26 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleBadCredentialsException(BadCredentialsException ex, WebRequest request) {
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                HttpStatus.UNAUTHORIZED,
+                "Email ou senha incorretos.",
+                request.getDescription(false).substring(4)
+        );
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler({AccessDeniedException.class, AuthorizationDeniedException.class})
+    public ResponseEntity<ErrorResponseDTO> handleAuthorizationDeniedException(Exception ex, WebRequest request) {
+        ErrorResponseDTO error = new ErrorResponseDTO(
+                HttpStatus.FORBIDDEN,
+                "Acesso negado. Você não tem permissão para acessar este recurso.",
+                request.getDescription(false).substring(4)
+        );
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> handleGlobalException(Exception ex, WebRequest request) {
         ErrorResponseDTO error = new ErrorResponseDTO(
