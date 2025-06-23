@@ -2,7 +2,6 @@ package br.edu.ifg.numbers.gpatri.mspatrimonio.security;
 
 import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.handler.ErrorMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +24,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
     }
 
     @Override
-    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
         log.error("Acesso negado: {}", accessDeniedException.getMessage());
 
         response.setStatus(HttpStatus.FORBIDDEN.value());

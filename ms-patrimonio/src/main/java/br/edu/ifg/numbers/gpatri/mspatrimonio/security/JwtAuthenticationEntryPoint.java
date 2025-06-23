@@ -2,7 +2,6 @@ package br.edu.ifg.numbers.gpatri.mspatrimonio.security;
 
 import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.handler.ErrorMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +24,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     }
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         log.error("Erro de autenticação: {}", authException.getMessage());
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
