@@ -164,7 +164,8 @@ public class EmprestimoService {
     }
 
     public boolean isOwner(UUID idEmprestimo, UUID idUsuario) {
-        Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(() -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
+        Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
         return emprestimo.getIdUsuario().equals(idUsuario);
     }
 
