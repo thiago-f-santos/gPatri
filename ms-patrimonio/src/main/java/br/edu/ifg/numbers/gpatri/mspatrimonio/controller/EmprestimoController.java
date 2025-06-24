@@ -3,6 +3,7 @@ package br.edu.ifg.numbers.gpatri.mspatrimonio.controller;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoResponseDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoUpdateDTO;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.security.JwtAuthenticationFilter;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.service.EmprestimoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,6 +13,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -38,7 +41,15 @@ public class EmprestimoController {
     @PreAuthorize("hasAuthority('EMPRESTIMO_SOLICITAR')")
     @PostMapping
     public ResponseEntity<EmprestimoResponseDTO> save(@RequestBody @Valid EmprestimoCreateDTO emprestimoCreateDTO) {
-        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.save(emprestimoCreateDTO);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UUID userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof JwtAuthenticationFilter.CustomUserDetails userDetails) {
+            userId = userDetails.getId();
+        } else {
+            throw new IllegalStateException("Usuário não autenticado ou principal inválido (esperado CustomUserDetails).");
+        }
+
+        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.save(userId, emprestimoCreateDTO);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(emprestimoResponseDTO.getId()).toUri();
         return ResponseEntity.created(location).body(emprestimoResponseDTO);
     }
@@ -101,9 +112,17 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
     @PreAuthorize("hasAuthority('EMPRESTIMO_LIBERAR')")
-    @PatchMapping("/{id}/aprovar")
-    public ResponseEntity<EmprestimoResponseDTO> aprovar(@PathVariable UUID id) {
-        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.aprovarEmprestimo(id);
+    @PatchMapping("/{idEmprestimo}/aprovar")
+    public ResponseEntity<EmprestimoResponseDTO> aprovar(@PathVariable UUID idEmprestimo) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UUID userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof JwtAuthenticationFilter.CustomUserDetails userDetails) {
+            userId = userDetails.getId();
+        } else {
+            throw new IllegalStateException("Usuário não autenticado ou principal inválido (esperado CustomUserDetails).");
+        }
+
+        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.aprovarEmprestimo(userId, idEmprestimo);
         return ResponseEntity.ok(emprestimoResponseDTO);
     }
 
@@ -115,9 +134,17 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
     @PreAuthorize("hasAuthority('EMPRESTIMO_LIBERAR')")
-    @PatchMapping("/{id}/negar")
-    public ResponseEntity<EmprestimoResponseDTO> negar(@PathVariable UUID id) {
-        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.negarEmprestimo(id);
+    @PatchMapping("/{idEmprestimo}/negar")
+    public ResponseEntity<EmprestimoResponseDTO> negar(@PathVariable UUID idEmprestimo) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UUID userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof JwtAuthenticationFilter.CustomUserDetails userDetails) {
+            userId = userDetails.getId();
+        } else {
+            throw new IllegalStateException("Usuário não autenticado ou principal inválido (esperado CustomUserDetails).");
+        }
+
+        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.negarEmprestimo(userId, idEmprestimo);
         return ResponseEntity.ok(emprestimoResponseDTO);
     }
 }
