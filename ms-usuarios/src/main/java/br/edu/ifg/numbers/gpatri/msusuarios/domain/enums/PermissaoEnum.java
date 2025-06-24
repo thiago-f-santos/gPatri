@@ -12,6 +12,7 @@ public enum PermissaoEnum {
     CARGO_EDITAR,
     CARGO_EXCLUIR,
     CARGO_LISTAR,
+    CARGO_ATRIBUIR,
 
     // EMPRESTIMOS
     EMPRESTIMO_SOLICITAR,

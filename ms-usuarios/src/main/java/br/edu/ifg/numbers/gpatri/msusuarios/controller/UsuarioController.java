@@ -5,6 +5,9 @@ import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserResponseDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserUpdateDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UsuarioCargoUpdateDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +28,12 @@ public class UsuarioController {
     }
 
     //Rota para criar um novo usuário
+    @Operation(summary = "Salva um novo usuario no banco de dados")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Usuario salvo com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Campos inválidos para criação"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado"),
+    })
     @PostMapping
     public ResponseEntity<UserResponseDTO> criarUsuario(@RequestBody @Valid UserRequestDTO userRequestDTO) {
         UserResponseDTO novoUsuario = usuarioService.criarUsuario(userRequestDTO);
@@ -32,37 +41,64 @@ public class UsuarioController {
     }
 
     // Rota para buscar um usuário pelo ID
+    @Operation(summary = "Retorna um usuario por ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario retornado com sucesso"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado, usuário não possui permissão"),
+            @ApiResponse(responseCode = "404", description = "Usuario não encontrado"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado"),
+    })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('VISUALIZAR_USUARIO')")
+    @PreAuthorize("hasAuthority('USUARIO_LISTAR')")
     public ResponseEntity<UserResponseDTO> buscarPorId(@PathVariable UUID id) {
         UserResponseDTO usuario = usuarioService.buscarPid(id);
         return ResponseEntity.ok(usuario);
     }
 
     // Rota para buscar todos os usuários
+    @Operation(summary = "Retorna uma lista de usuarios")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de usuarios retornada com sucesso"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado, usuário não possui permissão"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado"),
+    })
     @GetMapping
-    @PreAuthorize("hasAuthority('LISTAR_USUARIO')")
+    @PreAuthorize("hasAuthority('USUARIO_LISTAR')")
     public ResponseEntity<List<UserResponseDTO>> buscarTodos() {
         List<UserResponseDTO> usuarios = usuarioService.buscarTodos();
         return ResponseEntity.ok(usuarios);
     }
 
+    @Operation(summary = "Atualiza um usuario")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario atualizado com sucesso"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado, usuário não possui permissão"),
+            @ApiResponse(responseCode = "404", description = "Usuario não encontrado"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado"),
+    })
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAuthority('EDITAR_USUARIO')")
+    @PreAuthorize("hasAuthority('USUARIO_EDITAR')")
     public ResponseEntity<UserResponseDTO> atualizarUsuario(@PathVariable UUID id, @RequestBody @Valid UserUpdateDTO userUpdateDTO) {
         UserResponseDTO usuarioAtualizado = usuarioService.atualizarUsuario(id, userUpdateDTO);
         return ResponseEntity.ok(usuarioAtualizado);
     }
 
+    @Operation(summary = "Deleta um usuario")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Usuario deletado com sucesso"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado, usuário não possui permissão"),
+            @ApiResponse(responseCode = "404", description = "Usuario não encontrado"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado"),
+    })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('EXCLUIR_USUARIO')")
+    @PreAuthorize("hasAuthority('USUARIO_EXCLUIR')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletarUsuario(@PathVariable UUID id) {
         usuarioService.deletarUsuario(id);
     }
 
     @PatchMapping("/{id}/cargo")
-    @PreAuthorize("hasAuthority('ATRIBUIR_CARGO')")
+    @PreAuthorize("hasAuthority('CARGO_ATRIBUIR')")
     public ResponseEntity<UserResponseDTO> atribuirCargo(@PathVariable UUID id, @RequestBody @Valid UsuarioCargoUpdateDTO cargoId) {
         UserResponseDTO usuarioAtualizado = usuarioService.atribuirCargo(id, cargoId);
         return ResponseEntity.ok(usuarioAtualizado);
