@@ -3,7 +3,10 @@ package br.edu.ifg.numbers.gpatri.mspatrimonio.mapper;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.Patrimonio;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.PatrimonioCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.PatrimonioResponseDTO;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
