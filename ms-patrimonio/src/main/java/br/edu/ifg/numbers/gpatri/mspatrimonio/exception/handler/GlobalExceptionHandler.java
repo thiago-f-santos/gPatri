@@ -85,4 +85,12 @@ public class GlobalExceptionHandler {
                 .body(new ErrorMessage(request, HttpStatus.NOT_ACCEPTABLE, ex.getMessage()));
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorMessage> illegalStateException(IllegalStateException ex, HttpServletRequest request) {
+        log.error("Illegal State - ", ex);
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorMessage(request, HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage()));
+    }
+
 }
