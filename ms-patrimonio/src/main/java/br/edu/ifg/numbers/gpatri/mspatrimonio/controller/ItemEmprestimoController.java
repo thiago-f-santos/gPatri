@@ -33,7 +33,7 @@ public class ItemEmprestimoController {
             @ApiResponse(responseCode = "404", description = "Item Patrimonio não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('ATUALIZAR_TODOS_EMPRESTIMOS') or (hasAuthority('ATUALIZAR_EMPRESTIMO') and @emprestimoService.isOwner(#idEmprestimo, authentication.principal.id))")
+    @PreAuthorize("hasAuthority('EMPRESTIMO_EDITAR_TODOS') or (hasAuthority('EMPRESTIMO_EDITAR') and @emprestimoService.isOwner(#idEmprestimo, authentication.principal.id))")
     @PostMapping("/adicionar/{idEmprestimo}")
     public ResponseEntity<ItemEmprestimoResponseDTO> adicionaItemEmprestimo(@PathVariable UUID idEmprestimo, @RequestBody ItemEmprestimoCreateDTO itemEmprestimoCreateDTO) {
         ItemEmprestimoResponseDTO itemEmprestimoResponseDTO = itemEmprestimoService.adicionaItemEmprestimo(idEmprestimo, itemEmprestimoCreateDTO);
@@ -48,7 +48,7 @@ public class ItemEmprestimoController {
             @ApiResponse(responseCode = "404", description = "Item Patrimonio não encontrado no empréstimo indicado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('ATUALIZAR_TODOS_EMPRESTIMOS') or (hasAuthority('ATUALIZAR_EMPRESTIMO') and @emprestimoService.isOwner(#idEmprestimo, authentication.principal.id))")
+    @PreAuthorize("hasAuthority('EMPRESTIMO_EDITAR_TODOS') or (hasAuthority('EMPRESTIMO_EDITAR') and @emprestimoService.isOwner(#idEmprestimo, authentication.principal.id))")
     @PutMapping("/modificar/{idEmprestimo}")
     public ResponseEntity<ItemEmprestimoResponseDTO> modificarItemEmprestimo(@PathVariable UUID idEmprestimo, @RequestBody ItemEmprestimoUpdateDTO itemEmprestimoUpdateDTO) {
         ItemEmprestimoResponseDTO itemEmprestimoResponseDTO = itemEmprestimoService.atualizaItemEmprestimo(idEmprestimo, itemEmprestimoUpdateDTO);
@@ -62,7 +62,7 @@ public class ItemEmprestimoController {
             @ApiResponse(responseCode = "404", description = "Item Patrimonio não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('ATUALIZAR_TODOS_EMPRESTIMOS') or (hasAuthority('ATUALIZAR_EMPRESTIMO') and @emprestimoService.isOwner(#idEmprestimo, authentication.principal.id))")
+    @PreAuthorize("hasAuthority('EMPRESTIMO_EDITAR_TODOS') or (hasAuthority('EMPRESTIMO_EDITAR') and @emprestimoService.isOwner(#idEmprestimo, authentication.principal.id))")
     @DeleteMapping("/remover/{idEmprestimo}/{idItemPatrimonio}")
     public ResponseEntity<Void> removeItemEmprestimo(@PathVariable UUID idEmprestimo, @PathVariable UUID idItemPatrimonio) {
         itemEmprestimoService.apagarItemEmprestimo(idEmprestimo, idItemPatrimonio);
@@ -75,7 +75,7 @@ public class ItemEmprestimoController {
             @ApiResponse(responseCode = "404", description = "Item Patrimonio não encontrado no empréstimo indicado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('VISUALIZAR_TODOS_EMPRESTIMOS') or (hasAuthority('VISUALIZAR_EMPRESTIMO') and @emprestimoService.isOwner(#idEmprestimo, authentication.principal.id))")
+    @PreAuthorize("hasAuthority('EMPRESTIMO_LISTAR_TODOS') or (hasAuthority('EMPRESTIMO_LISTAR') and @emprestimoService.isOwner(#idEmprestimo, authentication.principal.id))")
     @GetMapping("/{idEmprestimo}/{idItemPatrimonio}")
     public ResponseEntity<ItemEmprestimoResponseDTO> findByIdEmprestimoIdItemPatrimonio(@PathVariable UUID idEmprestimo, @PathVariable UUID idItemPatrimonio) {
         ItemEmprestimoResponseDTO itemEmprestimoResponseDTO = itemEmprestimoService.findById(idEmprestimo, idItemPatrimonio);
@@ -87,7 +87,7 @@ public class ItemEmprestimoController {
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('VISUALIZAR_TODOS_EMPRESTIMOS') or (hasAuthority('VISUALIZAR_EMPRESTIMO') and @emprestimoService.isOwner(#idEmprestimo, authentication.principal.id))")
+    @PreAuthorize("hasAuthority('EMPRESTIMO_LISTAR_TODOS') or (hasAuthority('EMPRESTIMO_LISTAR') and @emprestimoService.isOwner(#idEmprestimo, authentication.principal.id))")
     @GetMapping("/{idEmprestimo}")
     public ResponseEntity<List<ItemEmprestimoResponseDTO>> findByIdEmprestimo(@PathVariable UUID idEmprestimo) {
         List<ItemEmprestimoResponseDTO> itensEmprestimos = itemEmprestimoService.findAllByEmprestimo(idEmprestimo);

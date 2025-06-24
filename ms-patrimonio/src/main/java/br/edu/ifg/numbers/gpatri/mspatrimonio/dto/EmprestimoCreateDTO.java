@@ -7,13 +7,9 @@ import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Getter @Setter
 public class EmprestimoCreateDTO {
-
-    @NotNull(message = "O id de usuario não pode ser nulo")
-    private UUID idUsuario;
 
     @NotEmpty(message = "Para criar um empréstimo, é preciso pedir ao menos um item.")
     private List<ItemEmprestimoCreateDTO> itensEmprestimo;

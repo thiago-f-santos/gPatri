@@ -18,6 +18,9 @@ public class Emprestimo {
     @Column(name = "id_usuario", nullable = false, updatable = false)
     private UUID idUsuario;
 
+    @Column(name = "id_usuario_avaliador")
+    private UUID idUsuarioAvaliador;
+
     @Column(name = "aprovado")
     private Boolean aprovado = false;
 

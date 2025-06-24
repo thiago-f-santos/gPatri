@@ -3,6 +3,7 @@ package br.edu.ifg.numbers.gpatri.mspatrimonio.controller;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoResponseDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoUpdateDTO;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.security.JwtAuthenticationFilter;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.service.EmprestimoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,6 +13,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -35,10 +38,18 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "404", description = "Item Patrimonio não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('SOLICITAR_EMPRESTIMO')")
+    @PreAuthorize("hasAuthority('EMPRESTIMO_SOLICITAR')")
     @PostMapping
     public ResponseEntity<EmprestimoResponseDTO> save(@RequestBody @Valid EmprestimoCreateDTO emprestimoCreateDTO) {
-        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.save(emprestimoCreateDTO);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UUID userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof JwtAuthenticationFilter.CustomUserDetails userDetails) {
+            userId = userDetails.getId();
+        } else {
+            throw new IllegalStateException("Usuário não autenticado ou principal inválido (esperado CustomUserDetails).");
+        }
+
+        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.save(userId, emprestimoCreateDTO);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(emprestimoResponseDTO.getId()).toUri();
         return ResponseEntity.created(location).body(emprestimoResponseDTO);
     }
@@ -49,7 +60,7 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "404", description = "Emprestimo não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('ATUALIZAR_TODOS_EMPRESTIMOS') or (hasAuthority('ATUALIZAR_EMPRESTIMO') and @emprestimoService.isOwner(#id, authentication.principal.id))")
+    @PreAuthorize("hasAuthority('EMPRESTIMO_EDITAR_TODOS') or (hasAuthority('EMPRESTIMO_EDITAR') and @emprestimoService.isOwner(#id, authentication.principal.id))")
     @PutMapping("/{id}")
     public ResponseEntity<EmprestimoResponseDTO> update(@PathVariable UUID id, @RequestBody @Valid EmprestimoUpdateDTO emprestimoUpdateDTO) {
         EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.update(id, emprestimoUpdateDTO);
@@ -62,7 +73,7 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "404", description = "Emprestimo não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('DELETAR_TODOS_EMPRESTIMOS') or (hasAuthority('DELETAR_EMPRESTIMO') and @emprestimoService.isOwner(#id, authentication.principal.id))")
+    @PreAuthorize("hasAuthority('EMPRESTIMO_EXCLUIR_TODOS') or (hasAuthority('EMPRESTIMO_EXCLUIR') and @emprestimoService.isOwner(#id, authentication.principal.id))")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         emprestimoService.delete(id);
@@ -75,7 +86,7 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "404", description = "Emprestimo não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('VISUALIZAR_TODOS_EMPRESTIMOS') or (hasAuthority('VISUALIZAR_EMPRESTIMO') and @emprestimoService.isOwner(#id, authentication.principal.id))")
+    @PreAuthorize("hasAuthority('EMPRESTIMO_LISTAR_TODOS') or (hasAuthority('EMPRESTIMO_LISTAR') and @emprestimoService.isOwner(#id, authentication.principal.id))")
     @GetMapping("/{id}")
     public ResponseEntity<EmprestimoResponseDTO> findEmprestimoById(@PathVariable UUID id) {
         EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.findById(id);
@@ -87,7 +98,7 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('VISUALIZAR_TODOS_EMPRESTIMOS')")
+    @PreAuthorize("hasAuthority('EMPRESTIMO_LISTAR_TODOS')")
     @GetMapping
     public ResponseEntity<List<EmprestimoResponseDTO>> findAll() {
         List<EmprestimoResponseDTO> emprestimos = emprestimoService.findAll();
@@ -100,10 +111,18 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "404", description = "Emprestimo não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('LIBERAR_EMPRESTIMO')")
-    @PatchMapping("/{id}/aprovar")
-    public ResponseEntity<EmprestimoResponseDTO> aprovar(@PathVariable UUID id) {
-        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.aprovarEmprestimo(id);
+    @PreAuthorize("hasAuthority('EMPRESTIMO_LIBERAR')")
+    @PatchMapping("/{idEmprestimo}/aprovar")
+    public ResponseEntity<EmprestimoResponseDTO> aprovar(@PathVariable UUID idEmprestimo) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UUID userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof JwtAuthenticationFilter.CustomUserDetails userDetails) {
+            userId = userDetails.getId();
+        } else {
+            throw new IllegalStateException("Usuário não autenticado ou principal inválido (esperado CustomUserDetails).");
+        }
+
+        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.aprovarEmprestimo(userId, idEmprestimo);
         return ResponseEntity.ok(emprestimoResponseDTO);
     }
 
@@ -114,10 +133,18 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "404", description = "Item Patrimonio não encontrado"),
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
-    @PreAuthorize("hasAuthority('LIBERAR_EMPRESTIMO')")
-    @PatchMapping("/{id}/negar")
-    public ResponseEntity<EmprestimoResponseDTO> negar(@PathVariable UUID id) {
-        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.negarEmprestimo(id);
+    @PreAuthorize("hasAuthority('EMPRESTIMO_LIBERAR')")
+    @PatchMapping("/{idEmprestimo}/negar")
+    public ResponseEntity<EmprestimoResponseDTO> negar(@PathVariable UUID idEmprestimo) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UUID userId = null;
+        if (authentication != null && authentication.getPrincipal() instanceof JwtAuthenticationFilter.CustomUserDetails userDetails) {
+            userId = userDetails.getId();
+        } else {
+            throw new IllegalStateException("Usuário não autenticado ou principal inválido (esperado CustomUserDetails).");
+        }
+
+        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.negarEmprestimo(userId, idEmprestimo);
         return ResponseEntity.ok(emprestimoResponseDTO);
     }
 }

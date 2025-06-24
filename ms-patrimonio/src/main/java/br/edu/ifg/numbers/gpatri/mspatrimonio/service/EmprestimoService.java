@@ -38,8 +38,9 @@ public class EmprestimoService {
     private final ItemPatrimonioRepository itemPatrimonioRepository;
 
     @Transactional
-    public EmprestimoResponseDTO save(EmprestimoCreateDTO emprestimoCreateDTO) {
+    public EmprestimoResponseDTO save(UUID idUsuario, EmprestimoCreateDTO emprestimoCreateDTO) {
         Emprestimo emprestimo = emprestimoMapper.createDtoToEmprestimo(emprestimoCreateDTO);
+        emprestimo.setIdUsuario(idUsuario);
         emprestimo.setAprovado(false);
         emprestimo.setCreatedAt(Instant.now());
         emprestimo = emprestimoRepository.save(emprestimo);
@@ -116,10 +117,11 @@ public class EmprestimoService {
     }
 
     @Transactional
-    public EmprestimoResponseDTO aprovarEmprestimo(UUID idEmprestimo) {
+    public EmprestimoResponseDTO aprovarEmprestimo(UUID idUsuarioAvaliador, UUID idEmprestimo) {
         Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
 
+        emprestimo.setIdUsuarioAvaliador(idUsuarioAvaliador);
         emprestimo.setAprovado(true);
         emprestimo.setUpdatedAt(Instant.now());
         emprestimo = emprestimoRepository.save(emprestimo);
@@ -128,10 +130,11 @@ public class EmprestimoService {
     }
 
     @Transactional
-    public EmprestimoResponseDTO negarEmprestimo(UUID idEmprestimo) {
+    public EmprestimoResponseDTO negarEmprestimo(UUID idUsuarioAvaliador, UUID idEmprestimo) {
         Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
 
+        emprestimo.setIdUsuarioAvaliador(idUsuarioAvaliador);
         emprestimo.setAprovado(false);
         emprestimo.setUpdatedAt(Instant.now());
 

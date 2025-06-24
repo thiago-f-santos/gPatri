@@ -1,4 +1,4 @@
-package br.edu.ifg.numbers.gpatri.mspatrimonio.exception;
+package br.edu.ifg.numbers.gpatri.mspatrimonio.exception.handler;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.servlet.http.HttpServletRequest;
