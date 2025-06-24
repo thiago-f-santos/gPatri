@@ -1,6 +1,5 @@
 package br.edu.ifg.numbers.gpatri.msusuarios.mapper;
 
-import br.edu.ifg.numbers.gpatri.msusuarios.domain.Cargo;
 import br.edu.ifg.numbers.gpatri.msusuarios.domain.Usuario;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserRequestDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserResponseDTO;
@@ -23,17 +22,17 @@ public interface UsuarioMapper {
     @Mapping(target = "nome", source = "dto.nome")
     @Mapping(target = "sobrenome", source = "dto.sobrenome")
     @Mapping(target = "email", source = "dto.email")
-    @Mapping(target = "cargo", source = "cargoObj")
+    @Mapping(target = "cargo", ignore = true)
     @Mapping(target = "id", ignore = true)
-    Usuario toEntity(UserRequestDTO dto, Cargo cargoObj);
+    Usuario toEntity(UserRequestDTO dto);
 
     List<UserResponseDTO> toDtoList(List<Usuario> usuarios);
 
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "cargo", source = "cargoObj")
+    @Mapping(target = "cargo", ignore = true)
     @Mapping(target = "nome", source = "dto.nome")
-    void updateEntityFromDto(UserUpdateDTO dto, @MappingTarget Usuario usuario, Cargo cargoObj);
+    void updateEntityFromDto(UserUpdateDTO dto, @MappingTarget Usuario usuario);
 
 }

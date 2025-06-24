@@ -5,6 +5,7 @@ import br.edu.ifg.numbers.gpatri.msusuarios.domain.Usuario;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserRequestDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserResponseDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserUpdateDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.dto.UsuarioCargoUpdateDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.exception.BadRequestException;
 import br.edu.ifg.numbers.gpatri.msusuarios.exception.ConflictException;
 import br.edu.ifg.numbers.gpatri.msusuarios.exception.ResourceNotFoundException;
@@ -43,12 +44,14 @@ public class UsuarioService {
             throw new ConflictException("O email '" + userRequestDTO.getEmail() + "' já está cadastrado por outro usuário.");
         }
 
-        Cargo cargo = cargoRepository.findByNome(userRequestDTO.getCargo())
-                .orElseThrow(() -> new BadRequestException("Cargo de nome '" + userRequestDTO.getNome() + "' não foi encontrado."));
+        Cargo cargo = cargoRepository.findByNome("USUARIO_COMUM")
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo 'USUARIO_COMUM' não encontrado."));
 
-        Usuario usuario = usuarioMapper.toEntity(userRequestDTO, cargo);
+        Usuario usuario = usuarioMapper.toEntity(userRequestDTO);
 
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
+
+        usuario.setCargo(cargo);
 
         Usuario novoUsuario = userRepository.save(usuario);
 
@@ -81,13 +84,7 @@ public class UsuarioService {
             }
         }
 
-        Cargo cargo = usuario.getCargo();
-        if(userUpdateDTO.getCargo() != null && !usuario.getCargo().getId().equals(userUpdateDTO.getCargo())) {
-            cargo = cargoRepository.findByNome(userUpdateDTO.getCargo())
-                    .orElseThrow(() -> new BadRequestException("Cargo de ID '" + userUpdateDTO.getCargo() + "' não foi encontrado."));
-        }
-
-        usuarioMapper.updateEntityFromDto(userUpdateDTO, usuario, cargo);
+        usuarioMapper.updateEntityFromDto(userUpdateDTO, usuario);
 
         Usuario usuarioAtualizado = userRepository.save(usuario);
         return usuarioMapper.toDto(usuarioAtualizado);
@@ -102,4 +99,24 @@ public class UsuarioService {
         //Deletar o usuário do banco de dados;
         userRepository.deleteById(id);
     }
+
+    @Transactional
+    public UserResponseDTO atribuirCargo(UUID id, UsuarioCargoUpdateDTO usuarioCargoUpdateDTO) {
+        Usuario usuario = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário de ID '" + id + "' não encontrado."));
+
+        Cargo cargo = cargoRepository.findById(usuarioCargoUpdateDTO.getIdCargo())
+                .orElseThrow(() -> new ResourceNotFoundException("Cargo de ID '" + usuarioCargoUpdateDTO.getIdCargo() + "' não encontrado."));
+
+        if (usuario.getCargo() != null && usuario.getCargo().getId().equals(cargo.getId())) {
+            throw new BadRequestException("O usuário já possui o cargo '" + cargo.getNome() + "'.");
+        }
+
+        usuario.setCargo(cargo);
+
+        Usuario usuarioAtualizado = userRepository.save(usuario);
+
+        return usuarioMapper.toDto(usuarioAtualizado);
+    }
+
 }
