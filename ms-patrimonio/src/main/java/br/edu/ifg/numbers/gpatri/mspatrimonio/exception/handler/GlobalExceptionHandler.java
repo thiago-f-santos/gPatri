@@ -1,9 +1,6 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.exception.handler;
 
-import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.EmprestimoVazioException;
-import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.ItemEmUsoException;
-import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.ItemEmprestimoJaExistenteException;
-import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.QuantidadeItemIndisponivelException;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -91,6 +88,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorMessage(request, HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage()));
+    }
+
+    @ExceptionHandler(SituacaoEmprestimoInvalidaException.class)
+    public ResponseEntity<ErrorMessage> situacaoEmprestimoInvalidaException(SituacaoEmprestimoInvalidaException ex, HttpServletRequest request) {
+        log.error("Situacao Emprestimo invalida - ", ex);
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(new ErrorMessage(request, HttpStatus.UNPROCESSABLE_ENTITY, ex.getMessage()));
     }
 
 }

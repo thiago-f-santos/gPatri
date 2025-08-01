@@ -17,14 +17,15 @@ public interface EmprestimoMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "idUsuario", ignore = true)
     @Mapping(target = "idUsuarioAvaliador", ignore = true)
-    @Mapping(target = "aprovado", ignore = true)
+    @Mapping(target = "situacao", ignore = true)
     @Mapping(target = "itensEmprestimo", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     Emprestimo createDtoToEmprestimo(EmprestimoCreateDTO emprestimoCreateDTO);
 
+    @Mapping(target = "situacao", source = "situacao")
     @Mapping(target = "itensEmprestimo", source = "itensEmprestimo")
     @Mapping(target = "idUsuarioAvaliador", source = "idUsuarioAvaliador")
     EmprestimoResponseDTO emprestimoToEmprestimoResponseDto(Emprestimo emprestimo);
-
+    
 }

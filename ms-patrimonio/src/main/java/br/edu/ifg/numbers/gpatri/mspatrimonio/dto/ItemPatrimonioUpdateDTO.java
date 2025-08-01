@@ -2,7 +2,6 @@ package br.edu.ifg.numbers.gpatri.mspatrimonio.dto;
 
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.CondicaoProduto;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
