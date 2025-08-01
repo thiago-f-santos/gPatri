@@ -80,6 +80,19 @@ public class EmprestimoController {
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "Devolve um emprestimo")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Emprestimo atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Emprestimo / Item Emprestimo não encontrado"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado")
+    })
+    @PreAuthorize("hasAuthority('EMPRESTIMO_EDITAR_TODOS') or (hasAuthority('EMPRESTIMO_EDITAR') and @emprestimoService.isOwner(#id, authentication.principal.id))")
+    @PutMapping("/{id}/devolver")
+    public ResponseEntity<EmprestimoResponseDTO> devolveEmprestimo(UUID id) {
+        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.devolverEmprestimo(id);
+        return ResponseEntity.ok(emprestimoResponseDTO);
+    }
+
     @Operation(summary = "Retorna um emprestimo pelo seu id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Emprestimo retornado com sucesso"),
@@ -112,8 +125,8 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
     @PreAuthorize("hasAuthority('EMPRESTIMO_LIBERAR')")
-    @PatchMapping("/{idEmprestimo}/aprovar")
-    public ResponseEntity<EmprestimoResponseDTO> aprovar(@PathVariable UUID idEmprestimo) {
+    @PatchMapping("/{id}/aprovar")
+    public ResponseEntity<EmprestimoResponseDTO> aprovar(@PathVariable UUID id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UUID userId = null;
         if (authentication != null && authentication.getPrincipal() instanceof JwtAuthenticationFilter.CustomUserDetails userDetails) {
@@ -122,7 +135,7 @@ public class EmprestimoController {
             throw new IllegalStateException("Usuário não autenticado ou principal inválido (esperado CustomUserDetails).");
         }
 
-        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.aprovarEmprestimo(userId, idEmprestimo);
+        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.aprovarEmprestimo(userId, id);
         return ResponseEntity.ok(emprestimoResponseDTO);
     }
 
@@ -134,8 +147,8 @@ public class EmprestimoController {
             @ApiResponse(responseCode = "500", description = "Erro inesperado")
     })
     @PreAuthorize("hasAuthority('EMPRESTIMO_LIBERAR')")
-    @PatchMapping("/{idEmprestimo}/negar")
-    public ResponseEntity<EmprestimoResponseDTO> negar(@PathVariable UUID idEmprestimo) {
+    @PatchMapping("/{id}/negar")
+    public ResponseEntity<EmprestimoResponseDTO> negar(@PathVariable UUID id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UUID userId = null;
         if (authentication != null && authentication.getPrincipal() instanceof JwtAuthenticationFilter.CustomUserDetails userDetails) {
@@ -144,7 +157,7 @@ public class EmprestimoController {
             throw new IllegalStateException("Usuário não autenticado ou principal inválido (esperado CustomUserDetails).");
         }
 
-        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.negarEmprestimo(userId, idEmprestimo);
+        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.negarEmprestimo(userId, id);
         return ResponseEntity.ok(emprestimoResponseDTO);
     }
 }

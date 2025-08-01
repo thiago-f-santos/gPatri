@@ -4,11 +4,13 @@ import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.Emprestimo;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.ItemEmprestimo;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.ItemEmprestimoId;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.ItemPatrimonio;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.SituacaoEmprestimo;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemEmprestimoCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemEmprestimoResponseDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemEmprestimoUpdateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.ItemEmUsoException;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.QuantidadeItemIndisponivelException;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.SituacaoEmprestimoInvalidaException;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.mapper.ItemEmprestimoMapper;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.repository.EmprestimoRepository;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.repository.ItemEmprestimoRepository;
@@ -37,6 +39,9 @@ public class ItemEmprestimoService {
     public ItemEmprestimoResponseDTO adicionaItemEmprestimo(UUID idEmprestimo, ItemEmprestimoCreateDTO itemEmprestimoCreateDTO) {
         Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
+
+        if (emprestimo.getSituacao() == SituacaoEmprestimo.NEGADO || emprestimo.getSituacao() == SituacaoEmprestimo.DEVOLVIDO)
+            throw new SituacaoEmprestimoInvalidaException(String.format("O empréstimo '%s' não pode ser atualizado pois foi negado ou devolvido.", idEmprestimo));
 
         ItemPatrimonio itemPatrimonio = itemPatrimonioRepository.findById(itemEmprestimoCreateDTO.getIdItemPatrimonio()).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Item Patrimonio '%s' não encontrado", itemEmprestimoCreateDTO.getIdItemPatrimonio())));
@@ -68,6 +73,9 @@ public class ItemEmprestimoService {
         Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
 
+        if (emprestimo.getSituacao() == SituacaoEmprestimo.NEGADO || emprestimo.getSituacao() == SituacaoEmprestimo.DEVOLVIDO)
+            throw new SituacaoEmprestimoInvalidaException(String.format("O empréstimo '%s' não pode ser atualizado pois foi negado ou devolvido.", idEmprestimo));
+
         ItemPatrimonio itemPatrimonio = itemPatrimonioRepository.findById(itemEmprestimoUpdateDTO.getIdItemPatrimonio()).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Item Patrimonio '%s' não encontrado", itemEmprestimoUpdateDTO.getIdItemPatrimonio())));
 
@@ -94,7 +102,14 @@ public class ItemEmprestimoService {
 
     @Transactional
     public void apagarItemEmprestimo(UUID idEmprestimo, UUID idItemPatrimonio) {
+        Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
+
+        if (emprestimo.getSituacao() == SituacaoEmprestimo.NEGADO || emprestimo.getSituacao() == SituacaoEmprestimo.DEVOLVIDO)
+            throw new SituacaoEmprestimoInvalidaException(String.format("O empréstimo '%s' não pode ser atualizado pois foi negado ou devolvido.", idEmprestimo));
+
         ItemEmprestimo itemEmprestimo = itemEmprestimoRepository.findByEmprestimo_IdEqualsAndItemPatrimonio_IdEquals(idEmprestimo, idItemPatrimonio);
+
         if (itemEmprestimo == null)
             throw new EntityNotFoundException(String.format("Item Patrimonio '%s' no Emprestimo '%s' não encontrado", idItemPatrimonio, idEmprestimo));
 

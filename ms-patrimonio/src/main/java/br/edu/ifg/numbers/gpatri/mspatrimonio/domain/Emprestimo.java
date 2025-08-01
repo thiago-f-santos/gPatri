@@ -1,5 +1,6 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.domain;
 
+import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.SituacaoEmprestimo;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,8 +25,9 @@ public class Emprestimo {
     @Column(name = "id_usuario_avaliador")
     private UUID idUsuarioAvaliador;
 
-    @Column(name = "aprovado")
-    private Boolean aprovado = false;
+    @Column(name = "situacao", length = 20, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private SituacaoEmprestimo situacao = SituacaoEmprestimo.EM_ESPERA;
 
     @Column(name = "data_emprestimo", nullable = false)
     @Temporal(TemporalType.DATE)
