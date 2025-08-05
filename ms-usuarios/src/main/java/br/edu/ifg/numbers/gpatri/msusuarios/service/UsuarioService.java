@@ -14,6 +14,7 @@ import br.edu.ifg.numbers.gpatri.msusuarios.repository.CargoRepository;
 import br.edu.ifg.numbers.gpatri.msusuarios.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.stereotype.Service;
@@ -96,8 +97,11 @@ public class UsuarioService {
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("Usuário de ID '" + id + "' não encontrado.");
         }
-        //Deletar o usuário do banco de dados;
-        userRepository.deleteById(id);
+        try {
+            userRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new ConflictException("Não foi possível deletar o usuário de ID '" + id + "'. Existem registros vinculados a este usuários.");
+        }
     }
 
     @Transactional
