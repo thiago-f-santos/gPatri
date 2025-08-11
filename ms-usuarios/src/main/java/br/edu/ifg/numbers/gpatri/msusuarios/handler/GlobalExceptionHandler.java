@@ -62,6 +62,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponseDTO> handleMethodArgumentTypeMismatch(MethodArgumentTypeMismatchException ex, WebRequest request) {
+        assert ex.getRequiredType() != null;
         String mensagem = String.format("O parâmetro '%s' com valor '%s' não pode ser convertido para o tipo '%s'.",
                 ex.getName(), ex.getValue(), ex.getRequiredType().getSimpleName());
         ErrorResponseDTO error = new ErrorResponseDTO(
