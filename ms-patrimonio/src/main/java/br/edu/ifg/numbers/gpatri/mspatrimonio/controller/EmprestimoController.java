@@ -1,5 +1,6 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.controller;
 
+import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.SituacaoEmprestimo;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoResponseDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoUpdateDTO;
@@ -67,7 +68,7 @@ public class EmprestimoController {
         return ResponseEntity.ok(emprestimoResponseDTO);
     }
 
-    @Operation(summary = "Deleta um emprestimo e devolve itens")
+    @Operation(summary = "Deleta um emprestimo, devolve itens (caso ainda não tenham sido devolvidos) e apaga relações de itens de emprestimo")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Emprestimo deletado com sucesso"),
             @ApiResponse(responseCode = "404", description = "Emprestimo não encontrado"),
@@ -113,8 +114,13 @@ public class EmprestimoController {
     })
     @PreAuthorize("hasAuthority('EMPRESTIMO_LISTAR_TODOS')")
     @GetMapping
-    public ResponseEntity<List<EmprestimoResponseDTO>> findAll() {
-        List<EmprestimoResponseDTO> emprestimos = emprestimoService.findAll();
+    public ResponseEntity<List<EmprestimoResponseDTO>> findAll(@RequestParam(required = false) String situacaoEmprestimo) {
+        List<EmprestimoResponseDTO> emprestimos;
+        if (situacaoEmprestimo != null) {
+            emprestimos = emprestimoService.findAllBySituacaoEmprestimo(SituacaoEmprestimo.valueOf(situacaoEmprestimo.toUpperCase()));
+        } else {
+            emprestimos = emprestimoService.findAll();
+        }
         return ResponseEntity.ok(emprestimos);
     }
 

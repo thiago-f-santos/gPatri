@@ -106,8 +106,9 @@ public class EmprestimoService {
         Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
 
+        List<ItemEmprestimo> itemEmprestimos = itemEmprestimoRepository.findAllByEmprestimo_IdEquals(emprestimo.getId());
+
         if (emprestimo.getSituacao() != SituacaoEmprestimo.DEVOLVIDO && emprestimo.getSituacao() != SituacaoEmprestimo.NEGADO) {
-            List<ItemEmprestimo> itemEmprestimos = itemEmprestimoRepository.findAllByEmprestimo_IdEquals(emprestimo.getId());
             itemEmprestimos.forEach(itemEmprestimo -> {
                 ItemPatrimonio itemPatrimonio = itemPatrimonioRepository.findById(itemEmprestimo.getItemPatrimonio().getId())
                         .orElseThrow(() -> new EntityNotFoundException(String.format("Item Patrimonio '%s' não encontrado", itemEmprestimo.getItemPatrimonio().getId())));
@@ -115,6 +116,8 @@ public class EmprestimoService {
                 itemPatrimonioRepository.save(itemPatrimonio);
                 itemEmprestimoRepository.delete(itemEmprestimo);
             });
+        } else {
+            itemEmprestimoRepository.deleteAll(itemEmprestimos);
         }
 
         emprestimoRepository.delete(emprestimo);
@@ -199,6 +202,11 @@ public class EmprestimoService {
             itemPatrimonio.setUpdatedAt(Instant.now());
             itemPatrimonioRepository.save(itemPatrimonio);
         });
+    }
+
+    public List<EmprestimoResponseDTO> findAllBySituacaoEmprestimo(SituacaoEmprestimo situacaoEmprestimo) {
+        List<Emprestimo> emprestimos = emprestimoRepository.findAllBySituacaoEquals(situacaoEmprestimo);
+        return emprestimos.stream().map(emprestimoMapper::emprestimoToEmprestimoResponseDto).toList();
     }
 
 }
