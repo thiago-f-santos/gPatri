@@ -50,6 +50,11 @@ public class ItemEmprestimoService {
 
         if (itemPatrimonio.getQuantidade() < itemEmprestimoCreateDTO.getQuantidade()) throw new QuantidadeItemIndisponivelException(String.format("Quantidade disponivel do item patrimonio '%s' é menor que quantidade solicitada", itemEmprestimoCreateDTO.getIdItemPatrimonio()));
 
+//        emprestimo.setSituacao(SituacaoEmprestimo.EM_ESPERA);
+//        emprestimo.setIdUsuarioAvaliador(null);
+//        emprestimo.setUpdatedAt(Instant.now());
+//        emprestimoRepository.save(emprestimo);
+
         itemPatrimonio.setQuantidade(itemPatrimonio.getQuantidade() - itemEmprestimoCreateDTO.getQuantidade());
         itemPatrimonio.setUpdatedAt(Instant.now());
         itemPatrimonioRepository.save(itemPatrimonio);
@@ -88,6 +93,11 @@ public class ItemEmprestimoService {
         if (itemPatrimonio.getQuantidade() < itemEmprestimoUpdateDTO.getQuantidade()) throw new QuantidadeItemIndisponivelException(String.format("Quantidade disponivel do item patrimonio '%s' é menor que quantidade solicitada", itemEmprestimoUpdateDTO.getIdItemPatrimonio()));
 
         int diff = itemEmprestimo.getQuantidade() - itemEmprestimoUpdateDTO.getQuantidade();
+
+//        emprestimo.setSituacao(SituacaoEmprestimo.EM_ESPERA);
+//        emprestimo.setIdUsuarioAvaliador(null);
+//        emprestimo.setUpdatedAt(Instant.now());
+//        emprestimoRepository.save(emprestimo);
 
         itemPatrimonio.setQuantidade(itemPatrimonio.getQuantidade() + diff);
         itemPatrimonio.setUpdatedAt(Instant.now());

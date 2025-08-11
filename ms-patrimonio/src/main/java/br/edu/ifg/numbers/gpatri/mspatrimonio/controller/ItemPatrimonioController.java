@@ -94,4 +94,35 @@ public class ItemPatrimonioController {
         return ResponseEntity.ok().body(itensPatrimonio);
     }
 
+    @Operation(summary = "Retorna uma lista com todos item patrimônio filtrados pelo nome da categoria")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Item Patrimonio retornado com sucesso"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado")
+    })
+    @PreAuthorize("hasAuthority('ITEM_PATRIMONIO_LISTAR')")
+    @GetMapping("/categoria")
+    public ResponseEntity<List<ItemPatrimonioResponseDTO>> findAllByCategoriaName(@RequestParam String nomeCategoria) {
+        List<ItemPatrimonioResponseDTO> itensPatrimonio = itemPatrimonioService.findAllByCategoriaName(nomeCategoria);
+        return ResponseEntity.ok().body(itensPatrimonio);
+    }
+
+    @Operation(summary = "Retorna uma lista com todos item patrimônio filtrados pelo patrimônio")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Item Patrimonio retornado com sucesso"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado")
+    })
+    @PreAuthorize("hasAuthority('ITEM_PATRIMONIO_LISTAR')")
+    @GetMapping("/patrimonio")
+    public ResponseEntity<List<ItemPatrimonioResponseDTO>> findAllByPatrimonio(@RequestParam(required = false) UUID idPatrimonio,
+                                                                               @RequestParam(required = false) String nomePatrimonio) {
+        List<ItemPatrimonioResponseDTO> itensPatrimonio;
+        if (idPatrimonio != null) {
+            itensPatrimonio= itemPatrimonioService.findAllByPatrimonioId(idPatrimonio);
+        } else if (nomePatrimonio != null) {
+            itensPatrimonio= itemPatrimonioService.findAllByPatrimonioName(nomePatrimonio);
+        } else return ResponseEntity.badRequest().body(null);
+
+        return ResponseEntity.ok().body(itensPatrimonio);
+    }
+
 }

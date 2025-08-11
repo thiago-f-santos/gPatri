@@ -53,7 +53,7 @@ public class ItemPatrimonioService {
             itemPatrimonio.setCondicaoDescricao(itemPatrimonioUpdateDTO.getCondicaoDescricao());
         }
         if (itemPatrimonioUpdateDTO.getQuantidade() != null) {
-            itemPatrimonio.setQuantidade(itemPatrimonio.getQuantidade());
+            itemPatrimonio.setQuantidade(itemPatrimonioUpdateDTO.getQuantidade());
         }
 
         itemPatrimonio.setUpdatedAt(Instant.now());
@@ -76,6 +76,21 @@ public class ItemPatrimonioService {
 
     public List<ItemPatrimonioResponseDTO> findAll() {
         List<ItemPatrimonio> itensPatrimonio = itemPatrimonioRepository.findAll();
+        return itensPatrimonio.stream().map(itemPatrimonioMapper::itemPatrimonioToPatrimonioResponseDto).toList();
+    }
+
+    public List<ItemPatrimonioResponseDTO> findAllByPatrimonioId(UUID patrimonioId) {
+        List<ItemPatrimonio> itensPatrimonio = itemPatrimonioRepository.findAllByPatrimonioId(patrimonioId);
+        return itensPatrimonio.stream().map(itemPatrimonioMapper::itemPatrimonioToPatrimonioResponseDto).toList();
+    }
+
+    public List<ItemPatrimonioResponseDTO> findAllByPatrimonioName(String nomePatrimonio) {
+        List<ItemPatrimonio> itensPatrimonio = itemPatrimonioRepository.findAllByPatrimonio_NomeContainingIgnoreCase(nomePatrimonio);
+        return itensPatrimonio.stream().map(itemPatrimonioMapper::itemPatrimonioToPatrimonioResponseDto).toList();
+    }
+
+    public List<ItemPatrimonioResponseDTO> findAllByCategoriaName(String nomeCategoria) {
+        List<ItemPatrimonio> itensPatrimonio = itemPatrimonioRepository.findAllByPatrimonio_Categoria_NomeContainingIgnoreCase(nomeCategoria);
         return itensPatrimonio.stream().map(itemPatrimonioMapper::itemPatrimonioToPatrimonioResponseDto).toList();
     }
 
