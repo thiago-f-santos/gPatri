@@ -43,7 +43,7 @@ public class EmprestimoController {
     @PostMapping
     public ResponseEntity<EmprestimoResponseDTO> save(@RequestBody @Valid EmprestimoCreateDTO emprestimoCreateDTO) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UUID userId = null;
+        UUID userId;
         if (authentication != null && authentication.getPrincipal() instanceof JwtAuthenticationFilter.CustomUserDetails userDetails) {
             userId = userDetails.getId();
         } else {
@@ -89,7 +89,7 @@ public class EmprestimoController {
     })
     @PreAuthorize("hasAuthority('EMPRESTIMO_EDITAR_TODOS') or (hasAuthority('EMPRESTIMO_EDITAR') and @emprestimoService.isOwner(#id, authentication.principal.id))")
     @PutMapping("/{id}/devolver")
-    public ResponseEntity<EmprestimoResponseDTO> devolveEmprestimo(UUID id) {
+    public ResponseEntity<EmprestimoResponseDTO> devolveEmprestimo(@PathVariable UUID id) {
         EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.devolverEmprestimo(id);
         return ResponseEntity.ok(emprestimoResponseDTO);
     }
@@ -134,7 +134,7 @@ public class EmprestimoController {
     @PatchMapping("/{id}/aprovar")
     public ResponseEntity<EmprestimoResponseDTO> aprovar(@PathVariable UUID id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UUID userId = null;
+        UUID userId;
         if (authentication != null && authentication.getPrincipal() instanceof JwtAuthenticationFilter.CustomUserDetails userDetails) {
             userId = userDetails.getId();
         } else {
@@ -156,7 +156,7 @@ public class EmprestimoController {
     @PatchMapping("/{id}/negar")
     public ResponseEntity<EmprestimoResponseDTO> negar(@PathVariable UUID id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UUID userId = null;
+        UUID userId;
         if (authentication != null && authentication.getPrincipal() instanceof JwtAuthenticationFilter.CustomUserDetails userDetails) {
             userId = userDetails.getId();
         } else {
