@@ -1,0 +1,51 @@
+spring:
+  application:
+    name: ms-gateway
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: usuarios_docs_route
+              predicates:
+                - Path=/usuarios/v3/docs
+              uri: lb://ms-usuarios
+
+            - id: usuarios_route
+              predicates:
+                - Path=/usuarios/**
+              uri: lb://ms-usuarios
+              filters:
+                - StripPrefix=1
+
+            - id: patrimonios_docs_route
+              predicates:
+                - Path=/patrimonios/v3/docs
+              uri: lb://ms-patrimonios
+
+            - id: patrimonios_route
+              predicates:
+                - Path=/patrimonios/**
+              uri: lb://ms-patrimonios
+              filters:
+                - StripPrefix=1
+server:
+  port: 8080
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+      defaultZone: http://eureka:eureka@localhost:8761/eureka/
+springdoc:
+  api-docs:
+    enabled: true
+    path: /docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    urls:
+      - name: Usuarios Service
+        url: /usuarios/v3/docs
+      - name: Patrimonios Service
+        url: /patrimonios/v3/docs
