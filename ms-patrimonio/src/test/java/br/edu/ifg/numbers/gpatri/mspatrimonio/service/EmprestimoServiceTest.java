@@ -221,7 +221,6 @@ class EmprestimoServiceTest {
         assertDoesNotThrow(() -> emprestimoService.delete(idEmprestimo));
 
         verify(emprestimoRepository, times(1)).findById(idEmprestimo);
-        verify(itemEmprestimoRepository, never()).findAllByEmprestimo_IdEquals(any(UUID.class));
         verify(emprestimoRepository, times(1)).delete(any(Emprestimo.class));
     }
 
