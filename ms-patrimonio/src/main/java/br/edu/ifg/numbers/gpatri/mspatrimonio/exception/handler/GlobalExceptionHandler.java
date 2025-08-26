@@ -108,4 +108,12 @@ public class GlobalExceptionHandler {
                 .body(new ErrorMessage(request, HttpStatus.UNAUTHORIZED, "Acesso negado. Você não tem permissão para acessar este recurso."));
     }
 
+    @ExceptionHandler({QuantidadeInvalidaException.class})
+    public ResponseEntity<ErrorMessage> handleQuantidadeInvalidaException(Exception ex, HttpServletRequest request) {
+        log.error("Quantidade Invalida - ", ex);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, ex.getMessage()));
+    }
+
 }
