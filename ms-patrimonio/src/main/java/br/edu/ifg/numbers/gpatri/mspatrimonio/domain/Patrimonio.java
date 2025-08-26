@@ -1,7 +1,6 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.domain;
 
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.TipoControle;
-import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemPatrimonioResponseDTO;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
