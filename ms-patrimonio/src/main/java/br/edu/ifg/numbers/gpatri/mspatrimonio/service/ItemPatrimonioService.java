@@ -2,9 +2,11 @@ package br.edu.ifg.numbers.gpatri.mspatrimonio.service;
 
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.ItemPatrimonio;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.Patrimonio;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.TipoControle;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemPatrimonioCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemPatrimonioResponseDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemPatrimonioUpdateDTO;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.QuantidadeInvalidaException;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.mapper.ItemPatrimonioMapper;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.repository.ItemPatrimonioRepository;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.repository.PatrimonioRepository;
@@ -31,6 +33,10 @@ public class ItemPatrimonioService {
         ItemPatrimonio itemPatrimonio = itemPatrimonioMapper.createDtoToItemPatrimonio(itemPatrimonioCreateDTO);
         Patrimonio patrimonio = patrimonioRepository.findById(itemPatrimonioCreateDTO.getIdPatrimonio()).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Patrimonio '%s' não encontrado", itemPatrimonioCreateDTO.getIdPatrimonio())));
+
+        if (patrimonio.getTipoControle().equals(TipoControle.UNITARIO) && itemPatrimonioCreateDTO.getQuantidade() > 1)
+            throw new QuantidadeInvalidaException(String.format("Patrimonio '%s' é do tipo unitário, portanto a quantidade do item não pode ser maior que 1.", patrimonio.getId()));
+
         itemPatrimonio.setPatrimonio(patrimonio);
         itemPatrimonio.setCreatedAt(Instant.now());
         itemPatrimonio = itemPatrimonioRepository.save(itemPatrimonio);
@@ -41,9 +47,11 @@ public class ItemPatrimonioService {
     public ItemPatrimonioResponseDTO update(UUID id, ItemPatrimonioUpdateDTO itemPatrimonioUpdateDTO) {
         ItemPatrimonio itemPatrimonio = itemPatrimonioRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Item não encontrado"));
+
+        Patrimonio patrimonio = patrimonioRepository.findById(itemPatrimonioUpdateDTO.getIdPatrimonio()).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Patrimonio '%s' não encontrado", itemPatrimonioUpdateDTO.getIdPatrimonio())));
+
         if (itemPatrimonioUpdateDTO.getIdPatrimonio() != null) {
-            Patrimonio patrimonio = patrimonioRepository.findById(itemPatrimonioUpdateDTO.getIdPatrimonio()).orElseThrow(
-                    () -> new EntityNotFoundException(String.format("Patrimonio '%s' não encontrado", itemPatrimonioUpdateDTO.getIdPatrimonio())));
             itemPatrimonio.setPatrimonio(patrimonio);
         }
         if (itemPatrimonioUpdateDTO.getCondicaoProduto() != null) {
@@ -53,6 +61,11 @@ public class ItemPatrimonioService {
             itemPatrimonio.setCondicaoDescricao(itemPatrimonioUpdateDTO.getCondicaoDescricao());
         }
         if (itemPatrimonioUpdateDTO.getQuantidade() != null) {
+            if (patrimonio.getTipoControle().equals(TipoControle.UNITARIO) && itemPatrimonioUpdateDTO.getQuantidade() > 1)
+                throw new QuantidadeInvalidaException(
+                        String.format("Patrimonio '%s' é do tipo unitário, portanto a quantidade do item não pode ser maior que 1.", patrimonio.getId()
+                        )
+                );
             itemPatrimonio.setQuantidade(itemPatrimonioUpdateDTO.getQuantidade());
         }
 

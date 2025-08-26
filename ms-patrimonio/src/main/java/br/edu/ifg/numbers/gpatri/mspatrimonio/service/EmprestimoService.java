@@ -209,4 +209,12 @@ public class EmprestimoService {
         return emprestimos.stream().map(emprestimoMapper::emprestimoToEmprestimoResponseDto).toList();
     }
 
+    public List<EmprestimoResponseDTO> findAllByUserId(UUID userId) {
+        List<Emprestimo> emprestimos = emprestimoRepository.findAllByIdUsuarioEquals(userId);
+        return emprestimos.stream().map(emprestimoMapper::emprestimoToEmprestimoResponseDto).toList();
+    }
+
+    public boolean isSelf(UUID idClaim, UUID idUsuario) {
+        return idClaim.equals(idUsuario);
+    }
 }

@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Instant;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -29,6 +31,9 @@ public class Patrimonio {
     @Column(name = "tipo_controle")
     @Enumerated(EnumType.STRING)
     private TipoControle tipoControle;
+
+    @OneToMany(mappedBy = "patrimonio", targetEntity = ItemPatrimonio.class, fetch = FetchType.EAGER)
+    private List<ItemPatrimonio> itensPatrimonio = new LinkedList<>();
 
     @ManyToOne
     @JoinColumn(name = "id_categoria")

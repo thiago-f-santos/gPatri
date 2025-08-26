@@ -17,7 +17,7 @@ public class ItemPatrimonio {
     @Column(name = "id", columnDefinition = "uuid", unique = true, nullable = false)
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(targetEntity = Patrimonio.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "id_patrimonio")
     private Patrimonio patrimonio;
 

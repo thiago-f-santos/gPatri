@@ -16,7 +16,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,6 +70,11 @@ public class PatrimonioService {
         patrimonioRepository.deleteById(id);
     }
 
+    public List<PatrimonioResponseDTO> findAllPatrimoniosWithItemPatrimonioAvailable() {
+        List<Patrimonio> patrimonios = patrimonioRepository.findPatrimoniosWhereItemPatrimonioAvailable();
+        return patrimonios.stream().map(patrimonioMapper::patrimonioToPatrimonioResponseDto).toList();
+    }
+
     public PatrimonioResponseDTO findById(UUID id) {
         Patrimonio patrimonio = patrimonioRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Patrimonio não encontrado"));
         return patrimonioMapper.patrimonioToPatrimonioResponseDto(patrimonio);
@@ -78,7 +82,12 @@ public class PatrimonioService {
 
     public List<PatrimonioResponseDTO> findAll() {
         List<Patrimonio> patrimonios = patrimonioRepository.findAll();
-        return patrimonios.stream().map(patrimonioMapper::patrimonioToPatrimonioResponseDto).collect(Collectors.toList());
+        return patrimonios.stream().map(patrimonioMapper::patrimonioToPatrimonioResponseDto).toList();
+    }
+
+    public List<PatrimonioResponseDTO> findAllByNome(String nome) {
+        List<Patrimonio> patrimonios = patrimonioRepository.findAllByNomeContainsIgnoreCase(nome);
+        return patrimonios.stream().map(patrimonioMapper::patrimonioToPatrimonioResponseDto).toList();
     }
 
 }

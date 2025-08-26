@@ -49,3 +49,6 @@ springdoc:
         url: /usuarios/v3/docs
       - name: Patrimonios Service
         url: /patrimonios/v3/docs
+app:
+  cors:
+    allowedOrigins: ${CORS_ORIGINS:http://localhost:4200}
