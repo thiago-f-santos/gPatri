@@ -90,8 +90,26 @@ public class PatrimonioController {
     })
     @PreAuthorize("hasAuthority('PATRIMONIO_LISTAR')")
     @GetMapping
-    public ResponseEntity<List<PatrimonioResponseDTO>> findAll() {
-        List<PatrimonioResponseDTO> patrimonioResponseDTO = patrimonioService.findAll();
+    public ResponseEntity<List<PatrimonioResponseDTO>> findAll(@RequestParam(required = false) String nome) {
+        List<PatrimonioResponseDTO> patrimonioResponseDTO;
+        if (nome == null || nome.isEmpty()) {
+            patrimonioResponseDTO = patrimonioService.findAll();
+        } else {
+            patrimonioResponseDTO = patrimonioService.findAllByNome(nome);
+        }
+
+        return ResponseEntity.ok().body(patrimonioResponseDTO);
+    }
+
+    @Operation(summary = "Retorna lista de patrimônios com itens disponíveis")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado")
+    })
+    @PreAuthorize("hasAuthority('PATRIMONIO_LISTAR')")
+    @GetMapping("/available")
+    public ResponseEntity<List<PatrimonioResponseDTO>> findAllAvailable() {
+        List<PatrimonioResponseDTO> patrimonioResponseDTO = patrimonioService.findAllPatrimoniosWithItemPatrimonioAvailable();
         return ResponseEntity.ok().body(patrimonioResponseDTO);
     }
 

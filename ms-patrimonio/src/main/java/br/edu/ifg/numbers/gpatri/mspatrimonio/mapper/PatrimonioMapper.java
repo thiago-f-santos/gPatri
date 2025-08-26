@@ -9,7 +9,8 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        uses = { ItemPatrimonioMapper.class }
 )
 public interface PatrimonioMapper {
 
@@ -21,6 +22,7 @@ public interface PatrimonioMapper {
 
     @Mapping(target = "idCategoria", source = "categoria.id")
     @Mapping(target = "nomeCategoria", source = "categoria.nome")
+    @Mapping(target = "itensPatrimonio", source = "itensPatrimonio")
     PatrimonioResponseDTO  patrimonioToPatrimonioResponseDto(Patrimonio patrimonio);
 
 }
