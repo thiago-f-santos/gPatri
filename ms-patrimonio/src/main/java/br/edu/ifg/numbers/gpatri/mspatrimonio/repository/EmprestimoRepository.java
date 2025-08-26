@@ -11,4 +11,6 @@ import java.util.UUID;
 @Repository
 public interface EmprestimoRepository extends JpaRepository<Emprestimo, UUID> {
     List<Emprestimo> findAllBySituacaoEquals(SituacaoEmprestimo situacaoEmprestimo);
+
+    List<Emprestimo> findAllByIdUsuarioEquals(UUID idUsuario);
 }

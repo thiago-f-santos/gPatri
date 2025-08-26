@@ -166,4 +166,17 @@ public class EmprestimoController {
         EmprestimoResponseDTO emprestimoResponseDTO = emprestimoService.negarEmprestimo(userId, id);
         return ResponseEntity.ok(emprestimoResponseDTO);
     }
+
+    @Operation(summary = "Busca os empréstimos solicitados pelo usuário autenticado")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista retornada com sucesso"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado")
+    })
+    @PreAuthorize("hasAuthority('EMPRESTIMO_LISTAR_TODOS') or (hasAuthority('EMPRESTIMO_LISTAR') and @emprestimoService.isSelf(#id, authentication.principal.id))")
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<EmprestimoResponseDTO>> findAllByUser(@PathVariable UUID id) {
+        List<EmprestimoResponseDTO> empretimos = emprestimoService.findAllByUserId(id);
+        return ResponseEntity.ok(empretimos);
+    }
+
 }
