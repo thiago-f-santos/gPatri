@@ -104,3 +104,7 @@ Inicie a aplicação com o Maven:
 ```bash
   mvn spring-boot:run
 ```
+Segue o link do repositorio do front-end da aplicação:
+```bash
+  https://github.com/thiago-f-santos/gpatri-web-app.git
+```
