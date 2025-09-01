@@ -1,6 +1,9 @@
 package br.edu.ifg.numbers.gpatri.msusuarios.domain.enums;
 
 public enum PermissaoEnum {
+    // ADMIN
+    ACESSO_ADMIN,
+
     // USUARIOS
     USUARIO_CADASTRAR,
     USUARIO_EDITAR,
