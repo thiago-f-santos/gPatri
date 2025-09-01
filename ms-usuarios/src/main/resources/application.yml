@@ -38,4 +38,5 @@ app:
   jwtSecret: ${JWT_SECRET:FbaKFoxbDpfzHGpKjAALXPesF2aiO3WjL3A4meBifE64jdvwUiegpHbDlUkXvekrkXvFVtRLidi7fq7MwqHsCmNFSIff6pCGlfu4Ie3UHa9yNoOyVDbmPqEiX5qM1Z3YzhDXfyrKbppvCYuwDXbfPCkVa45aYCbGX2x9ogZd22zxpoTHHYpImpkJUGo9IXl5DscgPLpdEdRowSkC8hdSYYRD3zu04g5ZRGESelVhqeGTIPEnssJOCaZdcyAR2frs}
   jwtExpirationMs: ${JWT_EXPIRATION_MS:86400000}
   cors:
+    enabled: ${CORS_ENABLED:true}}
     allowedOrigins: ${ALLOWED_ORIGINS:http://localhost:8080}
