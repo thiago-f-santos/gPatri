@@ -27,6 +27,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -40,6 +42,9 @@ public class SecurityConfig {
 
     @Value("${app.cors.allowedOrigins}")
     private String[] allowedOrigins;
+
+    @Value("${app.cors.enabled}")
+    private boolean corsEnabled;
 
     public SecurityConfig(UserDetailsServiceImp userDetailsService, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint, JwtAccessDeniedHandler jwtAccessDeniedHandler) {
         this.userDetailsService = userDetailsService;
@@ -69,8 +74,11 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        if (corsEnabled) {
+            http.cors(withDefaults());
+        }
+
         http
-//            .cors(withDefaults())
             .csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
@@ -82,10 +90,6 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/usuarios/v3/swagger-ui.html",
                                 "/usuarios/v3/docs"
-                                /* "/docs/**",
-                                "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/webjars/**"*/
                         ).permitAll()
                         .anyRequest().authenticated()
                 );

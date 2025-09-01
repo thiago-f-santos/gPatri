@@ -2,9 +2,9 @@ spring:
   application:
     name: ms-patrimonios
   datasource:
-    url: jdbc:postgresql://localhost:5432/gpatri_patrimonios
-    username: postgres
-    password: postgres
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/gpatri_patrimonios}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   jpa:
     open-in-view: true
@@ -29,12 +29,13 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     serviceUrl:
-      defaultZone: http://eureka:eureka@localhost:8761/eureka/
+      defaultZone: ${EUREKA_SERVER:http://eureka:eureka@localhost:8761/eureka/}
   instance:
     instance-id: ${spring.application.name}:${spring.application.instance-id:${random.value}}
 app:
   module-name: Patrimonio
   api-version: 1.0
-  jwtSecret: FbaKFoxbDpfzHGpKjAALXPesF2aiO3WjL3A4meBifE64jdvwUiegpHbDlUkXvekrkXvFVtRLidi7fq7MwqHsCmNFSIff6pCGlfu4Ie3UHa9yNoOyVDbmPqEiX5qM1Z3YzhDXfyrKbppvCYuwDXbfPCkVa45aYCbGX2x9ogZd22zxpoTHHYpImpkJUGo9IXl5DscgPLpdEdRowSkC8hdSYYRD3zu04g5ZRGESelVhqeGTIPEnssJOCaZdcyAR2frs
+  jwtSecret: ${JWT_SECRET:FbaKFoxbDpfzHGpKjAALXPesF2aiO3WjL3A4meBifE64jdvwUiegpHbDlUkXvekrkXvFVtRLidi7fq7MwqHsCmNFSIff6pCGlfu4Ie3UHa9yNoOyVDbmPqEiX5qM1Z3YzhDXfyrKbppvCYuwDXbfPCkVa45aYCbGX2x9ogZd22zxpoTHHYpImpkJUGo9IXl5DscgPLpdEdRowSkC8hdSYYRD3zu04g5ZRGESelVhqeGTIPEnssJOCaZdcyAR2frs}
   cors:
-    allowedOrigins:
+    enabled: ${CORS_ENABLED:true}
+    allowedOrigins: ${ALLOWED_ORIGINS:http://localhost:8080}
