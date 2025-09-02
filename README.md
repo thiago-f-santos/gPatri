@@ -110,3 +110,4 @@ http://localhost:8080/swagger-ui.html
 
 > **Importante:** Os microserviços somente aceitarão requests através do Swagger caso acesso CORS estiver habilitado para o domínio do gateway.
 
+> **Importante:** O usuário administrador padrão é admin@admin.com e a senha é admin123
