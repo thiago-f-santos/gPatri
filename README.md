@@ -41,6 +41,7 @@ Para evitar a modificação manual dos arquivos application.yml, você pode defi
     | EUREKA_SERVER      | URL do servidor Eureka.                              | http://localhost:8761/eureka/              |
     | JWT_SECRET         | Chave secreta para a assinatura de tokens JWT.       | String aleatória de 256 caracteres         |
     | JWT_EXPIRATION_MS  | Tempo de expiração do token JWT em milissegundos.    | 86400000                                   |
+    | CORS_ALLOWED       | Habilita ou desabilita requisições CORS.             | true                                       |
     | ALLOWED_ORIGINS    | URLs permitidas para requisições CORS.               | http://localhost:8080                      |
 
 Você pode definir as variáveis de ambiente de forma permanente através da interface gráfica do sistema.
