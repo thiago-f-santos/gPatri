@@ -12,6 +12,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -21,7 +24,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -114,12 +116,15 @@ public class EmprestimoController {
     })
     @PreAuthorize("hasAuthority('EMPRESTIMO_LISTAR_TODOS')")
     @GetMapping
-    public ResponseEntity<List<EmprestimoResponseDTO>> findAll(@RequestParam(required = false) String situacaoEmprestimo) {
-        List<EmprestimoResponseDTO> emprestimos;
+    public ResponseEntity<Page<EmprestimoResponseDTO>> findAll(@RequestParam(required = false) String situacaoEmprestimo,
+                                                               @RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<EmprestimoResponseDTO> emprestimos;
         if (situacaoEmprestimo != null) {
-            emprestimos = emprestimoService.findAllBySituacaoEmprestimo(SituacaoEmprestimo.valueOf(situacaoEmprestimo.toUpperCase()));
+            emprestimos = emprestimoService.findAllBySituacaoEmprestimo(SituacaoEmprestimo.valueOf(situacaoEmprestimo.toUpperCase()), pageable);
         } else {
-            emprestimos = emprestimoService.findAll();
+            emprestimos = emprestimoService.findAll(pageable);
         }
         return ResponseEntity.ok(emprestimos);
     }
@@ -174,8 +179,11 @@ public class EmprestimoController {
     })
     @PreAuthorize("hasAuthority('EMPRESTIMO_LISTAR_TODOS') or (hasAuthority('EMPRESTIMO_LISTAR') and @emprestimoService.isSelf(#id, authentication.principal.id))")
     @GetMapping("/user/{id}")
-    public ResponseEntity<List<EmprestimoResponseDTO>> findAllByUser(@PathVariable UUID id) {
-        List<EmprestimoResponseDTO> empretimos = emprestimoService.findAllByUserId(id);
+    public ResponseEntity<Page<EmprestimoResponseDTO>> findAllByUser(@PathVariable UUID id,
+                                                                     @RequestParam(defaultValue = "0") int page,
+                                                                     @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<EmprestimoResponseDTO> empretimos = emprestimoService.findAllByUserId(id, pageable);
         return ResponseEntity.ok(empretimos);
     }
 

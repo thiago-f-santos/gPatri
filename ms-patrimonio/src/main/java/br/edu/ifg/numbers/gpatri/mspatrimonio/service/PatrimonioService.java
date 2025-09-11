@@ -10,11 +10,12 @@ import br.edu.ifg.numbers.gpatri.mspatrimonio.mapper.PatrimonioMapper;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.repository.PatrimonioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -70,24 +71,24 @@ public class PatrimonioService {
         patrimonioRepository.deleteById(id);
     }
 
-    public List<PatrimonioResponseDTO> findAllPatrimoniosWithItemPatrimonioAvailable() {
-        List<Patrimonio> patrimonios = patrimonioRepository.findPatrimoniosWhereItemPatrimonioAvailable();
-        return patrimonios.stream().map(patrimonioMapper::patrimonioToPatrimonioResponseDto).toList();
-    }
-
     public PatrimonioResponseDTO findById(UUID id) {
         Patrimonio patrimonio = patrimonioRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Patrimonio não encontrado"));
         return patrimonioMapper.patrimonioToPatrimonioResponseDto(patrimonio);
     }
 
-    public List<PatrimonioResponseDTO> findAll() {
-        List<Patrimonio> patrimonios = patrimonioRepository.findAll();
-        return patrimonios.stream().map(patrimonioMapper::patrimonioToPatrimonioResponseDto).toList();
+    public Page<PatrimonioResponseDTO> findAllPatrimoniosWithItemPatrimonioAvailable(Pageable pageable) {
+        Page<Patrimonio> patrimonios = patrimonioRepository.findPatrimoniosWhereItemPatrimonioAvailable(pageable);
+        return patrimonios.map(patrimonioMapper::patrimonioToPatrimonioResponseDto);
     }
 
-    public List<PatrimonioResponseDTO> findAllByNome(String nome) {
-        List<Patrimonio> patrimonios = patrimonioRepository.findAllByNomeContainsIgnoreCase(nome);
-        return patrimonios.stream().map(patrimonioMapper::patrimonioToPatrimonioResponseDto).toList();
+    public Page<PatrimonioResponseDTO> findAll(Pageable pageable) {
+        Page<Patrimonio> patrimonios = patrimonioRepository.findAll(pageable);
+        return patrimonios.map(patrimonioMapper::patrimonioToPatrimonioResponseDto);
+    }
+
+    public Page<PatrimonioResponseDTO> findAllByNome(String nome, Pageable pageable) {
+        Page<Patrimonio> patrimonios = patrimonioRepository.findAllByNomeContainsIgnoreCase(nome, pageable);
+        return patrimonios.map(patrimonioMapper::patrimonioToPatrimonioResponseDto);
     }
 
 }

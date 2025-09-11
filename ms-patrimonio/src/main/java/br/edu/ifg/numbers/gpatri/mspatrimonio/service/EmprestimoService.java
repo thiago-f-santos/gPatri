@@ -20,6 +20,8 @@ import br.edu.ifg.numbers.gpatri.mspatrimonio.repository.ItemEmprestimoRepositor
 import br.edu.ifg.numbers.gpatri.mspatrimonio.repository.ItemPatrimonioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -176,23 +178,6 @@ public class EmprestimoService {
         return emprestimoMapper.emprestimoToEmprestimoResponseDto(emprestimo);
     }
 
-    public EmprestimoResponseDTO findById(UUID idEmprestimo) {
-        Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
-                () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
-        return emprestimoMapper.emprestimoToEmprestimoResponseDto(emprestimo);
-    }
-
-    public List<EmprestimoResponseDTO> findAll() {
-        List<Emprestimo> emprestimos = emprestimoRepository.findAll();
-        return emprestimos.stream().map(emprestimoMapper::emprestimoToEmprestimoResponseDto).toList();
-    }
-
-    public boolean isOwner(UUID idEmprestimo, UUID idUsuario) {
-        Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
-                () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
-        return emprestimo.getIdUsuario().equals(idUsuario);
-    }
-
     private void devolveItensEmprestimo(Emprestimo emprestimo) {
         List<ItemEmprestimo> itemEmprestimos = itemEmprestimoRepository.findAllByEmprestimo_IdEquals(emprestimo.getId());
         itemEmprestimos.forEach(itemEmprestimo -> {
@@ -204,17 +189,34 @@ public class EmprestimoService {
         });
     }
 
-    public List<EmprestimoResponseDTO> findAllBySituacaoEmprestimo(SituacaoEmprestimo situacaoEmprestimo) {
-        List<Emprestimo> emprestimos = emprestimoRepository.findAllBySituacaoEquals(situacaoEmprestimo);
-        return emprestimos.stream().map(emprestimoMapper::emprestimoToEmprestimoResponseDto).toList();
+    public EmprestimoResponseDTO findById(UUID idEmprestimo) {
+        Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
+        return emprestimoMapper.emprestimoToEmprestimoResponseDto(emprestimo);
     }
 
-    public List<EmprestimoResponseDTO> findAllByUserId(UUID userId) {
-        List<Emprestimo> emprestimos = emprestimoRepository.findAllByIdUsuarioEquals(userId);
-        return emprestimos.stream().map(emprestimoMapper::emprestimoToEmprestimoResponseDto).toList();
+    public Page<EmprestimoResponseDTO> findAll(Pageable pageable) {
+        Page<Emprestimo> emprestimos = emprestimoRepository.findAll(pageable);
+        return emprestimos.map(emprestimoMapper::emprestimoToEmprestimoResponseDto);
+    }
+
+    public Page<EmprestimoResponseDTO> findAllBySituacaoEmprestimo(SituacaoEmprestimo situacaoEmprestimo, Pageable pageable) {
+        Page<Emprestimo> emprestimos = emprestimoRepository.findAllBySituacaoEquals(situacaoEmprestimo, pageable);
+        return emprestimos.map(emprestimoMapper::emprestimoToEmprestimoResponseDto);
+    }
+
+    public Page<EmprestimoResponseDTO> findAllByUserId(UUID userId, Pageable pageable) {
+        Page<Emprestimo> emprestimos = emprestimoRepository.findAllByIdUsuarioEquals(userId, pageable);
+        return emprestimos.map(emprestimoMapper::emprestimoToEmprestimoResponseDto);
     }
 
     public boolean isSelf(UUID idClaim, UUID idUsuario) {
         return idClaim.equals(idUsuario);
+    }
+
+    public boolean isOwner(UUID idEmprestimo, UUID idUsuario) {
+        Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
+        return emprestimo.getIdUsuario().equals(idUsuario);
     }
 }

@@ -10,6 +10,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -17,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 @Controller
@@ -90,12 +92,15 @@ public class PatrimonioController {
     })
     @PreAuthorize("hasAuthority('PATRIMONIO_LISTAR')")
     @GetMapping
-    public ResponseEntity<List<PatrimonioResponseDTO>> findAll(@RequestParam(required = false) String nome) {
-        List<PatrimonioResponseDTO> patrimonioResponseDTO;
+    public ResponseEntity<Page<PatrimonioResponseDTO>> findAll(@RequestParam(required = false) String nome,
+                                                               @RequestParam(defaultValue = "0") int page,
+                                                               @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PatrimonioResponseDTO> patrimonioResponseDTO;
         if (nome == null || nome.isEmpty()) {
-            patrimonioResponseDTO = patrimonioService.findAll();
+            patrimonioResponseDTO = patrimonioService.findAll(pageable);
         } else {
-            patrimonioResponseDTO = patrimonioService.findAllByNome(nome);
+            patrimonioResponseDTO = patrimonioService.findAllByNome(nome, pageable);
         }
 
         return ResponseEntity.ok().body(patrimonioResponseDTO);
@@ -108,8 +113,10 @@ public class PatrimonioController {
     })
     @PreAuthorize("hasAuthority('PATRIMONIO_LISTAR')")
     @GetMapping("/available")
-    public ResponseEntity<List<PatrimonioResponseDTO>> findAllAvailable() {
-        List<PatrimonioResponseDTO> patrimonioResponseDTO = patrimonioService.findAllPatrimoniosWithItemPatrimonioAvailable();
+    public ResponseEntity<Page<PatrimonioResponseDTO>> findAllAvailable(@RequestParam(defaultValue = "0") int page,
+                                                                        @RequestParam(defaultValue = "5") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<PatrimonioResponseDTO> patrimonioResponseDTO = patrimonioService.findAllPatrimoniosWithItemPatrimonioAvailable(pageable);
         return ResponseEntity.ok().body(patrimonioResponseDTO);
     }
 
