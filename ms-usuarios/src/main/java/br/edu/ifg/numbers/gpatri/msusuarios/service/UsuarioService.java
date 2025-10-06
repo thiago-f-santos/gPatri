@@ -6,7 +6,6 @@ import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserRequestDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserResponseDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserUpdateDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UsuarioCargoUpdateDTO;
-import br.edu.ifg.numbers.gpatri.msusuarios.exception.BadRequestException;
 import br.edu.ifg.numbers.gpatri.msusuarios.exception.ConflictException;
 import br.edu.ifg.numbers.gpatri.msusuarios.exception.ResourceNotFoundException;
 import br.edu.ifg.numbers.gpatri.msusuarios.mapper.UsuarioMapper;
@@ -104,13 +103,11 @@ public class UsuarioService {
         Cargo cargo = cargoRepository.findById(usuarioCargoUpdateDTO.getIdCargo())
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Cargo de ID '%s' não encontrado.", usuarioCargoUpdateDTO.getIdCargo())));
 
-        if (usuario.getCargo() != null && usuario.getCargo().getId().equals(cargo.getId())) {
-            throw new BadRequestException(String.format("O usuário já possui o cargo '%s'.", cargo.getNome()));
+        if (usuario.getCargo() != null && !usuario.getCargo().getId().equals(cargo.getId())) {
+            usuario.setCargo(cargo);
         }
 
-        usuario.setCargo(cargo);
-
-        userRepository.save(usuario);
+        usuario = userRepository.save(usuario);
 
         return usuarioMapper.toDto(usuario);
     }
