@@ -29,63 +29,58 @@ public class CargoService {
 
     @Transactional
     public CargoResponseDTO criarCargo(CargoRequestDTO cargoRequestDTO) {
-        // Verifica se já existe um cargo com o mesmo nome
         if(cargoRepository.findByNome(cargoRequestDTO.getNome()).isPresent()) {
-            throw new ConflictException("Já existe um cargo com o nome: " + cargoRequestDTO.getNome());
+            throw new ConflictException(String.format("Já existe um cargo com o nome: %s", cargoRequestDTO.getNome()));
         }
 
         Cargo cargo = cargoMapper.toEntity(cargoRequestDTO);
+        cargo = cargoRepository.save(cargo);
 
-        Cargo cargoSalvo = cargoRepository.save(cargo);
-
-        return cargoMapper.toDto(cargoSalvo);
+        return cargoMapper.toDto(cargo);
     }
 
-    // Buscar um cargo pelo ID;
     public CargoResponseDTO buscarPorId(UUID id) {
         Cargo cargo = cargoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Cargo de ID '" + id + "' não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Cargo de ID '%s' não encontrado.", id)));
         return cargoMapper.toDto(cargo);
     }
 
-    // Buscar cargo pelo nome;
     public CargoResponseDTO buscarPorNome(String nome) {
         Cargo cargo = cargoRepository.findByNome(nome)
-                .orElseThrow(() -> new ResourceNotFoundException("Cargo de nome '" + nome + "' não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Cargo de nome '%s' não encontrado.", nome)));
         return cargoMapper.toDto(cargo);
     }
 
-    // Buscar todos os cargos;
     public List<CargoResponseDTO> buscarTodos() {
         List<Cargo> cargos = cargoRepository.findAll();
-        return cargoMapper.toDtoList(cargos);
+        return cargos.stream().map(cargoMapper::toDto).toList();
     }
 
-    // Atualizar um cargo pelo ID;
     @Transactional
     public CargoResponseDTO atualizarCargo(UUID id, CargoRequestDTO cargoRequestDTO) {
         Cargo cargo = cargoRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Cargo de ID '" + id + "' não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Cargo de ID '%s' não encontrado.", id)));
 
         if (!cargo.getNome().equals(cargoRequestDTO.getNome()) && cargoRepository.findByNome(cargoRequestDTO.getNome()).isPresent()) {
-            throw new ConflictException("Já existe um cargo com o nome: " + cargoRequestDTO.getNome());
+            throw new ConflictException(String.format("Já existe um cargo com o nome: %s", cargoRequestDTO.getNome()));
         }
 
         cargoMapper.updateEntityFromDto(cargoRequestDTO, cargo);
-        Cargo cargoAtualizado = cargoRepository.save(cargo);
-        return cargoMapper.toDto(cargoAtualizado);
+        cargo = cargoRepository.save(cargo);
+
+        return cargoMapper.toDto(cargo);
     }
 
-    // Deletar um cargo pelo ID;
     @Transactional
     public void deletarCargo(UUID id) {
         if (!cargoRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Cargo de ID '" + id + "' não encontrado.");
+            throw new ResourceNotFoundException(String.format("Cargo de ID '%s' não encontrado.", id));
         }
         try {
             cargoRepository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
-            throw new ConflictException("Não é possivel deletar o cargo de ID '" + id + "' pois ele está vinculado a um ou mais usuários. Antes de deletar, remova os usuários vinculados a este cargo.");
+            throw new ConflictException(String.format("Não é possivel deletar o cargo de ID '%s' pois ele está " +
+                    "vinculado a um ou mais usuários. Antes de deletar, remova os usuários vinculados a este cargo.", id));
         }
     }
 }

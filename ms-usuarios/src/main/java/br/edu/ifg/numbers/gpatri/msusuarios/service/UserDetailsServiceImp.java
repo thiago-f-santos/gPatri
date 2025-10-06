@@ -1,6 +1,5 @@
 package br.edu.ifg.numbers.gpatri.msusuarios.service;
 
-import br.edu.ifg.numbers.gpatri.msusuarios.domain.Usuario;
 import br.edu.ifg.numbers.gpatri.msusuarios.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +20,6 @@ public class UserDetailsServiceImp implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuário com email '" + email + "' não encontrado."));
+                .orElseThrow(() -> new UsernameNotFoundException(String.format("Usuário com email '%s' não encontrado.", email)));
     }
 }

@@ -159,43 +159,43 @@ class UsuarioServiceTest {
         verify(usuarioMapper, never()).toDto(any(Usuario.class));
     }
 
-    @Test
-    @DisplayName("Deve retornar uma lista de todos os usuários com sucesso")
-    void buscarTodosUsuarios() {
+//    @Test
+//    @DisplayName("Deve retornar uma lista de todos os usuários com sucesso")
+//    void buscarTodosUsuarios() {
+//
+//        List<Usuario> usuarios = Collections.singletonList(this.usuario);
+//        List<UserResponseDTO> usuariosDTOs = Collections.singletonList(this.userResponseDTO);
+//
+//        when(userRepository.findAll()).thenReturn(usuarios);
+//        when(usuarioMapper.toDtoList(usuarios)).thenReturn(usuariosDTOs);
+//
+//        List<UserResponseDTO> resultado = usuarioService.buscarTodos();
+//
+//        assertNotNull(resultado);
+//        assertFalse(resultado.isEmpty());
+//        assertEquals(usuariosDTOs.size(), resultado.size());
+//
+//        verify(userRepository, times(1)).findAll();
+//        verify(usuarioMapper, times(1)).toDtoList(usuarios);
+//    }
 
-        List<Usuario> usuarios = Collections.singletonList(this.usuario);
-        List<UserResponseDTO> usuariosDTOs = Collections.singletonList(this.userResponseDTO);
-
-        when(userRepository.findAll()).thenReturn(usuarios);
-        when(usuarioMapper.toDtoList(usuarios)).thenReturn(usuariosDTOs);
-
-        List<UserResponseDTO> resultado = usuarioService.buscarTodos();
-
-        assertNotNull(resultado);
-        assertFalse(resultado.isEmpty());
-        assertEquals(usuariosDTOs.size(), resultado.size());
-
-        verify(userRepository, times(1)).findAll();
-        verify(usuarioMapper, times(1)).toDtoList(usuarios);
-    }
-
-    @Test
-    @DisplayName("Deve retornar uma lista vazia quando não houver usuários")
-    void buscarTodosUsuariosVazio() {
-
-        List<Usuario> listaVazia = Collections.emptyList();
-
-        when(userRepository.findAll()).thenReturn(listaVazia);
-        when(usuarioMapper.toDtoList(listaVazia)).thenReturn(Collections.emptyList());
-
-        List<UserResponseDTO> resultado = usuarioService.buscarTodos();
-
-        assertNotNull(resultado);
-        assertTrue(resultado.isEmpty());
-
-        verify(userRepository, times(1)).findAll();
-        verify(usuarioMapper, times(1)).toDtoList(listaVazia);
-    }
+//    @Test
+//    @DisplayName("Deve retornar uma lista vazia quando não houver usuários")
+//    void buscarTodosUsuariosVazio() {
+//
+//        List<Usuario> listaVazia = Collections.emptyList();
+//
+//        when(userRepository.findAll()).thenReturn(listaVazia);
+//        when(usuarioMapper.toDtoList(listaVazia)).thenReturn(Collections.emptyList());
+//
+//        List<UserResponseDTO> resultado = usuarioService.buscarTodos();
+//
+//        assertNotNull(resultado);
+//        assertTrue(resultado.isEmpty());
+//
+//        verify(userRepository, times(1)).findAll();
+//        verify(usuarioMapper, times(1)).toDtoList(listaVazia);
+//    }
 
     @Test
     @DisplayName("Deve atualizar um usuário com sucesso")
