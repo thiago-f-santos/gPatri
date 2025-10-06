@@ -6,8 +6,6 @@ import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserResponseDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserUpdateDTO;
 import org.mapstruct.*;
 
-import java.util.List;
-
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UsuarioMapper {
 
@@ -25,9 +23,6 @@ public interface UsuarioMapper {
     @Mapping(target = "cargo", ignore = true)
     @Mapping(target = "id", ignore = true)
     Usuario toEntity(UserRequestDTO dto);
-
-    List<UserResponseDTO> toDtoList(List<Usuario> usuarios);
-
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)

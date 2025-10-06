@@ -15,11 +15,11 @@ import br.edu.ifg.numbers.gpatri.msusuarios.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -40,87 +40,79 @@ public class UsuarioService {
 
     @Transactional
     public UserResponseDTO criarUsuario(UserRequestDTO userRequestDTO) {
-        //Verificar se ja existe um usuário com o mesmo email;
         if (userRepository.findByEmail(userRequestDTO.getEmail()).isPresent()) {
-            throw new ConflictException("O email '" + userRequestDTO.getEmail() + "' já está cadastrado por outro usuário.");
+            throw new ConflictException(String.format("O email '%s' já está cadastrado por outro usuário.", userRequestDTO.getEmail()));
         }
 
         Cargo cargo = cargoRepository.findByNome("Usuário")
                 .orElseThrow(() -> new ResourceNotFoundException("Cargo 'Usuário' não encontrado."));
 
         Usuario usuario = usuarioMapper.toEntity(userRequestDTO);
-
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
-
         usuario.setCargo(cargo);
 
-        Usuario novoUsuario = userRepository.save(usuario);
+        usuario = userRepository.save(usuario);
 
-        return usuarioMapper.toDto(novoUsuario);
+        return usuarioMapper.toDto(usuario);
     }
 
     public UserResponseDTO buscarPid(UUID id) {
         Usuario usuario = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário de ID '" + id + "' não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Usuário de ID '%s' não encontrado.", id)));
         return usuarioMapper.toDto(usuario);
     }
 
-    public List<UserResponseDTO> buscarTodos() {
-        //Buscar todos os usuários do banco de dados;
-        List<Usuario> usuarios = userRepository.findAll();
-
-        return usuarioMapper.toDtoList(usuarios);
+    public Page<UserResponseDTO> buscarTodos(Pageable pageable) {
+        Page<Usuario> usuarios = userRepository.findAll(pageable);
+        return usuarios.map(usuarioMapper::toDto);
     }
 
-    //Atualizar um usuário;
     @Transactional
     public UserResponseDTO atualizarUsuario(UUID id, UserUpdateDTO userUpdateDTO) {
-        //Verificar se o usuário do ID passado existe no BD, se não existir lançar uma exceção;
         Usuario usuario = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário de ID '" + id + "' não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Usuário de ID '%s' não encontrado.", id)));
 
         if (userUpdateDTO.getEmail() != null && !usuario.getEmail().equals(userUpdateDTO.getEmail())) {
             if (userRepository.findByEmail(userUpdateDTO.getEmail()).isPresent()) {
-                throw new ConflictException("O email '" + userUpdateDTO.getEmail() + "' já está cadastrado por outro usuário.");
+                throw new ConflictException(String.format("O email '%s' já está cadastrado por outro usuário.", userUpdateDTO.getEmail()));
             }
         }
 
         usuarioMapper.updateEntityFromDto(userUpdateDTO, usuario);
-
-        Usuario usuarioAtualizado = userRepository.save(usuario);
-        return usuarioMapper.toDto(usuarioAtualizado);
+        userRepository.save(usuario);
+        return usuarioMapper.toDto(usuario);
     }
 
     @Transactional
     public void deletarUsuario(UUID id) {
-        //Verificar se o usuário existe, se não existir lançar uma exceção;
         if (!userRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Usuário de ID '" + id + "' não encontrado.");
+            throw new ResourceNotFoundException(String.format("Usuário de ID '%s' não encontrado.", id));
         }
+
         try {
             userRepository.deleteById(id);
         } catch (DataIntegrityViolationException e) {
-            throw new ConflictException("Não foi possível deletar o usuário de ID '" + id + "'. Existem registros vinculados a este usuários.");
+            throw new ConflictException(String.format("Não foi possível deletar o usuário de ID '%s'. Existem registros vinculados a este usuários.", id));
         }
     }
 
     @Transactional
     public UserResponseDTO atribuirCargo(UUID id, UsuarioCargoUpdateDTO usuarioCargoUpdateDTO) {
         Usuario usuario = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuário de ID '" + id + "' não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Usuário de ID '%s' não encontrado.", id)));
 
         Cargo cargo = cargoRepository.findById(usuarioCargoUpdateDTO.getIdCargo())
-                .orElseThrow(() -> new ResourceNotFoundException("Cargo de ID '" + usuarioCargoUpdateDTO.getIdCargo() + "' não encontrado."));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Cargo de ID '%s' não encontrado.", usuarioCargoUpdateDTO.getIdCargo())));
 
         if (usuario.getCargo() != null && usuario.getCargo().getId().equals(cargo.getId())) {
-            throw new BadRequestException("O usuário já possui o cargo '" + cargo.getNome() + "'.");
+            throw new BadRequestException(String.format("O usuário já possui o cargo '%s'.", cargo.getNome()));
         }
 
         usuario.setCargo(cargo);
 
-        Usuario usuarioAtualizado = userRepository.save(usuario);
+        userRepository.save(usuario);
 
-        return usuarioMapper.toDto(usuarioAtualizado);
+        return usuarioMapper.toDto(usuario);
     }
 
 }

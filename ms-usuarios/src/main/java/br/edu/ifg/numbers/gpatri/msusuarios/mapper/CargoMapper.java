@@ -50,8 +50,7 @@ public interface CargoMapper {
                     try {
                         return PermissaoEnum.valueOf(permissao.toUpperCase());
                     } catch (IllegalArgumentException e) {
-                        // Log the error or handle it as needed
-                        throw new BadRequestException("Permissão inválida: " + permissao + " Por favor, use nomes de permissões válidos.", e);
+                        throw new BadRequestException(String.format("Permissão inválida: \"%s\"\nPor favor, use nomes de permissões válidos.", permissao), e);
                     }
                 })
                 .collect(Collectors.toSet());
