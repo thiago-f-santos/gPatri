@@ -25,11 +25,11 @@ Inicie uma instância do PostgreSQL na porta 5432
 E crie os bancos de dados, um banco para ms-usuarios e um para ms-patrimonio
 
 ```bash
-  CREATE DATABASE ms-usuarios;
+  CREATE DATABASE gaptri_usuarios;
 ```
 
 ```bash
-  CREATE DATABASE ms-patrimonios;
+  CREATE DATABASE gpatri_patrimonios;
 ```
 Para evitar a modificação manual dos arquivos application.yml, você pode definir as seguintes variáveis de ambiente. Elas são essenciais para a conexão com o banco de dados e para a comunicação entre os microsserviços.
 
