@@ -35,11 +35,10 @@ public class CargoService {
 
         Cargo cargo = cargoMapper.toEntity(cargoRequestDTO);
         cargo = cargoRepository.save(cargo);
-
         return cargoMapper.toDto(cargo);
     }
 
-    public CargoResponseDTO buscarPorId(UUID id) {
+    public CargoResponseDTO findById(UUID id) {
         Cargo cargo = cargoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Cargo de ID '%s' não encontrado.", id)));
         return cargoMapper.toDto(cargo);

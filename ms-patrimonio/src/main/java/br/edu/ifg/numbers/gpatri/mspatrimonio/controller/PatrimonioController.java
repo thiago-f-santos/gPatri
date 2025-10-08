@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -94,8 +95,11 @@ public class PatrimonioController {
     @GetMapping
     public ResponseEntity<Page<PatrimonioResponseDTO>> findAll(@RequestParam(required = false) String nome,
                                                                @RequestParam(defaultValue = "0") int page,
-                                                               @RequestParam(defaultValue = "5") int size) {
-        Pageable pageable = PageRequest.of(page, size);
+                                                               @RequestParam(defaultValue = "5") int size,
+                                                               @RequestParam(defaultValue = "createdAt") String sortBy,
+                                                               @RequestParam(defaultValue = "DESC") String direction) {
+        Sort sort = direction.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
         Page<PatrimonioResponseDTO> patrimonioResponseDTO;
         if (nome == null || nome.isEmpty()) {
             patrimonioResponseDTO = patrimonioService.findAll(pageable);
@@ -114,8 +118,11 @@ public class PatrimonioController {
     @PreAuthorize("hasAuthority('PATRIMONIO_LISTAR')")
     @GetMapping("/available")
     public ResponseEntity<Page<PatrimonioResponseDTO>> findAllAvailable(@RequestParam(defaultValue = "0") int page,
-                                                                        @RequestParam(defaultValue = "5") int size) {
-        Pageable pageable = PageRequest.of(page, size);
+                                                                        @RequestParam(defaultValue = "5") int size,
+                                                                        @RequestParam(defaultValue = "createdAt") String sortBy,
+                                                                        @RequestParam(defaultValue = "DESC") String direction) {
+        Sort sort = direction.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
         Page<PatrimonioResponseDTO> patrimonioResponseDTO = patrimonioService.findAllPatrimoniosWithItemPatrimonioAvailable(pageable);
         return ResponseEntity.ok().body(patrimonioResponseDTO);
     }

@@ -4,6 +4,7 @@ import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.*;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -114,6 +115,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, ex.getMessage()));
+    }
+
+    @ExceptionHandler({PropertyReferenceException.class})
+    public ResponseEntity<ErrorMessage> handlePropertyReferenceException(PropertyReferenceException ex, HttpServletRequest request) {
+        log.error("Nome de propriedade não existente - ", ex);
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorMessage(request, HttpStatus.BAD_REQUEST, String.format("A propriedade '%s' não existe na classe '%s'.",
+                        ex.getPropertyName(), ex.getClass()))
+                );
     }
 
 }

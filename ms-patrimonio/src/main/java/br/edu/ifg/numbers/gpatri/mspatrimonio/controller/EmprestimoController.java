@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -118,8 +119,11 @@ public class EmprestimoController {
     @GetMapping
     public ResponseEntity<Page<EmprestimoResponseDTO>> findAll(@RequestParam(required = false) String situacaoEmprestimo,
                                                                @RequestParam(defaultValue = "0") int page,
-                                                               @RequestParam(defaultValue = "5") int size) {
-        Pageable pageable = PageRequest.of(page, size);
+                                                               @RequestParam(defaultValue = "5") int size,
+                                                               @RequestParam(defaultValue = "createdAt") String sortBy,
+                                                               @RequestParam(defaultValue = "DESC") String direction) {
+        Sort sort = direction.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
         Page<EmprestimoResponseDTO> emprestimos;
         if (situacaoEmprestimo != null) {
             emprestimos = emprestimoService.findAllBySituacaoEmprestimo(SituacaoEmprestimo.valueOf(situacaoEmprestimo.toUpperCase()), pageable);
@@ -181,10 +185,13 @@ public class EmprestimoController {
     @GetMapping("/user/{id}")
     public ResponseEntity<Page<EmprestimoResponseDTO>> findAllByUser(@PathVariable UUID id,
                                                                      @RequestParam(defaultValue = "0") int page,
-                                                                     @RequestParam(defaultValue = "5") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<EmprestimoResponseDTO> empretimos = emprestimoService.findAllByUserId(id, pageable);
-        return ResponseEntity.ok(empretimos);
+                                                                     @RequestParam(defaultValue = "5") int size,
+                                                                     @RequestParam(defaultValue = "createdAt") String sortBy,
+                                                                     @RequestParam(defaultValue = "DESC") String direction) {
+        Sort sort = direction.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<EmprestimoResponseDTO> emprestimos = emprestimoService.findAllByUserId(id, pageable);
+        return ResponseEntity.ok(emprestimos);
     }
 
 }

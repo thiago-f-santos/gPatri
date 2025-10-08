@@ -113,7 +113,7 @@ class CargoServiceTest {
         when(cargoRepository.findById(cargoId)).thenReturn(Optional.of(cargo));
         when(cargoMapper.toDto(cargo)).thenReturn(cargoResponseDTO);
 
-        CargoResponseDTO response = cargoService.buscarPorId(cargoId);
+        CargoResponseDTO response = cargoService.findById(cargoId);
 
         assertNotNull(response);
         assertEquals(cargoResponseDTO.getId(), response.getId());
@@ -129,7 +129,7 @@ class CargoServiceTest {
 
         when(cargoRepository.findById(cargoId)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, () -> cargoService.buscarPorId(cargoId));
+        assertThrows(ResourceNotFoundException.class, () -> cargoService.findById(cargoId));
 
         verify(cargoRepository, times(1)).findById(cargoId);
         verify(cargoMapper, never()).toDto(any(Cargo.class));

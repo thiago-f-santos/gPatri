@@ -53,7 +53,7 @@ public class CargoController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('CARGO_LISTAR')")
     public ResponseEntity<CargoResponseDTO> buscarPorId(@PathVariable UUID id) {
-        CargoResponseDTO cargo = cargoService.buscarPorId(id);
+        CargoResponseDTO cargo = cargoService.findById(id);
         return ResponseEntity.ok(cargo);
     }
 
