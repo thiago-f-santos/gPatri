@@ -4,5 +4,6 @@ public enum SituacaoEmprestimo {
     EM_ESPERA,
     APROVADO,
     NEGADO,
-    DEVOLVIDO
+    DEVOLVIDO,
+    ATRASADO
 }

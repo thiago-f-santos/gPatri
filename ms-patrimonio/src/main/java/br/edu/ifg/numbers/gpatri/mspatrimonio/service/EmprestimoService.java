@@ -1,17 +1,12 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.service;
 
-import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.Emprestimo;
-import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.ItemEmprestimo;
-import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.ItemEmprestimoId;
-import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.ItemPatrimonio;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.*;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.SituacaoEmprestimo;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoResponseDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoUpdateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemEmprestimoCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.EmprestimoVazioException;
-import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.ItemEmUsoException;
-import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.QuantidadeItemIndisponivelException;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.SituacaoEmprestimoInvalidaException;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.mapper.EmprestimoMapper;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.mapper.ItemEmprestimoMapper;
@@ -20,15 +15,18 @@ import br.edu.ifg.numbers.gpatri.mspatrimonio.repository.ItemEmprestimoRepositor
 import br.edu.ifg.numbers.gpatri.mspatrimonio.repository.ItemPatrimonioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class EmprestimoService {
@@ -49,39 +47,39 @@ public class EmprestimoService {
         emprestimo.setCreatedAt(Instant.now());
         emprestimo = emprestimoRepository.save(emprestimo);
 
-        if (emprestimoCreateDTO.getItensEmprestimo() != null) {
-            for (ItemEmprestimoCreateDTO itemEmprestimoCreateDTO : emprestimoCreateDTO.getItensEmprestimo()) {
-                ItemPatrimonio itemPatrimonio = itemPatrimonioRepository.findById(itemEmprestimoCreateDTO.getIdItemPatrimonio())
-                        .orElseThrow(() -> new EntityNotFoundException(String.format("Item patrimonio '%s' nao encontrado", itemEmprestimoCreateDTO.getIdItemPatrimonio())));
+        if (emprestimoCreateDTO.getItensEmprestimo() == null)
+            throw new EmprestimoVazioException("O emprestimo precisa de itens para ser criado");
 
-                if (itemPatrimonio.getQuantidade() == 0) {
-                    throw new ItemEmUsoException(String.format("O item '%s' ja se encontra em uso", itemPatrimonio.getId()));
-                }
+        List<ItemEmprestimoCreateDTO> itensEmprestimoDTO = emprestimoCreateDTO.getItensEmprestimo();
+        List<UUID> idsItensPatrimonio = emprestimoCreateDTO.getItensEmprestimo().stream().map(ItemEmprestimoCreateDTO::getIdItemPatrimonio).toList();
+        Map<UUID, ItemPatrimonio> itensPatrimonio = itemPatrimonioRepository.findAllById(idsItensPatrimonio)
+                .stream().collect(Collectors.toMap(ItemPatrimonio::getId, i -> i));
+        List<ItemEmprestimo> itensEmprestimo = new LinkedList<>();
 
-                if (itemPatrimonio.getQuantidade() < itemEmprestimoCreateDTO.getQuantidade()) {
-                    throw new QuantidadeItemIndisponivelException(String.format("A quantidade solicitada do item '%s' é maior que a quantidade em estoque", itemPatrimonio.getId()));
-                }
+        for (ItemEmprestimoCreateDTO itemEmprestimoDTO : itensEmprestimoDTO) {
+            ItemPatrimonio itemPatrimonio = itensPatrimonio.get(itemEmprestimoDTO.getIdItemPatrimonio());
+            if (itemPatrimonio == null) throw new EntityNotFoundException(
+                    String.format("Item Patrimonio '%s' não encontrado", itemEmprestimoDTO.getIdItemPatrimonio())
+            );
 
-                itemPatrimonio.setQuantidade(itemPatrimonio.getQuantidade() - itemEmprestimoCreateDTO.getQuantidade());
-                itemPatrimonio.setUpdatedAt(Instant.now());
-                itemPatrimonioRepository.save(itemPatrimonio);
+            itemPatrimonio.removeUnits(itemEmprestimoDTO.getQuantidade());
 
-                ItemEmprestimoId itemEmprestimoId = new ItemEmprestimoId();
-                itemEmprestimoId.setIdEmprestimo(emprestimo.getId());
-                itemEmprestimoId.setIdItemPatrimonio(itemPatrimonio.getId());
+            ItemEmprestimoId itemEmprestimoId = new ItemEmprestimoId();
+            itemEmprestimoId.setIdEmprestimo(emprestimo.getId());
+            itemEmprestimoId.setIdItemPatrimonio(itemPatrimonio.getId());
 
-                ItemEmprestimo itemEmprestimo = itemEmprestimoMapper.createDtoToItemEmprestimo(itemEmprestimoCreateDTO);
-                itemEmprestimo.setId(itemEmprestimoId);
-                itemEmprestimo.setEmprestimo(emprestimo);
-                itemEmprestimo.setItemPatrimonio(itemPatrimonio);
-                itemEmprestimo.setQuantidade(itemEmprestimoCreateDTO.getQuantidade());
-                itemEmprestimo.setCreatedAt(Instant.now());
-                itemEmprestimoRepository.save(itemEmprestimo);
+            ItemEmprestimo itemEmprestimo = itemEmprestimoMapper.createDtoToItemEmprestimo(itemEmprestimoDTO);
+            itemEmprestimo.setId(itemEmprestimoId);
+            itemEmprestimo.setEmprestimo(emprestimo);
+            itemEmprestimo.setItemPatrimonio(itemPatrimonio);
+            itemEmprestimo.setQuantidade(itemEmprestimoDTO.getQuantidade());
+            itemEmprestimo.setCreatedAt(Instant.now());
+            itensEmprestimo.add(itemEmprestimo);
+        }
 
-                emprestimo.getItensEmprestimo().add(itemEmprestimo);
-            }
-        } else throw new EmprestimoVazioException("O emprestimo precisa de itens para ser criado");
-
+        itemPatrimonioRepository.saveAll(itensPatrimonio.values());
+        itemEmprestimoRepository.saveAll(itensEmprestimo);
+        emprestimo.getItensEmprestimo().addAll(itensEmprestimo);
         return emprestimoMapper.emprestimoToEmprestimoResponseDto(emprestimo);
     }
 
@@ -90,12 +88,11 @@ public class EmprestimoService {
         Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
 
-        if (emprestimoUpdateDTO.getDataEmprestimo() != null) {
+        if (emprestimoUpdateDTO.getDataEmprestimo() != null)
             emprestimo.setDataEmprestimo(emprestimoUpdateDTO.getDataEmprestimo());
-        }
-        if (emprestimoUpdateDTO.getDataDevolucao() != null) {
+
+        if (emprestimoUpdateDTO.getDataDevolucao() != null)
             emprestimo.setDataDevolucao(emprestimoUpdateDTO.getDataDevolucao());
-        }
 
         emprestimo.setUpdatedAt(Instant.now());
         emprestimo = emprestimoRepository.save(emprestimo);
@@ -109,19 +106,26 @@ public class EmprestimoService {
                 () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
 
         List<ItemEmprestimo> itemEmprestimos = itemEmprestimoRepository.findAllByEmprestimo_IdEquals(emprestimo.getId());
-
-        if (emprestimo.getSituacao() != SituacaoEmprestimo.DEVOLVIDO && emprestimo.getSituacao() != SituacaoEmprestimo.NEGADO) {
-            itemEmprestimos.forEach(itemEmprestimo -> {
-                ItemPatrimonio itemPatrimonio = itemPatrimonioRepository.findById(itemEmprestimo.getItemPatrimonio().getId())
-                        .orElseThrow(() -> new EntityNotFoundException(String.format("Item Patrimonio '%s' não encontrado", itemEmprestimo.getItemPatrimonio().getId())));
-                itemPatrimonio.setQuantidade(itemPatrimonio.getQuantidade() + itemEmprestimo.getQuantidade());
-                itemPatrimonioRepository.save(itemPatrimonio);
-                itemEmprestimoRepository.delete(itemEmprestimo);
-            });
-        } else {
-            itemEmprestimoRepository.deleteAll(itemEmprestimos);
+        if (itemEmprestimos.isEmpty()) {
+            emprestimoRepository.delete(emprestimo);
+            return;
         }
 
+        List<UUID> idsItemPatrimonio = itemEmprestimos.stream().map(itemEmprestimo -> itemEmprestimo.getItemPatrimonio().getId()).toList();
+
+        Map<UUID, ItemPatrimonio> itensPatrimonio = itemPatrimonioRepository.findAllById(idsItemPatrimonio)
+                .stream().collect(Collectors.toMap(ItemPatrimonio::getId, itemPatrimonio -> itemPatrimonio));
+
+        itemEmprestimos.forEach(itemEmprestimo -> {
+            ItemPatrimonio itemPatrimonio = itensPatrimonio.get(itemEmprestimo.getItemPatrimonio().getId());
+            if (itemPatrimonio == null) throw new EntityNotFoundException(
+                    String.format("Item Patrimonio '%s' não encontrado", itemEmprestimo.getItemPatrimonio().getId())
+            );
+            itemPatrimonio.addUnits(itemEmprestimo.getQuantidade());
+        });
+
+        itemPatrimonioRepository.saveAll(itensPatrimonio.values());
+        itemEmprestimoRepository.deleteAll(itemEmprestimos);
         emprestimoRepository.delete(emprestimo);
     }
 
@@ -165,7 +169,7 @@ public class EmprestimoService {
         Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
 
-        if (emprestimo.getSituacao() != SituacaoEmprestimo.APROVADO)
+        if (emprestimo.getSituacao() != SituacaoEmprestimo.APROVADO && emprestimo.getSituacao() != SituacaoEmprestimo.ATRASADO)
             throw new SituacaoEmprestimoInvalidaException(String.format("O empréstimo '%s' não pode ser devolvido, situação invalida para devolução", idEmprestimo));
 
         emprestimo.setSituacao(SituacaoEmprestimo.DEVOLVIDO);
@@ -176,17 +180,6 @@ public class EmprestimoService {
         emprestimo = emprestimoRepository.save(emprestimo);
 
         return emprestimoMapper.emprestimoToEmprestimoResponseDto(emprestimo);
-    }
-
-    private void devolveItensEmprestimo(Emprestimo emprestimo) {
-        List<ItemEmprestimo> itemEmprestimos = itemEmprestimoRepository.findAllByEmprestimo_IdEquals(emprestimo.getId());
-        itemEmprestimos.forEach(itemEmprestimo -> {
-            ItemPatrimonio itemPatrimonio = itemPatrimonioRepository.findById(itemEmprestimo.getItemPatrimonio().getId())
-                    .orElseThrow(() -> new EntityNotFoundException(String.format("Item Patrimonio '%s' não encontrado", itemEmprestimo.getItemPatrimonio().getId())));
-            itemPatrimonio.setQuantidade(itemPatrimonio.getQuantidade() + itemEmprestimo.getQuantidade());
-            itemPatrimonio.setUpdatedAt(Instant.now());
-            itemPatrimonioRepository.save(itemPatrimonio);
-        });
     }
 
     public EmprestimoResponseDTO findById(UUID idEmprestimo) {
@@ -219,4 +212,48 @@ public class EmprestimoService {
                 () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
         return emprestimo.getIdUsuario().equals(idUsuario);
     }
+
+    private void devolveItensEmprestimo(Emprestimo emprestimo) {
+        List<ItemEmprestimo> itensEmprestimo = itemEmprestimoRepository.findAllByEmprestimo_IdEquals(emprestimo.getId());
+        if (itensEmprestimo.isEmpty()) {
+            log.info("Emprestimo '{}' não possui itens a ser devolvidos.", emprestimo.getId());
+            return;
+        }
+
+        List<UUID> idsPatrimonios = itensEmprestimo.stream().map(itemEmprestimo -> itemEmprestimo.getItemPatrimonio().getId()).toList();
+
+        Map<UUID, ItemPatrimonio> itensPatrimonioMap = itemPatrimonioRepository.findAllById(idsPatrimonios)
+                .stream().collect(Collectors.toMap(ItemPatrimonio::getId, itemPatrimonio -> itemPatrimonio));
+
+        itensEmprestimo.forEach(itemEmprestimo -> {
+            ItemPatrimonio itemPatrimonio = itensPatrimonioMap.get(itemEmprestimo.getItemPatrimonio().getId());
+            if (itemPatrimonio == null) throw new EntityNotFoundException(
+                    String.format("Item Patrimonio '%s' não encontrado", itemEmprestimo.getItemPatrimonio().getId())
+            );
+            itemPatrimonio.addUnits(itemEmprestimo.getQuantidade());
+        });
+
+        itemPatrimonioRepository.saveAll(itensPatrimonioMap.values());
+        log.info("Devolvidas as unidades de {} itens de patrimonio do empréstimo '{}'",  itensPatrimonioMap.size(), emprestimo.getId());
+    }
+
+    @Scheduled(cron = "1 0 0 * * *", zone = "America/Sao_Paulo")
+    public void atualizaEmprestimos() {
+        List<Emprestimo> emprestimosAtrasados = emprestimoRepository.findAllBySituacaoEqualsAndDataDevolucaoBefore(SituacaoEmprestimo.APROVADO, Date.from(Instant.now()));
+        if (emprestimosAtrasados.isEmpty()) {
+            log.info("Não há nenhum empréstimo a ser marcado como atrasado.");
+        }
+
+        final Instant now = Instant.now();
+
+        log.info("Foram encontrados {} empréstimos para serem marcados como atrasados.", emprestimosAtrasados.size());
+        emprestimosAtrasados.forEach(emprestimo -> {
+           emprestimo.setSituacao(SituacaoEmprestimo.ATRASADO);
+           emprestimo.setUpdatedAt(now);
+        });
+
+        emprestimoRepository.saveAll(emprestimosAtrasados);
+        log.info("{} empréstimos atrasados foram atualizados com a situação {}.", emprestimosAtrasados.size(), SituacaoEmprestimo.ATRASADO);
+    }
+
 }
