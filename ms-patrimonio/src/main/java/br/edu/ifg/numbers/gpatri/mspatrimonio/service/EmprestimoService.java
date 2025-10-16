@@ -138,7 +138,9 @@ public class EmprestimoService {
             throw new SituacaoEmprestimoInvalidaException(String.format("O empréstimo '%s' não está em espera", idEmprestimo));
 
         emprestimo.setIdUsuarioAvaliador(idUsuarioAvaliador);
-        emprestimo.setSituacao(SituacaoEmprestimo.APROVADO);
+        emprestimo.setSituacao(
+                emprestimo.getDataDevolucao().after(Date.from(Instant.now())) ? SituacaoEmprestimo.APROVADO : SituacaoEmprestimo.ATRASADO
+        );
         emprestimo.setUpdatedAt(Instant.now());
         emprestimo = emprestimoRepository.save(emprestimo);
 
