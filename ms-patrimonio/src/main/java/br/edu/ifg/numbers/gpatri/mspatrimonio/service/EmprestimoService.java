@@ -1,5 +1,7 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.service;
 
+import br.edu.ifg.numbers.gpatri.mspatrimonio.client.UserClient;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.client.dto.ExternalUserDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.*;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.SituacaoEmprestimo;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.EmprestimoCreateDTO;
@@ -38,6 +40,8 @@ public class EmprestimoService {
     private final ItemEmprestimoMapper itemEmprestimoMapper;
 
     private final ItemPatrimonioRepository itemPatrimonioRepository;
+
+    private final UserClient userClient;
 
     @Transactional
     public EmprestimoResponseDTO save(UUID idUsuario, EmprestimoCreateDTO emprestimoCreateDTO) {
@@ -187,22 +191,62 @@ public class EmprestimoService {
     public EmprestimoResponseDTO findById(UUID idEmprestimo) {
         Emprestimo emprestimo = emprestimoRepository.findById(idEmprestimo).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Emprestimo '%s' não encontrado", idEmprestimo)));
-        return emprestimoMapper.emprestimoToEmprestimoResponseDto(emprestimo);
+
+        ExternalUserDTO user = userClient.getUserById(emprestimo.getIdUsuario());
+        ExternalUserDTO appraiser = userClient.getUserById(emprestimo.getIdUsuarioAvaliador());
+
+        EmprestimoResponseDTO emprestimoResponseDTO = emprestimoMapper.emprestimoToEmprestimoResponseDto(emprestimo);
+        emprestimoResponseDTO.setUsuario(user);
+        emprestimoResponseDTO.setUsuarioAvaliador(appraiser);
+
+        return emprestimoResponseDTO;
     }
 
     public Page<EmprestimoResponseDTO> findAll(Pageable pageable) {
         Page<Emprestimo> emprestimos = emprestimoRepository.findAll(pageable);
-        return emprestimos.map(emprestimoMapper::emprestimoToEmprestimoResponseDto);
+
+        Map<UUID, ExternalUserDTO> users = userClient.getUsersByIdsList(emprestimos.stream()
+                .map(Emprestimo::getIdUsuario).toList()).stream().collect(Collectors.toMap(ExternalUserDTO::getId, u -> u));
+        Map<UUID, ExternalUserDTO> appraisers = userClient.getUsersByIdsList(emprestimos.stream()
+                .map(Emprestimo::getIdUsuarioAvaliador).toList()).stream().collect(Collectors.toMap(ExternalUserDTO::getId, u -> u));
+
+        return emprestimos.map(emprestimo -> {
+            EmprestimoResponseDTO emprestimoResponseDTO = emprestimoMapper.emprestimoToEmprestimoResponseDto(emprestimo);
+            emprestimoResponseDTO.setUsuario(users.get(emprestimo.getIdUsuario()));
+            emprestimoResponseDTO.setUsuarioAvaliador(appraisers.get(emprestimo.getIdUsuarioAvaliador()));
+            return emprestimoResponseDTO;
+        });
     }
 
     public Page<EmprestimoResponseDTO> findAllBySituacaoEmprestimo(SituacaoEmprestimo situacaoEmprestimo, Pageable pageable) {
         Page<Emprestimo> emprestimos = emprestimoRepository.findAllBySituacaoEquals(situacaoEmprestimo, pageable);
-        return emprestimos.map(emprestimoMapper::emprestimoToEmprestimoResponseDto);
+
+        Map<UUID, ExternalUserDTO> users = userClient.getUsersByIdsList(emprestimos.stream()
+                .map(Emprestimo::getIdUsuario).toList()).stream().collect(Collectors.toMap(ExternalUserDTO::getId, u -> u));
+        Map<UUID, ExternalUserDTO> appraisers = userClient.getUsersByIdsList(emprestimos.stream()
+                .map(Emprestimo::getIdUsuarioAvaliador).toList()).stream().collect(Collectors.toMap(ExternalUserDTO::getId, u -> u));
+
+        return emprestimos.map(emprestimo -> {
+            EmprestimoResponseDTO emprestimoResponseDTO = emprestimoMapper.emprestimoToEmprestimoResponseDto(emprestimo);
+            emprestimoResponseDTO.setUsuario(users.get(emprestimo.getIdUsuario()));
+            emprestimoResponseDTO.setUsuarioAvaliador(appraisers.get(emprestimo.getIdUsuarioAvaliador()));
+            return emprestimoResponseDTO;
+        });
     }
 
     public Page<EmprestimoResponseDTO> findAllByUserId(UUID userId, Pageable pageable) {
         Page<Emprestimo> emprestimos = emprestimoRepository.findAllByIdUsuarioEquals(userId, pageable);
-        return emprestimos.map(emprestimoMapper::emprestimoToEmprestimoResponseDto);
+
+        ExternalUserDTO user = userClient.getUserById(userId);
+        Map<UUID, ExternalUserDTO> appraisers = userClient.getUsersByIdsList(emprestimos.stream()
+                .map(Emprestimo::getIdUsuarioAvaliador).toList()).stream().collect(Collectors.toMap(ExternalUserDTO::getId, u -> u));
+
+        return emprestimos.map(emprestimo -> {
+            EmprestimoResponseDTO emprestimoResponseDTO = emprestimoMapper.emprestimoToEmprestimoResponseDto(emprestimo);
+            emprestimoResponseDTO.setUsuario(user);
+            emprestimoResponseDTO.setUsuarioAvaliador(appraisers.get(emprestimo.getIdUsuarioAvaliador()));
+            return emprestimoResponseDTO;
+        });
     }
 
     public boolean isSelf(UUID idClaim, UUID idUsuario) {

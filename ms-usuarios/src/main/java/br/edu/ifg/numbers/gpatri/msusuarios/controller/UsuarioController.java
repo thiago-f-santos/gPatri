@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -74,6 +75,19 @@ public class UsuarioController {
         Sort sort = direction.equalsIgnoreCase("ASC") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<UserResponseDTO> usuarios = usuarioService.buscarTodos(pageable);
+        return ResponseEntity.ok(usuarios);
+    }
+
+    @Operation(summary = "Retorna uma lista de usuarios encontrados para uma Lista de IDS")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de usuarios retornada com sucesso"),
+            @ApiResponse(responseCode = "403", description = "Acesso negado, usuário não possui permissão"),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado"),
+    })
+    @GetMapping("/usuarios")
+    @PreAuthorize("hasAuthority('USUARIO_LISTAR')")
+    public ResponseEntity<List<UserResponseDTO>> buscarTodos(@RequestParam(name="id", required = true) List<UUID> id) {
+        List<UserResponseDTO> usuarios = usuarioService.buscarTodosPorListaId(id);
         return ResponseEntity.ok(usuarios);
     }
 

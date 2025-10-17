@@ -25,7 +25,8 @@ public interface EmprestimoMapper {
 
     @Mapping(target = "situacao", source = "situacao")
     @Mapping(target = "itensEmprestimo", source = "itensEmprestimo")
-    @Mapping(target = "idUsuarioAvaliador", source = "idUsuarioAvaliador")
+    @Mapping(target = "usuario", ignore = true)
+    @Mapping(target = "usuarioAvaliador", ignore = true)
     EmprestimoResponseDTO emprestimoToEmprestimoResponseDto(Emprestimo emprestimo);
     
 }

@@ -42,6 +42,7 @@ public class PatrimonioService {
     public PatrimonioResponseDTO update(UUID id, PatrimonioUpdateDTO patrimonioUpdateDTO) {
         Patrimonio patrimonio = patrimonioRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Patrimonio não encontrado"));
+
         if (patrimonioUpdateDTO.getIdCategoria() != null) {
             Categoria categoria = categoriaMapper.responseDtoToCategoria(categoriaService.findById(patrimonioUpdateDTO.getIdCategoria()));
             patrimonio.setCategoria(categoria);

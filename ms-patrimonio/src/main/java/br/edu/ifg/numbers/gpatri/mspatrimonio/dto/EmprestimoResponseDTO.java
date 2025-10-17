@@ -1,5 +1,6 @@
 package br.edu.ifg.numbers.gpatri.mspatrimonio.dto;
 
+import br.edu.ifg.numbers.gpatri.mspatrimonio.client.dto.ExternalUserDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.SituacaoEmprestimo;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,9 +14,9 @@ public class EmprestimoResponseDTO {
 
     private UUID id;
 
-    private UUID idUsuario;
+    private ExternalUserDTO usuario;
 
-    private UUID idUsuarioAvaliador;
+    private ExternalUserDTO usuarioAvaliador;
 
     private SituacaoEmprestimo situacao;
 
