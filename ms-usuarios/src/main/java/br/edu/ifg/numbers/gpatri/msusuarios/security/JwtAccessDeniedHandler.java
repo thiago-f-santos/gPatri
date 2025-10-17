@@ -1,6 +1,6 @@
 package br.edu.ifg.numbers.gpatri.msusuarios.security;
 
-import br.edu.ifg.numbers.gpatri.msusuarios.dto.ErrorResponseDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.exception.handler.ErrorMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,10 +33,10 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+        ErrorMessage errorResponse = new ErrorMessage(
+                request,
                 HttpStatus.FORBIDDEN,
-                "Acesso negado. Você não tem permissão para acessar este recurso.",
-                request.getRequestURI()
+                "Acesso negado. Você não tem permissão para acessar este recurso."
         );
 
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));

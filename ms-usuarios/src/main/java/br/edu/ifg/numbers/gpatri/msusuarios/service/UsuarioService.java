@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -110,6 +111,11 @@ public class UsuarioService {
         usuario = userRepository.save(usuario);
 
         return usuarioMapper.toDto(usuario);
+    }
+
+    public List<UserResponseDTO> buscarTodosPorListaId(List<UUID> ids) {
+        List<Usuario> usuarios = userRepository.findAllById(ids);
+        return usuarios.stream().map(usuarioMapper::toDto).toList();
     }
 
 }

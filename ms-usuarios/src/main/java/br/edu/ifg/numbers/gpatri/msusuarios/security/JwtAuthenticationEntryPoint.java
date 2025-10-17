@@ -1,6 +1,6 @@
 package br.edu.ifg.numbers.gpatri.msusuarios.security;
 
-import br.edu.ifg.numbers.gpatri.msusuarios.dto.ErrorResponseDTO;
+import br.edu.ifg.numbers.gpatri.msusuarios.exception.handler.ErrorMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,10 +33,10 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        ErrorResponseDTO errorResponse = new ErrorResponseDTO(
+        ErrorMessage errorResponse = new ErrorMessage(
+                request,
                 HttpStatus.UNAUTHORIZED,
-                "Usuario não autenticado, por favor faça login.",
-                request.getRequestURI()
+                "Usuario não autenticado, por favor faça login."
         );
 
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
