@@ -11,11 +11,13 @@ import br.edu.ifg.numbers.gpatri.mspatrimonio.repository.PatrimonioRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -47,18 +49,12 @@ public class PatrimonioService {
             Categoria categoria = categoriaMapper.responseDtoToCategoria(categoriaService.findById(patrimonioUpdateDTO.getIdCategoria()));
             patrimonio.setCategoria(categoria);
         }
-        if (patrimonioUpdateDTO.getNome() != null) {
-            patrimonio.setNome(patrimonioUpdateDTO.getNome());
-        }
-        if (patrimonioUpdateDTO.getDescricao() != null) {
-            patrimonio.setDescricao(patrimonioUpdateDTO.getDescricao());
-        }
-        if (patrimonioUpdateDTO.getPrecoEstimado() != null) {
-            patrimonio.setPrecoEstimado(patrimonioUpdateDTO.getPrecoEstimado());
-        }
-        if (patrimonioUpdateDTO.getTipoControle() != null) {
-            patrimonio.setTipoControle(patrimonioUpdateDTO.getTipoControle());
-        }
+
+        if (patrimonioUpdateDTO.getNome() != null) patrimonio.setNome(patrimonioUpdateDTO.getNome());
+        if (patrimonioUpdateDTO.getDescricao() != null) patrimonio.setDescricao(patrimonioUpdateDTO.getDescricao());
+        if (patrimonioUpdateDTO.getPrecoEstimado() != null) patrimonio.setPrecoEstimado(patrimonioUpdateDTO.getPrecoEstimado());
+        if (patrimonioUpdateDTO.getTipoControle() != null) patrimonio.setTipoControle(patrimonioUpdateDTO.getTipoControle());
+
         patrimonio.setUpdatedAt(Instant.now());
         patrimonio = patrimonioRepository.save(patrimonio);
         return patrimonioMapper.patrimonioToPatrimonioResponseDto(patrimonio);

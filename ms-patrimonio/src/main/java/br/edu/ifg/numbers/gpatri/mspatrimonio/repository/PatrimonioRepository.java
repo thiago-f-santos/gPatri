@@ -12,7 +12,7 @@ import java.util.UUID;
 @Repository
 public interface PatrimonioRepository extends JpaRepository<Patrimonio, UUID> {
 
-    @Query(value = "SELECT DISTINCT p FROM Patrimonio p JOIN FETCH p.itensPatrimonio ip WHERE ip.quantidade >= 1")
+    @Query(value = "SELECT DISTINCT p FROM Patrimonio p JOIN FETCH ItemPatrimonio ip ON p.id = ip.patrimonio.id AND ip.quantidade >= 1")
     Page<Patrimonio> findPatrimoniosWhereItemPatrimonioAvailable(Pageable pageable);
 
     Page<Patrimonio> findAllByNomeContainsIgnoreCase(String nome, Pageable pageable);
