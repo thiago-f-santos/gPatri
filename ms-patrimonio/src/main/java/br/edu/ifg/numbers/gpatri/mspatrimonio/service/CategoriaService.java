@@ -42,15 +42,16 @@ public class CategoriaService {
     public CategoriaResponseDTO update(UUID id, CategoriaUpdateDTO categoriaUpdateDTO) {
         Categoria categoria = categoriaRepository.findById(id).orElseThrow(
                 () -> new EntityNotFoundException("Categoria a ser atualizada não foi encontrada"));
-        if (categoriaUpdateDTO.getNome() != null) {
-            categoria.setNome(categoriaUpdateDTO.getNome());
-        }
+
+        if (categoriaUpdateDTO.getNome() != null) categoria.setNome(categoriaUpdateDTO.getNome());
+
         if (categoriaUpdateDTO.getIdCategoriaMae() != null) {
             if (categoria.getCategoriaMae() == null || !categoriaUpdateDTO.getIdCategoriaMae().equals(categoria.getCategoriaMae().getId()))  {
                 if (categoria.getCategoriaMae() != null) {
                     categoria.getCategoriaMae().getSubcategorias().remove(categoria);
                 }
             }
+
             Categoria novaCategoriaMae = categoriaRepository.findById(categoriaUpdateDTO.getIdCategoriaMae()).orElseThrow(
                     () -> new EntityNotFoundException("Nova categoria mãe não encontrada"));
             categoria.setCategoriaMae(novaCategoriaMae);
@@ -59,8 +60,10 @@ public class CategoriaService {
             categoria.getCategoriaMae().getSubcategorias().remove(categoria);
             categoria.setCategoriaMae(null);
         }
+
         categoria.setUpdatedAt(Instant.now());
         categoria = categoriaRepository.save(categoria);
+
         return categoriaMapper.categoriaToCategoriaResponseDTO(categoria);
     }
 

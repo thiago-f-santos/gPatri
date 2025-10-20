@@ -261,10 +261,7 @@ public class EmprestimoService {
 
     private void devolveItensEmprestimo(Emprestimo emprestimo) {
         List<ItemEmprestimo> itensEmprestimo = itemEmprestimoRepository.findAllByEmprestimo_IdEquals(emprestimo.getId());
-        if (itensEmprestimo.isEmpty()) {
-            log.info("Emprestimo '{}' não possui itens a ser devolvidos.", emprestimo.getId());
-            return;
-        }
+        if (itensEmprestimo.isEmpty()) return;
 
         List<UUID> idsPatrimonios = itensEmprestimo.stream().map(itemEmprestimo -> itemEmprestimo.getItemPatrimonio().getId()).toList();
 
@@ -280,7 +277,6 @@ public class EmprestimoService {
         });
 
         itemPatrimonioRepository.saveAll(itensPatrimonioMap.values());
-        log.info("Devolvidas as unidades de {} itens de patrimonio do empréstimo '{}'",  itensPatrimonioMap.size(), emprestimo.getId());
     }
 
     @Scheduled(cron = "1 0 0 * * *", zone = "America/Sao_Paulo")

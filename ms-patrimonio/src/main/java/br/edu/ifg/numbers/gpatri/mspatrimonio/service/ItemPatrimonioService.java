@@ -51,15 +51,9 @@ public class ItemPatrimonioService {
         Patrimonio patrimonio = patrimonioRepository.findById(itemPatrimonioUpdateDTO.getIdPatrimonio()).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Patrimonio '%s' não encontrado", itemPatrimonioUpdateDTO.getIdPatrimonio())));
 
-        if (itemPatrimonioUpdateDTO.getIdPatrimonio() != null) {
-            itemPatrimonio.setPatrimonio(patrimonio);
-        }
-        if (itemPatrimonioUpdateDTO.getCondicaoProduto() != null) {
-            itemPatrimonio.setCondicaoProduto(itemPatrimonioUpdateDTO.getCondicaoProduto());
-        }
-        if (itemPatrimonioUpdateDTO.getCondicaoDescricao() != null) {
-            itemPatrimonio.setCondicaoDescricao(itemPatrimonioUpdateDTO.getCondicaoDescricao());
-        }
+        if (itemPatrimonioUpdateDTO.getIdPatrimonio() != null) itemPatrimonio.setPatrimonio(patrimonio);
+        if (itemPatrimonioUpdateDTO.getCondicaoProduto() != null) itemPatrimonio.setCondicaoProduto(itemPatrimonioUpdateDTO.getCondicaoProduto());
+        if (itemPatrimonioUpdateDTO.getCondicaoDescricao() != null) itemPatrimonio.setCondicaoDescricao(itemPatrimonioUpdateDTO.getCondicaoDescricao());
         if (itemPatrimonioUpdateDTO.getQuantidade() != null) {
             if (patrimonio.getTipoControle().equals(TipoControle.UNITARIO) && itemPatrimonioUpdateDTO.getQuantidade() > 1)
                 throw new QuantidadeInvalidaException(
