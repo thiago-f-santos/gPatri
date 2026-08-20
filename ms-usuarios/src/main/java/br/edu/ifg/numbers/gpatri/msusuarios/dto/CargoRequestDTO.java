@@ -2,15 +2,17 @@ package br.edu.ifg.numbers.gpatri.msusuarios.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Set;
+import java.util.UUID;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class CargoRequestDTO {
@@ -20,6 +22,5 @@ public class CargoRequestDTO {
     private String nome;
 
     @NotEmpty(message = "As permissões são obrigatórias")
-    private Set<String> permissoes;
-
+    private Set<UUID> permissoesIds;
 }

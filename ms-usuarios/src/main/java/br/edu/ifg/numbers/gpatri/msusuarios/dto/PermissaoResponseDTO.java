@@ -5,15 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
 import java.util.UUID;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CargoResponseDTO {
+public class PermissaoResponseDTO {
     private UUID id;
     private String nome;
-    private Set<PermissaoResponseDTO> permissoes;
+    private String descricao;
+    private String categoria;
 }
