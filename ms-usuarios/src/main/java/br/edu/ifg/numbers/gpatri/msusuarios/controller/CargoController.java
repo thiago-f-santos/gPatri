@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,15 +19,11 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/cargos")
-@Tag(name = "Cargo", description = "Endpoints relacionados ao gerenciamento de cargos")
+@RequiredArgsConstructor
+@Tag(name = "Cargos", description = "Endpoints relacionados ao gerenciamento de cargos")
 public class CargoController {
 
     private final CargoService cargoService;
-
-    @Autowired
-    public CargoController(CargoService cargoService) {
-        this.cargoService = cargoService;
-    }
 
     @Operation(summary = "Salva um novo cargo no banco de dados")
     @ApiResponses(value = {
