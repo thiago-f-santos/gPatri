@@ -1,9 +1,10 @@
 package br.edu.ifg.numbers.gpatri.msusuarios.config;
 
 import br.edu.ifg.numbers.gpatri.msusuarios.domain.Cargo;
+import br.edu.ifg.numbers.gpatri.msusuarios.domain.Permissao;
 import br.edu.ifg.numbers.gpatri.msusuarios.domain.Usuario;
-import br.edu.ifg.numbers.gpatri.msusuarios.domain.enums.PermissaoEnum;
 import br.edu.ifg.numbers.gpatri.msusuarios.repository.CargoRepository;
+import br.edu.ifg.numbers.gpatri.msusuarios.repository.PermissaoRepository;
 import br.edu.ifg.numbers.gpatri.msusuarios.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,10 +13,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Configuration
 @RequiredArgsConstructor
@@ -24,11 +23,13 @@ public class InitialSetupConfig implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final CargoRepository cargoRepository;
+    private final PermissaoRepository permissaoRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
     public void run(String... args) throws Exception {
+        inicializarPermissoes();
         cargoAdmin();
         cargoUsuario();
 
@@ -57,16 +58,56 @@ public class InitialSetupConfig implements CommandLineRunner {
             }
         } else {
             log.error("Cargo ADMIN não encontrado. Certifique-se de que o cargo ADMIN foi criado antes de iniciar a aplicação.");
-            log.error("O ADMIN não foi criado");
+        }
+    }
+
+    private void inicializarPermissoes() {
+        if (permissaoRepository.count() == 0) {
+            log.info("Catálogo de permissões vazio. Inicializando permissões padrão...");
+            List<Permissao> lista = List.of(
+                    new Permissao("ACESSO_ADMIN", "Acesso administrativo geral", "ADMIN"),
+                    new Permissao("USUARIO_CADASTRAR", "Cadastrar novos usuários", "USUARIOS"),
+                    new Permissao("USUARIO_EDITAR", "Editar usuários", "USUARIOS"),
+                    new Permissao("USUARIO_EXCLUIR", "Excluir usuários", "USUARIOS"),
+                    new Permissao("USUARIO_LISTAR", "Listar usuários", "USUARIOS"),
+                    new Permissao("CARGO_CADASTRAR", "Cadastrar novos cargos", "CARGOS"),
+                    new Permissao("CARGO_EDITAR", "Editar cargos", "CARGOS"),
+                    new Permissao("CARGO_EXCLUIR", "Excluir cargos", "CARGOS"),
+                    new Permissao("CARGO_LISTAR", "Listar cargos", "CARGOS"),
+                    new Permissao("CARGO_ATRIBUIR", "Atribuir cargo a usuários", "CARGOS"),
+                    new Permissao("PERMISSAO_LISTAR", "Listar permissões", "PERMISSOES"),
+                    new Permissao("EMPRESTIMO_SOLICITAR", "Solicitar empréstimo", "EMPRESTIMOS"),
+                    new Permissao("EMPRESTIMO_EDITAR", "Editar empréstimo", "EMPRESTIMOS"),
+                    new Permissao("EMPRESTIMO_EXCLUIR", "Excluir empréstimo", "EMPRESTIMOS"),
+                    new Permissao("EMPRESTIMO_LISTAR", "Listar empréstimos", "EMPRESTIMOS"),
+                    new Permissao("EMPRESTIMO_LIBERAR", "Liberar empréstimos", "EMPRESTIMOS"),
+                    new Permissao("EMPRESTIMO_LISTAR_TODOS", "Listar todos os empréstimos", "EMPRESTIMOS"),
+                    new Permissao("EMPRESTIMO_EDITAR_TODOS", "Editar todos os empréstimos", "EMPRESTIMOS"),
+                    new Permissao("EMPRESTIMO_EXCLUIR_TODOS", "Excluir todos os empréstimos", "EMPRESTIMOS"),
+                    new Permissao("ITEM_PATRIMONIO_CADASTRAR", "Cadastrar item de patrimônio", "ITENS_PATRIMONIO"),
+                    new Permissao("ITEM_PATRIMONIO_EDITAR", "Editar item de patrimônio", "ITENS_PATRIMONIO"),
+                    new Permissao("ITEM_PATRIMONIO_EXCLUIR", "Excluir item de patrimônio", "ITENS_PATRIMONIO"),
+                    new Permissao("ITEM_PATRIMONIO_LISTAR", "Listar itens de patrimônio", "ITENS_PATRIMONIO"),
+                    new Permissao("PATRIMONIO_CADASTRAR", "Cadastrar patrimônio", "PATRIMONIO"),
+                    new Permissao("PATRIMONIO_EDITAR", "Editar patrimônio", "PATRIMONIO"),
+                    new Permissao("PATRIMONIO_EXCLUIR", "Excluir patrimônio", "PATRIMONIO"),
+                    new Permissao("PATRIMONIO_LISTAR", "Listar patrimônios", "PATRIMONIO"),
+                    new Permissao("CATEGORIA_CADASTRAR", "Cadastrar categoria", "CATEGORIAS"),
+                    new Permissao("CATEGORIA_EDITAR", "Editar categoria", "CATEGORIAS"),
+                    new Permissao("CATEGORIA_EXCLUIR", "Excluir categoria", "CATEGORIAS"),
+                    new Permissao("CATEGORIA_LISTAR", "Listar categorias", "CATEGORIAS")
+            );
+            permissaoRepository.saveAll(lista);
+            log.info("Permissões padrão inicializadas com sucesso.");
         }
     }
 
     private void cargoAdmin() {
         if (cargoRepository.findByNome("Administrador").isEmpty()) {
-            Cargo cargo = new Cargo("Administrador");
-            Set<PermissaoEnum> permissoes = new HashSet<>(Arrays.asList(PermissaoEnum.values()));
-            cargo.setPermissoes(permissoes);
+            List<Permissao> todasPermissoes = permissaoRepository.findAll();
+            Cargo cargo = new Cargo("Administrador", new HashSet<>(todasPermissoes));
             cargoRepository.save(cargo);
+            log.info("Cargo Administrador criado com sucesso com todas as permissões.");
         } else {
             log.info("Cargo admin já existe.");
         }
@@ -74,17 +115,21 @@ public class InitialSetupConfig implements CommandLineRunner {
 
     private void cargoUsuario() {
         if (cargoRepository.findByNome("Usuário").isEmpty()) {
-            Cargo cargo = new Cargo("Usuário");
-            Set<PermissaoEnum> permissoes = new HashSet<>(
-                    Arrays.asList(PermissaoEnum.USUARIO_EDITAR, PermissaoEnum.EMPRESTIMO_EDITAR, PermissaoEnum.EMPRESTIMO_EXCLUIR,
-                            PermissaoEnum.EMPRESTIMO_LISTAR, PermissaoEnum.EMPRESTIMO_SOLICITAR, PermissaoEnum.PATRIMONIO_LISTAR,
-                            PermissaoEnum.ITEM_PATRIMONIO_LISTAR, PermissaoEnum.CATEGORIA_LISTAR, PermissaoEnum.USUARIO_LISTAR
-                    ));
-            cargo.setPermissoes(permissoes);
+            Set<String> nomesPermissoes = Set.of(
+                    "USUARIO_EDITAR", "EMPRESTIMO_EDITAR", "EMPRESTIMO_EXCLUIR",
+                    "EMPRESTIMO_LISTAR", "EMPRESTIMO_SOLICITAR", "PATRIMONIO_LISTAR",
+                    "ITEM_PATRIMONIO_LISTAR", "CATEGORIA_LISTAR", "USUARIO_LISTAR"
+            );
+            List<Permissao> todas = permissaoRepository.findAll();
+            Set<Permissao> permissoesUsuario = todas.stream()
+                    .filter(p -> nomesPermissoes.contains(p.getNome()))
+                    .collect(Collectors.toSet());
+
+            Cargo cargo = new Cargo("Usuário", permissoesUsuario);
             cargoRepository.save(cargo);
+            log.info("Cargo Usuário criado com sucesso.");
         } else {
             log.info("Cargo usuário já existe.");
         }
     }
-
 }
