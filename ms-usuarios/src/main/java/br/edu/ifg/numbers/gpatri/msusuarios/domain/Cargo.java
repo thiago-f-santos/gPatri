@@ -1,9 +1,8 @@
 package br.edu.ifg.numbers.gpatri.msusuarios.domain;
 
-import br.edu.ifg.numbers.gpatri.msusuarios.domain.enums.PermissaoEnum;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +13,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "cargos")
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Cargo {
@@ -25,15 +25,22 @@ public class Cargo {
     @Column(nullable = false, unique = true, length = 100)
     private String nome;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "cargo_permissoes", joinColumns = @JoinColumn(name = "cargo_id"))
-    @Column(name = "permissao")
-    @Enumerated(EnumType.STRING)
-    private Set<PermissaoEnum> permissoes = new HashSet<>();
+    @Builder.Default
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "cargo_permissoes",
+            joinColumns = @JoinColumn(name = "cargo_id"),
+            inverseJoinColumns = @JoinColumn(name = "permissao_id")
+    )
+    private Set<Permissao> permissoes = new HashSet<>();
 
     public Cargo(String nome) {
         this.nome = nome;
         this.permissoes = new HashSet<>();
     }
 
+    public Cargo(String nome, Set<Permissao> permissoes) {
+        this.nome = nome;
+        this.permissoes = permissoes != null ? permissoes : new HashSet<>();
+    }
 }

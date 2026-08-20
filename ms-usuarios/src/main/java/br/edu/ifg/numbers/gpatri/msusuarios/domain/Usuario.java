@@ -1,7 +1,5 @@
 package br.edu.ifg.numbers.gpatri.msusuarios.domain;
 
-import jakarta.persistence.Entity;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,8 +12,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "usuarios")
@@ -48,7 +44,7 @@ public class Usuario implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (this.cargo != null && this.cargo.getPermissoes() != null) {
             return this.cargo.getPermissoes().stream()
-                    .map(permissao -> new SimpleGrantedAuthority(permissao.name()))
+                    .map(permissao -> new SimpleGrantedAuthority(permissao.getNome()))
                     .collect(Collectors.toList());
         }
         return Collections.emptyList();
