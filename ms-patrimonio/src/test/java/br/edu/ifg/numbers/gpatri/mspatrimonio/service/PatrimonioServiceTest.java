@@ -11,6 +11,10 @@ import br.edu.ifg.numbers.gpatri.mspatrimonio.mapper.CategoriaMapper;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.mapper.PatrimonioMapper;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.repository.PatrimonioRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -199,18 +203,19 @@ class PatrimonioServiceTest {
     @Test
     @DisplayName("Deve encontrar todos os patrimônios com sucesso")
     void encontrarTodosPatrimonios() {
-        List<Patrimonio> listaDePatrimonios = Collections.singletonList(patrimonio);
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<Patrimonio> pageDePatrimonios = new PageImpl<>(Collections.singletonList(patrimonio), pageable, 1);
 
-        when(patrimonioRepository.findAll()).thenReturn(listaDePatrimonios);
+        when(patrimonioRepository.findAll(pageable)).thenReturn(pageDePatrimonios);
         when(patrimonioMapper.patrimonioToPatrimonioResponseDto(any(Patrimonio.class))).thenReturn(patrimonioResponseDTO);
 
-        List<PatrimonioResponseDTO> resultado = patrimonioService.findAll();
+        Page<PatrimonioResponseDTO> resultado = patrimonioService.findAll(pageable);
 
         assertNotNull(resultado);
         assertFalse(resultado.isEmpty());
-        assertEquals(1, resultado.size());
+        assertEquals(1, resultado.getContent().size());
 
-        verify(patrimonioRepository, times(1)).findAll();
+        verify(patrimonioRepository, times(1)).findAll(pageable);
         verify(patrimonioMapper, times(1)).patrimonioToPatrimonioResponseDto(any(Patrimonio.class));
     }
 }

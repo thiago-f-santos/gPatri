@@ -1,7 +1,6 @@
 package br.edu.ifg.numbers.gpatri.msusuarios.service;
 
 import br.edu.ifg.numbers.gpatri.msusuarios.domain.Usuario;
-import br.edu.ifg.numbers.gpatri.msusuarios.domain.enums.PermissaoEnum;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.LoginRequestDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.LoginResponseDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.security.JwtTokenProvider;
@@ -52,9 +51,9 @@ class AuthServiceTest {
         mockToken = "mockToken";
 
         List<GrantedAuthority> authorities = Set.of(
-                        PermissaoEnum.USUARIO_LISTAR,
-                        PermissaoEnum.CARGO_LISTAR
-        ).stream().map(permissao -> new SimpleGrantedAuthority(permissao.name()))
+                        "USUARIO_LISTAR",
+                        "CARGO_LISTAR"
+        ).stream().map(SimpleGrantedAuthority::new)
          .collect(Collectors.toList());
 
         User userDetailsMock = new User(loginRequestDTO.getEmail(), loginRequestDTO.getSenha(), authorities);

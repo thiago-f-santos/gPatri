@@ -1,8 +1,8 @@
 package br.edu.ifg.numbers.gpatri.msusuarios.service;
 
 import br.edu.ifg.numbers.gpatri.msusuarios.domain.Cargo;
+import br.edu.ifg.numbers.gpatri.msusuarios.domain.Permissao;
 import br.edu.ifg.numbers.gpatri.msusuarios.domain.Usuario;
-import br.edu.ifg.numbers.gpatri.msusuarios.domain.enums.PermissaoEnum;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserRequestDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserResponseDTO;
 import br.edu.ifg.numbers.gpatri.msusuarios.dto.UserUpdateDTO;
@@ -63,10 +63,14 @@ class UsuarioServiceTest {
 
         userRequestDTO = new UserRequestDTO("Nome", "Sobrenome", "teste@gmail.com", "12345678");
 
-        Set<PermissaoEnum> permissoes = Set.of(PermissaoEnum.EMPRESTIMO_SOLICITAR);
-        cargoComum = new Cargo("USUARIO_COMUM");
+        Permissao permissao = Permissao.builder()
+                .id(UUID.randomUUID())
+                .nome("EMPRESTIMO_SOLICITAR")
+                .descricao("Solicitar emprestimo")
+                .categoria("EMPRESTIMOS")
+                .build();
+        cargoComum = new Cargo("USUARIO_COMUM", Set.of(permissao));
         cargoComum.setId(cargoId);
-        cargoComum.setPermissoes(permissoes);
 
         usuario = new Usuario(usuarioId, "Nome", "Sobrenome", "teste@gmail.com", userRequestDTO.getSenha(), cargoComum);
         usuario.setId(usuarioId);
@@ -88,7 +92,7 @@ class UsuarioServiceTest {
     void criarUsuario() {
 
         when(userRepository.findByEmail(userRequestDTO.getEmail())).thenReturn(Optional.empty());
-        when(cargoRepository.findByNome("USUARIO_COMUM")).thenReturn(Optional.of(cargoComum));
+        when(cargoRepository.findByNome("Usuário")).thenReturn(Optional.of(cargoComum));
 
         when(usuarioMapper.toEntity(userRequestDTO)).thenReturn(usuario);
         when(passwordEncoder.encode(userRequestDTO.getSenha())).thenReturn("senhaCriptografada");
@@ -102,7 +106,7 @@ class UsuarioServiceTest {
         assertEquals("USUARIO_COMUM", resultado.getCargo());
 
         verify(userRepository, times(1)).findByEmail(userRequestDTO.getEmail());
-        verify(cargoRepository, times(1)).findByNome("USUARIO_COMUM");
+        verify(cargoRepository, times(1)).findByNome("Usuário");
         verify(passwordEncoder, times(1)).encode(userRequestDTO.getSenha());
         verify(userRepository, times(1)).save(any(Usuario.class));
         verify(usuarioMapper, times(1)).toEntity(userRequestDTO);
@@ -125,7 +129,7 @@ class UsuarioServiceTest {
     void criarUsuarioCargoNaoEncontrado() {
 
         when(userRepository.findByEmail(userRequestDTO.getEmail())).thenReturn(Optional.empty());
-        when(cargoRepository.findByNome("USUARIO_COMUM")).thenReturn(Optional.empty());
+        when(cargoRepository.findByNome("Usuário")).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> usuarioService.criarUsuario(userRequestDTO));
 
@@ -158,44 +162,6 @@ class UsuarioServiceTest {
 
         verify(usuarioMapper, never()).toDto(any(Usuario.class));
     }
-
-//    @Test
-//    @DisplayName("Deve retornar uma lista de todos os usuários com sucesso")
-//    void buscarTodosUsuarios() {
-//
-//        List<Usuario> usuarios = Collections.singletonList(this.usuario);
-//        List<UserResponseDTO> usuariosDTOs = Collections.singletonList(this.userResponseDTO);
-//
-//        when(userRepository.findAll()).thenReturn(usuarios);
-//        when(usuarioMapper.toDtoList(usuarios)).thenReturn(usuariosDTOs);
-//
-//        List<UserResponseDTO> resultado = usuarioService.buscarTodos();
-//
-//        assertNotNull(resultado);
-//        assertFalse(resultado.isEmpty());
-//        assertEquals(usuariosDTOs.size(), resultado.size());
-//
-//        verify(userRepository, times(1)).findAll();
-//        verify(usuarioMapper, times(1)).toDtoList(usuarios);
-//    }
-
-//    @Test
-//    @DisplayName("Deve retornar uma lista vazia quando não houver usuários")
-//    void buscarTodosUsuariosVazio() {
-//
-//        List<Usuario> listaVazia = Collections.emptyList();
-//
-//        when(userRepository.findAll()).thenReturn(listaVazia);
-//        when(usuarioMapper.toDtoList(listaVazia)).thenReturn(Collections.emptyList());
-//
-//        List<UserResponseDTO> resultado = usuarioService.buscarTodos();
-//
-//        assertNotNull(resultado);
-//        assertTrue(resultado.isEmpty());
-//
-//        verify(userRepository, times(1)).findAll();
-//        verify(usuarioMapper, times(1)).toDtoList(listaVazia);
-//    }
 
     @Test
     @DisplayName("Deve atualizar um usuário com sucesso")

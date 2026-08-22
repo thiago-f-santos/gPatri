@@ -28,7 +28,9 @@ public class JwtTokenProvider {
     private long jwtExpirationMs;
 
     public String generateToken(Authentication authentication) {
-        Usuario userPrincipal = (Usuario) authentication.getPrincipal();
+        if (authentication == null || !(authentication.getPrincipal() instanceof Usuario userPrincipal)) {
+            throw new IllegalArgumentException("Authentication principal must be an instance of Usuario");
+        }
 
         String authorities = userPrincipal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
@@ -38,7 +40,7 @@ public class JwtTokenProvider {
 
         return JWT.create()
                 .withSubject(userPrincipal.getUsername())
-                .withClaim("userId", userPrincipal.getId().toString())
+                .withClaim("userId", userPrincipal.getId() != null ? userPrincipal.getId().toString() : null)
                 .withClaim("permissoes", authorities)
                 .withIssuedAt(new Date())
                 .withExpiresAt(new Date((new Date()).getTime() + jwtExpirationMs))
