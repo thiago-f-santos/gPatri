@@ -10,6 +10,15 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [0.7.1] - 2026-08-22
+
+### Corrigido
+- **ci**: sincronizar versao pom 0.7.0 e previnir colisoes de tags no release.py by @thiago-f-santos
+
+### Outros
+- Merge pull request #29 from thiago-f-santos/chore/sync-version-0.7.0-and-release-resilience by @thiago-f-santos
+---
+
 ## [0.7.0] - 2026-08-22
 
 ### Adicionado
