@@ -133,21 +133,41 @@ def format_semver(
     return f"{prefix}{major}.{minor}.{patch}{suffix}"
 
 
+KNOWN_CONTRIBUTOR_EMAILS = {
+    "thiagoferreira2004f@gmail.com": "@thiago-f-santos",
+    "eduardoferreirabmatos@gmail.com": "@EduardoFerreiraB",
+}
+
+
+def is_ignored_commit(commit: CommitInfo) -> bool:
+    """Returns True if the commit should be ignored for release bump and notes."""
+    raw = commit.raw.lower()
+    desc = commit.description.lower()
+    return (
+        "[skip ci]" in raw
+        or "[ci skip]" in raw
+        or raw.startswith("chore(release):")
+        or desc.startswith("chore(release):")
+    )
+
+
 def determine_bump_type(commits: Sequence[CommitInfo]) -> str:
     """
     Determines whether a bump is 'major', 'minor', 'patch', or 'none' based on commits.
+    Ignores commits containing [skip ci], [ci skip], or chore(release):.
     - Any breaking change -> major
     - Any 'feat' -> minor
-    - Any 'fix', 'refactor', 'perf', 'docs', 'chore', etc. -> patch
-    - No commits -> none
+    - Any other qualifying commit -> patch
+    - No qualifying commits -> none
     """
-    if not commits:
+    eligible = [c for c in commits if not is_ignored_commit(c)]
+    if not eligible:
         return "none"
 
-    if any(c.breaking for c in commits):
+    if any(c.breaking for c in eligible):
         return "major"
 
-    if any(c.type == "feat" for c in commits):
+    if any(c.type == "feat" for c in eligible):
         return "minor"
 
     return "patch"
@@ -206,6 +226,10 @@ def get_author_handle(commit: CommitInfo) -> Optional[str]:
     ):
         return None
 
+    # Check mapped known emails
+    if email.lower() in KNOWN_CONTRIBUTOR_EMAILS:
+        return KNOWN_CONTRIBUTOR_EMAILS[email.lower()]
+
     # Extract github handle from noreply email (e.g. 12345+username@users.noreply.github.com)
     noreply = re.search(
         r"(?:\d+\+)?([a-zA-Z0-9_-]+)@users\.noreply\.github\.com", email
@@ -215,10 +239,10 @@ def get_author_handle(commit: CommitInfo) -> Optional[str]:
         if "bot" not in handle.lower() and "github-actions" not in handle.lower():
             return f"@{handle}"
 
-    # If name is a single-word handle (e.g. thiago-f-santos, EduardoFerreiraB)
-    if name and " " not in name:
+    # If the name is already in explicit @username format
+    if name.startswith("@") and len(name) > 1:
         clean_name = name.lstrip("@")
-        if "bot" not in clean_name.lower() and "github-actions" not in clean_name.lower():
+        if re.match(r"^[a-zA-Z0-9_-]+$", clean_name) and "bot" not in clean_name.lower():
             return f"@{clean_name}"
 
     return None
@@ -226,15 +250,19 @@ def get_author_handle(commit: CommitInfo) -> Optional[str]:
 
 def generate_fallback_notes(commits: Sequence[CommitInfo]) -> str:
     """Generates Keep-a-Changelog compatible release notes from commits with inline author attribution."""
-    breaking = [c for c in commits if c.breaking]
-    feats = [c for c in commits if not c.breaking and c.type == "feat"]
-    fixes = [c for c in commits if not c.breaking and c.type == "fix"]
+    eligible = [c for c in commits if not is_ignored_commit(c)]
+    if not eligible:
+        return "- Melhorias e correções gerais."
+
+    breaking = [c for c in eligible if c.breaking]
+    feats = [c for c in eligible if not c.breaking and c.type == "feat"]
+    fixes = [c for c in eligible if not c.breaking and c.type == "fix"]
     mods = [
-        c for c in commits if not c.breaking and c.type in {"refactor", "perf", "style"}
+        c for c in eligible if not c.breaking and c.type in {"refactor", "perf", "style"}
     ]
     others = [
         c
-        for c in commits
+        for c in eligible
         if not c.breaking and c not in feats and c not in fixes and c not in mods
     ]
 
