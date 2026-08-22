@@ -10,6 +10,16 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [0.7.0] - 2026-08-22
+
+### Adicionado
+- **ci**: enriquecer automaticamente itens do [Não Lançado] com autoria by @User by @thiago-f-santos
+
+### Outros
+- Merge pull request #27 from thiago-f-santos/fix/ci-skip-and-contributor-mentions by @thiago-f-santos
+- **ci**: validar mencao crua a usuario sem crases e protecao de anotacoes by @thiago-f-santos
+---
+
 ## [0.6.1] - 2026-08-22
 
 ### Corrigido
