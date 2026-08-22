@@ -10,6 +10,15 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [0.6.0] - 2026-08-22
+
+### Adicionado
+- **ci**: adicionar sufixo inline by `@User` por commit e remover secao separada de contribuidores by `@Thiago`
+
+### Corrigido
+- **ci**: filtrar estritamente contas de bot e github-actions da lista de contribuidores by `@Thiago`
+---
+
 ## [0.5.0] - 2026-08-22
 
 ### Adicionado
