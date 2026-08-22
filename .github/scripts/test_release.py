@@ -20,15 +20,18 @@ from release import (  # type: ignore # noqa: E402
     CommitInfo,
     SemVer,
     calculate_next_version,
+    compare_semver,
     determine_bump_type,
     extract_release_notes,
     format_semver,
     generate_fallback_notes,
+    get_all_git_tags,
     get_author_handle,
     get_commits_since_tag,
     get_current_pom_version,
     get_latest_git_tag,
     main,
+    max_semver,
     parse_semver,
     promote_changelog,
     run_command,
@@ -78,6 +81,17 @@ class TestSemVerParsingAndFormatting(unittest.TestCase):
         self.assertEqual(
             format_semver(2, 0, 1, prerelease="rc.2", prefix_v=True), "v2.0.1-rc.2"
         )
+
+    def test_compare_and_max_semver(self):
+        self.assertEqual(compare_semver("0.6.1", "0.7.0"), -1)
+        self.assertEqual(compare_semver("0.7.0", "0.6.1"), 1)
+        self.assertEqual(compare_semver("0.7.0", "0.7.0"), 0)
+        self.assertEqual(compare_semver("v1.0.0", "0.9.9"), 1)
+
+        self.assertEqual(max_semver("0.6.1", "0.7.0"), "0.7.0")
+        self.assertEqual(max_semver("0.7.0", "0.6.1"), "0.7.0")
+        self.assertEqual(max_semver("v0.6.1", "v0.7.0"), "v0.7.0")
+
 
 
 class TestCommitInfoParsing(unittest.TestCase):

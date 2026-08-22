@@ -133,6 +133,25 @@ def format_semver(
     return f"{prefix}{major}.{minor}.{patch}{suffix}"
 
 
+def compare_semver(v1_str: str, v2_str: str) -> int:
+    """Compares two SemVer strings. Returns 1 if v1 > v2, 0 if v1 == v2, -1 if v1 < v2."""
+    v1 = parse_semver(v1_str)
+    v2 = parse_semver(v2_str)
+    t1 = (v1.major, v1.minor, v1.patch)
+    t2 = (v2.major, v2.minor, v2.patch)
+    if t1 > t2:
+        return 1
+    elif t1 < t2:
+        return -1
+    return 0
+
+
+def max_semver(v1_str: str, v2_str: str) -> str:
+    """Returns the higher SemVer string between two versions."""
+    return v1_str if compare_semver(v1_str, v2_str) >= 0 else v2_str
+
+
+
 KNOWN_CONTRIBUTOR_EMAILS = {
     "thiagoferreira2004f@gmail.com": "@thiago-f-santos",
     "eduardoferreirabmatos@gmail.com": "@EduardoFerreiraB",
@@ -454,17 +473,28 @@ def run_command(
     )
 
 
-def get_latest_git_tag(cwd: str = ".") -> Optional[str]:
-    """Retrieves the latest git tag in the repository sorted by version refname."""
+def get_all_git_tags(cwd: str = ".") -> list[str]:
+    """Retrieves all git tags in the repository sorted by version refname."""
     try:
         res = run_command(["git", "tag", "--sort=-v:refname"], cwd=cwd, check=False)
         if res.returncode == 0 and res.stdout.strip():
-            tags = [t.strip() for t in res.stdout.strip().splitlines() if t.strip()]
-            if tags:
-                return tags[0]
+            return [t.strip() for t in res.stdout.strip().splitlines() if t.strip()]
     except Exception:
         pass
+    return []
+
+
+def get_latest_git_tag(cwd: str = ".") -> Optional[str]:
+    """Retrieves the latest valid SemVer git tag in the repository sorted by version refname."""
+    tags = get_all_git_tags(cwd=cwd)
+    for tag in tags:
+        try:
+            parse_semver(tag)
+            return tag
+        except ValueError:
+            continue
     return None
+
 
 
 def get_current_pom_version(pom_path: str = "pom.xml") -> str:
@@ -596,23 +626,33 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     print(f"==> Inspecting repository at {repo_root}")
 
-    # 1. Determine current version
-    current_version: str
+    # 1. Determine current version from POM and latest git tag
+    pom_version: Optional[str] = None
     try:
-        current_version = get_current_pom_version(pom_path)
-        print(f"==> Current POM version: {current_version}")
+        pom_version = get_current_pom_version(pom_path)
+        print(f"==> Current POM version: {pom_version}")
     except Exception as e:
-        latest_tag = get_latest_git_tag(repo_root)
-        if latest_tag:
-            current_version = latest_tag.lstrip("vV")
-            print(f"==> Current version from git tag: {current_version}")
-        else:
-            current_version = "0.0.0"
-            print(f"==> Fallback current version: {current_version} ({e})")
+        print(f"==> Warning: Could not read POM version: {e}")
 
     # 2. Get latest git tag and commits
     latest_tag = get_latest_git_tag(repo_root)
     print(f"==> Latest Git tag: {latest_tag or 'None (initial release)'}")
+
+    tag_version = latest_tag.lstrip("vV") if latest_tag else None
+
+    if pom_version and tag_version:
+        try:
+            current_version = max_semver(pom_version, tag_version)
+        except ValueError:
+            current_version = pom_version
+    elif pom_version:
+        current_version = pom_version
+    elif tag_version:
+        current_version = tag_version
+    else:
+        current_version = "0.0.0"
+
+    print(f"==> Base version for release calculation: {current_version}")
 
     commits = get_commits_since_tag(latest_tag, cwd=repo_root)
     print(f"==> Found {len(commits)} commit(s) since last tag.")
@@ -636,9 +676,16 @@ def main(argv: Optional[list[str]] = None) -> int:
         )
         return 0
 
-    # 4. Calculate next version
+    # 4. Calculate next version and guarantee tag uniqueness
+    all_existing_tags = set(get_all_git_tags(repo_root))
     next_version = calculate_next_version(current_version, bump_type)
     tag_name = f"v{next_version}"
+
+    while tag_name in all_existing_tags:
+        print(f"==> Warning: Tag {tag_name} already exists. Advancing patch...")
+        next_version = calculate_next_version(next_version, "patch")
+        tag_name = f"v{next_version}"
+
     print(f"==> Target Release Version: {next_version} ({tag_name})")
 
     # 5. Process CHANGELOG.md
