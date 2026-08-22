@@ -183,64 +183,49 @@ def sanitize_mentions(text: str) -> str:
     return re.sub(r"(?<![`\w])@([a-zA-Z0-9_-]+)(?!`)", r"`@\1`", text)
 
 
-def extract_contributors(commits: Sequence[CommitInfo]) -> list[str]:
-    """Extracts unique GitHub usernames (prefixed with @) from commits to mark contributors."""
-    contributors: set[str] = set()
-    for c in commits:
-        name = c.author_name.strip()
-        email = c.author_email.strip()
+def get_author_handle(commit: CommitInfo) -> Optional[str]:
+    """Returns the @username handle for the commit author, if valid and not a bot."""
+    name = commit.author_name.strip()
+    email = commit.author_email.strip()
 
-        if not name and not email:
-            continue
+    if not name and not email:
+        return None
 
-        # Ignore bots and automated actors
-        low_name = name.lower()
-        low_email = email.lower()
-        if (
-            "github-actions" in low_name
-            or "github-actions" in low_email
-            or "bot" in low_name
-            or "bot" in low_email
-            or "[bot]" in low_name
-            or "[bot]" in low_email
-            or low_name in {"web-flow", "github", "actions", "root"}
-            or low_email in {"web-flow@github.com", "actions@github.com"}
-        ):
-            continue
+    # Ignore bots and automated actors
+    low_name = name.lower()
+    low_email = email.lower()
+    if (
+        "github-actions" in low_name
+        or "github-actions" in low_email
+        or "bot" in low_name
+        or "bot" in low_email
+        or "[bot]" in low_name
+        or "[bot]" in low_email
+        or low_name in {"web-flow", "github", "actions", "root"}
+        or low_email in {"web-flow@github.com", "actions@github.com"}
+    ):
+        return None
 
-        # Extract github handle from noreply email (e.g. 12345+username@users.noreply.github.com)
-        noreply = re.search(
-            r"(?:\d+\+)?([a-zA-Z0-9_-]+)@users\.noreply\.github\.com", email
-        )
-        if noreply:
-            handle = noreply.group(1)
-            if "bot" not in handle.lower() and "github-actions" not in handle.lower():
-                contributors.add(f"@{handle}")
-            continue
+    # Extract github handle from noreply email (e.g. 12345+username@users.noreply.github.com)
+    noreply = re.search(
+        r"(?:\d+\+)?([a-zA-Z0-9_-]+)@users\.noreply\.github\.com", email
+    )
+    if noreply:
+        handle = noreply.group(1)
+        if "bot" not in handle.lower() and "github-actions" not in handle.lower():
+            return f"@{handle}"
 
-        # Check co-authored-by in commit body
-        co_authors = re.findall(
-            r"Co-authored-by:\s*([^<]+)<(?:(?:\d+\+)?([a-zA-Z0-9_-]+)@users\.noreply\.github\.com|([^>]+))>",
-            c.body,
-            re.IGNORECASE,
-        )
-        for ca in co_authors:
-            if ca[1]:
-                ca_handle = ca[1]
-                if "bot" not in ca_handle.lower() and "github-actions" not in ca_handle.lower():
-                    contributors.add(f"@{ca_handle}")
+    # If name is a single-word handle (e.g. thiago-f-santos, EduardoFerreiraB)
+    if name and " " not in name:
+        clean_name = name.lstrip("@")
+        if "bot" not in clean_name.lower() and "github-actions" not in clean_name.lower():
+            return f"@{clean_name}"
 
-        # If name is a single-word handle (e.g. thiago-f-santos, EduardoFerreiraB)
-        if name and " " not in name:
-            clean_name = name.lstrip("@")
-            if "bot" not in clean_name.lower() and "github-actions" not in clean_name.lower():
-                contributors.add(f"@{clean_name}")
-
-    return sorted(list(contributors))
+    return None
 
 
 def generate_fallback_notes(commits: Sequence[CommitInfo]) -> str:
-    """Generates Keep-a-Changelog compatible release notes from commits."""
+    """Generates Keep-a-Changelog compatible release notes from commits with inline author attribution."""
     breaking = [c for c in commits if c.breaking]
     feats = [c for c in commits if not c.breaking and c.type == "feat"]
     fixes = [c for c in commits if not c.breaking and c.type == "fix"]
@@ -259,10 +244,12 @@ def generate_fallback_notes(commits: Sequence[CommitInfo]) -> str:
         lines = []
         for item in items:
             desc = sanitize_mentions(item.description)
+            author_handle = get_author_handle(item)
+            author_suffix = f" by {author_handle}" if author_handle else ""
             if item.scope:
-                lines.append(f"- **{item.scope}**: {desc}")
+                lines.append(f"- **{item.scope}**: {desc}{author_suffix}")
             else:
-                lines.append(f"- {desc}")
+                lines.append(f"- {desc}{author_suffix}")
         return lines
 
     if breaking:
@@ -275,11 +262,6 @@ def generate_fallback_notes(commits: Sequence[CommitInfo]) -> str:
         sections.append("### Corrigido\n" + "\n".join(format_list(fixes)))
     if others:
         sections.append("### Outros\n" + "\n".join(format_list(others)))
-
-    contributors = extract_contributors(commits)
-    if contributors:
-        contributor_lines = [f"- {c}" for c in contributors]
-        sections.append("### 👥 Contribuidores\n" + "\n".join(contributor_lines))
 
     return "\n\n".join(sections)
 
@@ -577,11 +559,6 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     if not release_notes.strip():
         release_notes = generate_fallback_notes(commits) or "- Melhorias e correções gerais."
-
-    contributors = extract_contributors(commits)
-    if contributors and "Contribuidores" not in release_notes:
-        contributor_lines = "\n".join(f"- {c}" for c in contributors)
-        release_notes = f"{release_notes.strip()}\n\n### 👥 Contribuidores\n{contributor_lines}"
 
     print(f"==> Release Notes Generated:\n{release_notes}")
 

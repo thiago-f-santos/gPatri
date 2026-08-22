@@ -21,10 +21,10 @@ from release import (  # type: ignore # noqa: E402
     SemVer,
     calculate_next_version,
     determine_bump_type,
-    extract_contributors,
     extract_release_notes,
     format_semver,
     generate_fallback_notes,
+    get_author_handle,
     get_commits_since_tag,
     get_current_pom_version,
     get_latest_git_tag,
@@ -184,11 +184,31 @@ class TestCalculateNextVersion(unittest.TestCase):
 
 
 class TestGenerateFallbackNotes(unittest.TestCase):
-    def test_generate_categorized_notes(self):
+    def test_generate_categorized_notes_with_author_suffix(self):
         commits = [
-            CommitInfo(hash="a1", type="feat", scope="usuarios", description="adicionar RBAC"),
-            CommitInfo(hash="b2", type="fix", scope="patrimonio", description="corrigir calculo"),
-            CommitInfo(hash="c3", type="refactor", description="limpeza de codigo"),
+            CommitInfo(
+                hash="a1",
+                type="feat",
+                scope="usuarios",
+                description="adicionar RBAC",
+                author_name="Eduardo",
+                author_email="112873650+EduardoFerreiraB@users.noreply.github.com",
+            ),
+            CommitInfo(
+                hash="b2",
+                type="fix",
+                scope="patrimonio",
+                description="corrigir calculo",
+                author_name="thiago-f-santos",
+                author_email="thiagoferreira2004f@gmail.com",
+            ),
+            CommitInfo(
+                hash="c3",
+                type="refactor",
+                description="limpeza de codigo",
+                author_name="github-actions[bot]",
+                author_email="github-actions[bot]@users.noreply.github.com",
+            ),
             CommitInfo(hash="d4", type="docs", description="atualizar README"),
             CommitInfo(hash="e5", type="feat", description="remover api legada", breaking=True),
         ]
@@ -197,11 +217,13 @@ class TestGenerateFallbackNotes(unittest.TestCase):
         self.assertIn("### ⚠️ Breaking Changes", notes)
         self.assertIn("- remover api legada", notes)
         self.assertIn("### Adicionado", notes)
-        self.assertIn("- **usuarios**: adicionar RBAC", notes)
+        self.assertIn("- **usuarios**: adicionar RBAC by @EduardoFerreiraB", notes)
         self.assertIn("### Corrigido", notes)
-        self.assertIn("- **patrimonio**: corrigir calculo", notes)
+        self.assertIn("- **patrimonio**: corrigir calculo by @thiago-f-santos", notes)
         self.assertIn("### Modificado", notes)
         self.assertIn("- limpeza de codigo", notes)
+        self.assertNotIn("by @github-actions", notes)
+        self.assertNotIn("### 👥 Contribuidores", notes)
 
 
 class TestPromoteChangelog(unittest.TestCase):
@@ -424,34 +446,30 @@ class TestSanitizeMentions(unittest.TestCase):
         self.assertEqual(sanitize_mentions(text), "contato thiago@empresa.com")
 
 
-class TestExtractContributors(unittest.TestCase):
-    def test_extract_from_noreply_email(self):
-        commits = [
-            CommitInfo(
-                hash="1",
-                author_name="Eduardo",
-                author_email="112873650+EduardoFerreiraB@users.noreply.github.com",
-            ),
-            CommitInfo(
-                hash="2",
-                author_name="thiago-f-santos",
-                author_email="thiagoferreira2004f@gmail.com",
-            ),
-        ]
-        contributors = extract_contributors(commits)
-        self.assertIn("@EduardoFerreiraB", contributors)
-        self.assertIn("@thiago-f-santos", contributors)
+class TestGetAuthorHandle(unittest.TestCase):
+    def test_get_author_handle_from_noreply_email(self):
+        commit = CommitInfo(
+            hash="1",
+            author_name="Eduardo",
+            author_email="112873650+EduardoFerreiraB@users.noreply.github.com",
+        )
+        self.assertEqual(get_author_handle(commit), "@EduardoFerreiraB")
 
-    def test_ignore_github_actions_bot(self):
-        commits = [
-            CommitInfo(
-                hash="1",
-                author_name="github-actions[bot]",
-                author_email="github-actions[bot]@users.noreply.github.com",
-            )
-        ]
-        contributors = extract_contributors(commits)
-        self.assertEqual(contributors, [])
+    def test_get_author_handle_from_single_word_name(self):
+        commit = CommitInfo(
+            hash="2",
+            author_name="thiago-f-santos",
+            author_email="thiagoferreira2004f@gmail.com",
+        )
+        self.assertEqual(get_author_handle(commit), "@thiago-f-santos")
+
+    def test_get_author_handle_ignores_bot(self):
+        commit = CommitInfo(
+            hash="3",
+            author_name="github-actions[bot]",
+            author_email="github-actions[bot]@users.noreply.github.com",
+        )
+        self.assertIsNone(get_author_handle(commit))
 
 
 if __name__ == "__main__":
