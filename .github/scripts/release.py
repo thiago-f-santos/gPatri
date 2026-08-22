@@ -193,7 +193,19 @@ def extract_contributors(commits: Sequence[CommitInfo]) -> list[str]:
         if not name and not email:
             continue
 
-        if "github-actions" in name.lower() or "github-actions" in email.lower():
+        # Ignore bots and automated actors
+        low_name = name.lower()
+        low_email = email.lower()
+        if (
+            "github-actions" in low_name
+            or "github-actions" in low_email
+            or "bot" in low_name
+            or "bot" in low_email
+            or "[bot]" in low_name
+            or "[bot]" in low_email
+            or low_name in {"web-flow", "github", "actions", "root"}
+            or low_email in {"web-flow@github.com", "actions@github.com"}
+        ):
             continue
 
         # Extract github handle from noreply email (e.g. 12345+username@users.noreply.github.com)
@@ -201,7 +213,9 @@ def extract_contributors(commits: Sequence[CommitInfo]) -> list[str]:
             r"(?:\d+\+)?([a-zA-Z0-9_-]+)@users\.noreply\.github\.com", email
         )
         if noreply:
-            contributors.add(f"@{noreply.group(1)}")
+            handle = noreply.group(1)
+            if "bot" not in handle.lower() and "github-actions" not in handle.lower():
+                contributors.add(f"@{handle}")
             continue
 
         # Check co-authored-by in commit body
@@ -212,11 +226,15 @@ def extract_contributors(commits: Sequence[CommitInfo]) -> list[str]:
         )
         for ca in co_authors:
             if ca[1]:
-                contributors.add(f"@{ca[1]}")
+                ca_handle = ca[1]
+                if "bot" not in ca_handle.lower() and "github-actions" not in ca_handle.lower():
+                    contributors.add(f"@{ca_handle}")
 
         # If name is a single-word handle (e.g. thiago-f-santos, EduardoFerreiraB)
         if name and " " not in name:
-            contributors.add(f"@{name.lstrip('@')}")
+            clean_name = name.lstrip("@")
+            if "bot" not in clean_name.lower() and "github-actions" not in clean_name.lower():
+                contributors.add(f"@{clean_name}")
 
     return sorted(list(contributors))
 
