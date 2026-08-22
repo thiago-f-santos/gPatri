@@ -31,6 +31,7 @@ from release import (  # type: ignore # noqa: E402
     parse_semver,
     promote_changelog,
     run_command,
+    sanitize_mentions,
     update_pom_versions,
     write_github_output,
     write_release_notes_file,
@@ -402,6 +403,20 @@ class TestGitAndCliFunctions(unittest.TestCase):
     def test_main_cli_no_commits_no_release(self, mock_get_commits, mock_tag, mock_pom):
         code = release.main(["--dry-run"])
         self.assertEqual(code, 0)
+
+
+class TestSanitizeMentions(unittest.TestCase):
+    def test_sanitize_annotation_mention(self):
+        text = "adicionando anotação @valid nas requisições"
+        self.assertEqual(sanitize_mentions(text), "adicionando anotação `@valid` nas requisições")
+
+    def test_sanitize_already_backticked(self):
+        text = "anotação `@Valid` já protegida"
+        self.assertEqual(sanitize_mentions(text), "anotação `@Valid` já protegida")
+
+    def test_sanitize_email_not_affected(self):
+        text = "contato thiago@empresa.com"
+        self.assertEqual(sanitize_mentions(text), "contato thiago@empresa.com")
 
 
 if __name__ == "__main__":

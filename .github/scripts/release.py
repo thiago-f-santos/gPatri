@@ -166,6 +166,11 @@ def calculate_next_version(
     return format_semver(next_major, next_minor, next_patch, prerelease=prerelease)
 
 
+def sanitize_mentions(text: str) -> str:
+    """Wraps @mentions and annotations in backticks to prevent unintentional GitHub user mentions."""
+    return re.sub(r"(?<![`\w])@([a-zA-Z0-9_-]+)(?!`)", r"`@\1`", text)
+
+
 def generate_fallback_notes(commits: Sequence[CommitInfo]) -> str:
     """Generates Keep-a-Changelog compatible release notes from commits."""
     breaking = [c for c in commits if c.breaking]
@@ -185,10 +190,11 @@ def generate_fallback_notes(commits: Sequence[CommitInfo]) -> str:
     def format_list(items: list[CommitInfo]) -> list[str]:
         lines = []
         for item in items:
+            desc = sanitize_mentions(item.description)
             if item.scope:
-                lines.append(f"- **{item.scope}**: {item.description}")
+                lines.append(f"- **{item.scope}**: {desc}")
             else:
-                lines.append(f"- {item.description}")
+                lines.append(f"- {desc}")
         return lines
 
     if breaking:
@@ -235,9 +241,9 @@ def promote_changelog(
     unreleased_body_cleaned = re.sub(r"\s*---\s*$", "", unreleased_body_cleaned).strip()
 
     if unreleased_body_cleaned:
-        release_notes = unreleased_body_cleaned
+        release_notes = sanitize_mentions(unreleased_body_cleaned)
     elif fallback_notes and fallback_notes.strip():
-        release_notes = fallback_notes.strip()
+        release_notes = sanitize_mentions(fallback_notes.strip())
     else:
         release_notes = "- Sem alterações detalhadas registradas."
 
@@ -392,7 +398,8 @@ def write_github_output(
 
 def write_release_notes_file(notes: str, output_path: str = "release_notes.md") -> None:
     """Writes the release notes to a markdown file for GitHub Release creation."""
-    Path(output_path).write_text(notes.strip() + "\n", encoding="utf-8")
+    sanitized = sanitize_mentions(notes)
+    Path(output_path).write_text(sanitized.strip() + "\n", encoding="utf-8")
 
 
 def main(argv: Optional[list[str]] = None) -> int:
