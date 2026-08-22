@@ -47,9 +47,17 @@ class CommitInfo:
     breaking: bool = False
     body: str = ""
     raw: str = ""
+    author_name: str = ""
+    author_email: str = ""
 
     @classmethod
-    def from_raw(cls, commit_hash: str, message: str) -> "CommitInfo":
+    def from_raw(
+        cls,
+        commit_hash: str,
+        message: str,
+        author_name: str = "",
+        author_email: str = "",
+    ) -> "CommitInfo":
         message = message.strip()
         lines = message.split("\n", 1)
         header = lines[0].strip()
@@ -79,6 +87,8 @@ class CommitInfo:
                 breaking=breaking,
                 body=body,
                 raw=message,
+                author_name=author_name,
+                author_email=author_email,
             )
 
         return cls(
@@ -89,6 +99,8 @@ class CommitInfo:
             breaking=breaking_in_body,
             body=body,
             raw=message,
+            author_name=author_name,
+            author_email=author_email,
         )
 
 
@@ -171,6 +183,44 @@ def sanitize_mentions(text: str) -> str:
     return re.sub(r"(?<![`\w])@([a-zA-Z0-9_-]+)(?!`)", r"`@\1`", text)
 
 
+def extract_contributors(commits: Sequence[CommitInfo]) -> list[str]:
+    """Extracts unique GitHub usernames (prefixed with @) from commits to mark contributors."""
+    contributors: set[str] = set()
+    for c in commits:
+        name = c.author_name.strip()
+        email = c.author_email.strip()
+
+        if not name and not email:
+            continue
+
+        if "github-actions" in name.lower() or "github-actions" in email.lower():
+            continue
+
+        # Extract github handle from noreply email (e.g. 12345+username@users.noreply.github.com)
+        noreply = re.search(
+            r"(?:\d+\+)?([a-zA-Z0-9_-]+)@users\.noreply\.github\.com", email
+        )
+        if noreply:
+            contributors.add(f"@{noreply.group(1)}")
+            continue
+
+        # Check co-authored-by in commit body
+        co_authors = re.findall(
+            r"Co-authored-by:\s*([^<]+)<(?:(?:\d+\+)?([a-zA-Z0-9_-]+)@users\.noreply\.github\.com|([^>]+))>",
+            c.body,
+            re.IGNORECASE,
+        )
+        for ca in co_authors:
+            if ca[1]:
+                contributors.add(f"@{ca[1]}")
+
+        # If name is a single-word handle (e.g. thiago-f-santos, EduardoFerreiraB)
+        if name and " " not in name:
+            contributors.add(f"@{name.lstrip('@')}")
+
+    return sorted(list(contributors))
+
+
 def generate_fallback_notes(commits: Sequence[CommitInfo]) -> str:
     """Generates Keep-a-Changelog compatible release notes from commits."""
     breaking = [c for c in commits if c.breaking]
@@ -207,6 +257,11 @@ def generate_fallback_notes(commits: Sequence[CommitInfo]) -> str:
         sections.append("### Corrigido\n" + "\n".join(format_list(fixes)))
     if others:
         sections.append("### Outros\n" + "\n".join(format_list(others)))
+
+    contributors = extract_contributors(commits)
+    if contributors:
+        contributor_lines = [f"- {c}" for c in contributors]
+        sections.append("### 👥 Contribuidores\n" + "\n".join(contributor_lines))
 
     return "\n\n".join(sections)
 
@@ -346,9 +401,9 @@ def get_commits_since_tag(
     # Use ASCII unit and record separators to safely parse multi-line commit messages
     # %x1f is unit separator, %x1e is record separator
     if tag:
-        cmd = ["git", "log", f"{tag}..HEAD", "--pretty=format:%H%x1f%B%x1e"]
+        cmd = ["git", "log", f"{tag}..HEAD", "--pretty=format:%H%x1f%an%x1f%ae%x1f%B%x1e"]
     else:
-        cmd = ["git", "log", "--pretty=format:%H%x1f%B%x1e"]
+        cmd = ["git", "log", "--pretty=format:%H%x1f%an%x1f%ae%x1f%B%x1e"]
 
     res = run_command(cmd, cwd=cwd, check=False)
     if res.returncode != 0 or not res.stdout.strip():
@@ -360,10 +415,19 @@ def get_commits_since_tag(
         record = record.strip()
         if not record:
             continue
-        parts = record.split("\x1f", 1)
+        parts = record.split("\x1f", 3)
         commit_hash = parts[0].strip()
-        commit_body = parts[1].strip() if len(parts) > 1 else ""
-        commits.append(CommitInfo.from_raw(commit_hash, commit_body))
+        author_name = parts[1].strip() if len(parts) > 1 else ""
+        author_email = parts[2].strip() if len(parts) > 2 else ""
+        commit_body = parts[3].strip() if len(parts) > 3 else ""
+        commits.append(
+            CommitInfo.from_raw(
+                commit_hash=commit_hash,
+                message=commit_body,
+                author_name=author_name,
+                author_email=author_email,
+            )
+        )
 
     return commits
 
@@ -495,6 +559,11 @@ def main(argv: Optional[list[str]] = None) -> int:
 
     if not release_notes.strip():
         release_notes = generate_fallback_notes(commits) or "- Melhorias e correções gerais."
+
+    contributors = extract_contributors(commits)
+    if contributors and "Contribuidores" not in release_notes:
+        contributor_lines = "\n".join(f"- {c}" for c in contributors)
+        release_notes = f"{release_notes.strip()}\n\n### 👥 Contribuidores\n{contributor_lines}"
 
     print(f"==> Release Notes Generated:\n{release_notes}")
 

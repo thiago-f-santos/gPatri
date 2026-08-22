@@ -21,6 +21,7 @@ from release import (  # type: ignore # noqa: E402
     SemVer,
     calculate_next_version,
     determine_bump_type,
+    extract_contributors,
     extract_release_notes,
     format_semver,
     generate_fallback_notes,
@@ -332,19 +333,23 @@ class TestGitAndCliFunctions(unittest.TestCase):
 
     @patch("release.run_command")
     def test_get_commits_since_tag(self, mock_run):
-        # Format: %H\x1f%B\x1e
+        # Format: %H\x1f%an\x1f%ae\x1f%B\x1e
         sample_log = (
-            "hash1\x1ffeat(auth): add OAuth2 support\x1e"
-            "hash2\x1ffix(db): fix connection pool leak\n\nDetailed body\x1e"
+            "hash1\x1fThiago\x1fthiago@example.com\x1ffeat(auth): add OAuth2 support\x1e"
+            "hash2\x1fEduardo\x1feduardo@example.com\x1ffix(db): fix connection pool leak\n\nDetailed body\x1e"
         )
         mock_run.return_value = MagicMock(returncode=0, stdout=sample_log)
 
         commits = release.get_commits_since_tag("v0.3.0")
         self.assertEqual(len(commits), 2)
         self.assertEqual(commits[0].hash, "hash1")
+        self.assertEqual(commits[0].author_name, "Thiago")
+        self.assertEqual(commits[0].author_email, "thiago@example.com")
         self.assertEqual(commits[0].type, "feat")
         self.assertEqual(commits[0].scope, "auth")
         self.assertEqual(commits[1].hash, "hash2")
+        self.assertEqual(commits[1].author_name, "Eduardo")
+        self.assertEqual(commits[1].author_email, "eduardo@example.com")
         self.assertEqual(commits[1].type, "fix")
         self.assertEqual(commits[1].scope, "db")
 
@@ -417,6 +422,36 @@ class TestSanitizeMentions(unittest.TestCase):
     def test_sanitize_email_not_affected(self):
         text = "contato thiago@empresa.com"
         self.assertEqual(sanitize_mentions(text), "contato thiago@empresa.com")
+
+
+class TestExtractContributors(unittest.TestCase):
+    def test_extract_from_noreply_email(self):
+        commits = [
+            CommitInfo(
+                hash="1",
+                author_name="Eduardo",
+                author_email="112873650+EduardoFerreiraB@users.noreply.github.com",
+            ),
+            CommitInfo(
+                hash="2",
+                author_name="thiago-f-santos",
+                author_email="thiagoferreira2004f@gmail.com",
+            ),
+        ]
+        contributors = extract_contributors(commits)
+        self.assertIn("@EduardoFerreiraB", contributors)
+        self.assertIn("@thiago-f-santos", contributors)
+
+    def test_ignore_github_actions_bot(self):
+        commits = [
+            CommitInfo(
+                hash="1",
+                author_name="github-actions[bot]",
+                author_email="github-actions[bot]@users.noreply.github.com",
+            )
+        ]
+        contributors = extract_contributors(commits)
+        self.assertEqual(contributors, [])
 
 
 if __name__ == "__main__":
