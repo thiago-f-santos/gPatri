@@ -5,12 +5,12 @@
     <parent>
         <groupId>br.edu.ifg.numbers</groupId>
         <artifactId>gPatri</artifactId>
-        <version>0.3.0</version>
+        <version>0.4.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <groupId>br.edu.ifg.numbers.gpatri</groupId>
     <artifactId>ms-patrimonio</artifactId>
-    <version>0.3.0</version>
+    <version>0.4.0</version>
     <name>ms-patrimonio</name>
     <description>ms-patrimonio</description>
 
