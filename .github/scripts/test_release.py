@@ -261,6 +261,22 @@ class TestGenerateFallbackNotes(unittest.TestCase):
         self.assertNotIn("by @github-actions", notes)
         self.assertNotIn("### 👥 Contribuidores", notes)
 
+    def test_sanitize_body_mentions_while_keeping_author_handle_raw(self):
+        commit = CommitInfo(
+            hash="1",
+            type="feat",
+            scope="usuarios",
+            description="adicionar validação @Valid nos DTOs",
+            author_name="Thiago Ferreira dos Santos",
+            author_email="thiagoferreira2004f@gmail.com",
+        )
+        notes = generate_fallback_notes([commit])
+        # Body mention @Valid is backticked
+        self.assertIn("`@Valid`", notes)
+        # Author mention @thiago-f-santos is raw without backticks
+        self.assertIn("by @thiago-f-santos", notes)
+        self.assertNotIn("`@thiago-f-santos`", notes)
+
 
 class TestPromoteChangelog(unittest.TestCase):
     def setUp(self):
@@ -291,6 +307,24 @@ class TestPromoteChangelog(unittest.TestCase):
         self.assertIn("### Adicionado\n- Suporte a autenticação OAuth2.", promoted)
         self.assertIn("### Corrigido\n- Tratamento de erro 404 em rotas inexistentes.", promoted)
         self.assertIn("## [0.3.0] - 2026-08-22", promoted)
+
+    def test_promote_changelog_enriches_authors_from_commits(self):
+        commits = [
+            CommitInfo(
+                hash="1",
+                type="feat",
+                description="Suporte a autenticação OAuth2.",
+                author_name="Eduardo",
+                author_email="112873650+EduardoFerreiraB@users.noreply.github.com",
+            )
+        ]
+        promoted = promote_changelog(
+            self.sample_changelog,
+            next_version="0.4.0",
+            release_date="2026-08-23",
+            commits=commits,
+        )
+        self.assertIn("### Adicionado\n- Suporte a autenticação OAuth2. by @EduardoFerreiraB", promoted)
 
     def test_promote_changelog_when_unreleased_is_empty_uses_fallback(self):
         empty_unreleased_changelog = (

@@ -199,8 +199,74 @@ def calculate_next_version(
 
 
 def sanitize_mentions(text: str) -> str:
-    """Wraps @mentions and annotations in backticks to prevent unintentional GitHub user mentions."""
-    return re.sub(r"(?<![`\w])@([a-zA-Z0-9_-]+)(?!`)", r"`@\1`", text)
+    """Wraps annotations and non-author @mentions in backticks to prevent unintentional GitHub user mentions."""
+    return re.sub(r"(?<!by\s)(?<![`\w])@([a-zA-Z0-9_-]+)(?!`)", r"`@\1`", text)
+
+
+def enrich_changelog_with_authors(
+    unreleased_content: str, commits: Sequence[CommitInfo]
+) -> str:
+    """Appends 'by @User' to changelog bullet points if missing, based on commit authors."""
+    eligible = [c for c in commits if not is_ignored_commit(c)]
+    if not eligible:
+        return unreleased_content
+
+    # Collect author per scope and global authors
+    scope_to_authors: dict[str, set[str]] = {}
+    all_authors: list[str] = []
+    for c in eligible:
+        handle = get_author_handle(c)
+        if handle:
+            if handle not in all_authors:
+                all_authors.append(handle)
+            if c.scope:
+                scope_to_authors.setdefault(c.scope.lower(), set()).add(handle)
+
+    if not all_authors:
+        return unreleased_content
+
+    default_author = all_authors[0] if len(all_authors) == 1 else None
+
+    lines = unreleased_content.splitlines()
+    enriched_lines: list[str] = []
+    scope_pattern = re.compile(r"^(\s*[-*]\s+\*\*([^*]+)\*\*:\s*)(.+)$")
+    bullet_pattern = re.compile(r"^(\s*[-*]\s+)(.+)$")
+
+    for line in lines:
+        if "by @" in line:
+            enriched_lines.append(line)
+            continue
+
+        match_scope = scope_pattern.match(line)
+        if match_scope:
+            prefix, scope, rest = match_scope.groups()
+            scope_authors = list(scope_to_authors.get(scope.strip().lower(), []))
+            if len(scope_authors) == 1:
+                author_suffix = f" by {scope_authors[0]}"
+            elif default_author:
+                author_suffix = f" by {default_author}"
+            elif all_authors:
+                author_suffix = f" by {', '.join(all_authors)}"
+            else:
+                author_suffix = ""
+            enriched_lines.append(f"{prefix}{rest.rstrip()}{author_suffix}")
+            continue
+
+        match_bullet = bullet_pattern.match(line)
+        if match_bullet:
+            prefix, rest = match_bullet.groups()
+            if default_author:
+                author_suffix = f" by {default_author}"
+            elif all_authors:
+                author_suffix = f" by {', '.join(all_authors)}"
+            else:
+                author_suffix = ""
+            enriched_lines.append(f"{prefix}{rest.rstrip()}{author_suffix}")
+            continue
+
+        enriched_lines.append(line)
+
+    return "\n".join(enriched_lines)
 
 
 def get_author_handle(commit: CommitInfo) -> Optional[str]:
@@ -299,10 +365,12 @@ def promote_changelog(
     next_version: str,
     release_date: Optional[str] = None,
     fallback_notes: Optional[str] = None,
+    commits: Optional[Sequence[CommitInfo]] = None,
 ) -> str:
     """
     Promotes the [Não Lançado] / [Unreleased] section to the new version header.
     If the unreleased section is empty, uses fallback_notes if provided.
+    Enriches unreleased lines with author attribution if commits are supplied.
     """
     date_str = release_date or datetime.now().strftime("%Y-%m-%d")
 
@@ -324,7 +392,11 @@ def promote_changelog(
     unreleased_body_cleaned = re.sub(r"\s*---\s*$", "", unreleased_body_cleaned).strip()
 
     if unreleased_body_cleaned:
-        release_notes = sanitize_mentions(unreleased_body_cleaned)
+        sanitized_body = sanitize_mentions(unreleased_body_cleaned)
+        if commits:
+            release_notes = enrich_changelog_with_authors(sanitized_body, commits)
+        else:
+            release_notes = sanitized_body
     elif fallback_notes and fallback_notes.strip():
         release_notes = sanitize_mentions(fallback_notes.strip())
     else:
@@ -578,6 +650,7 @@ def main(argv: Optional[list[str]] = None) -> int:
             changelog_content,
             next_version=next_version,
             fallback_notes=fallback_notes,
+            commits=commits,
         )
         release_notes = extract_release_notes(updated_changelog, next_version)
     else:
