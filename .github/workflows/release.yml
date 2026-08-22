@@ -1,0 +1,60 @@
+name: Release & Version Bump
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release & Changelog Automation
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]') && !contains(github.event.head_commit.message, '[ci skip]')"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Java 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Set up Python 3
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Make Maven Wrapper executable
+        run: chmod +x mvnw
+
+      - name: Run release automation script
+        id: release_step
+        run: python3 .github/scripts/release.py
+
+      - name: Commit, Tag and Push Release
+        if: steps.release_step.outputs.has_release == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md pom.xml **/pom.xml
+          git commit -m "chore(release): v${{ steps.release_step.outputs.version }} [skip ci]"
+          git tag -a "v${{ steps.release_step.outputs.version }}" -m "Release v${{ steps.release_step.outputs.version }}"
+          git push origin main --tags
+
+      - name: Publish GitHub Release
+        if: steps.release_step.outputs.has_release == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "v${{ steps.release_step.outputs.version }}" \
+            --title "Release v${{ steps.release_step.outputs.version }}" \
+            --notes-file release_notes.md
