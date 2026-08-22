@@ -8,10 +8,13 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Não Lançado]
 
+---
+
+## [0.6.1] - 2026-08-22
+
 ### Corrigido
 - **ci**: descartar commits contendo `[skip ci]`, `[ci skip]` ou `chore(release):` no cálculo de versão do `release.py`, impedindo bumps e releases automáticas indevidas.
 - **ci**: restringir resolução de handles de autoria (`get_author_handle`) exclusivamente a emails noreply oficiais do GitHub e mapeamentos de desenvolvedores conhecidos, evitando atribuição de `@` a nomes genéricos ou bots.
-
 ---
 
 ## [0.6.0] - 2026-08-22
