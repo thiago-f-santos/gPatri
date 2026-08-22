@@ -434,6 +434,7 @@ class CargoServiceTest {
 
         verify(cargoRepository, times(1)).existsById(cargoId);
         verify(cargoRepository, times(1)).deleteById(cargoId);
+        verify(cargoRepository, times(1)).flush();
     }
 
     @Test
@@ -445,6 +446,7 @@ class CargoServiceTest {
 
         verify(cargoRepository, times(1)).existsById(cargoId);
         verify(cargoRepository, never()).deleteById(any(UUID.class));
+        verify(cargoRepository, never()).flush();
     }
 
     @Test
@@ -457,5 +459,18 @@ class CargoServiceTest {
 
         verify(cargoRepository, times(1)).existsById(cargoId);
         verify(cargoRepository, times(1)).deleteById(cargoId);
+    }
+
+    @Test
+    @DisplayName("Deve lançar ConflictException quando o cargo não pode ser deletado devido a FK com usuários no flush")
+    void deveLancarConflictExceptionQuandoCargoTemAssociacoesNoFlush() {
+        when(cargoRepository.existsById(cargoId)).thenReturn(true);
+        doThrow(DataIntegrityViolationException.class).when(cargoRepository).flush();
+
+        assertThrows(ConflictException.class, () -> cargoService.deletarCargo(cargoId));
+
+        verify(cargoRepository, times(1)).existsById(cargoId);
+        verify(cargoRepository, times(1)).deleteById(cargoId);
+        verify(cargoRepository, times(1)).flush();
     }
 }

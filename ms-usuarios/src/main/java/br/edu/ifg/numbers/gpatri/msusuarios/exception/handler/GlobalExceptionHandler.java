@@ -4,8 +4,8 @@ import br.edu.ifg.numbers.gpatri.msusuarios.exception.BadRequestException;
 import br.edu.ifg.numbers.gpatri.msusuarios.exception.ConflictException;
 import br.edu.ifg.numbers.gpatri.msusuarios.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.ws.rs.core.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -90,6 +90,15 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.FORBIDDEN)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new ErrorMessage(request, HttpStatus.FORBIDDEN, "Acesso negado. Você não tem permissão para acessar este recurso."));
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorMessage> handleDataIntegrityViolationException(DataIntegrityViolationException ex, HttpServletRequest request) {
+        log.error("DataIntegrityViolationException - ", ex);
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new ErrorMessage(request, HttpStatus.CONFLICT, "Violação de integridade referencial: não é possível excluir ou alterar o recurso pois ele está vinculado a outros registros."));
     }
 
     @ExceptionHandler(Exception.class)
