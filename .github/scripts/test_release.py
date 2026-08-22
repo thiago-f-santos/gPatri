@@ -261,6 +261,22 @@ class TestGenerateFallbackNotes(unittest.TestCase):
         self.assertNotIn("by @github-actions", notes)
         self.assertNotIn("### 👥 Contribuidores", notes)
 
+    def test_sanitize_body_mentions_while_keeping_author_handle_raw(self):
+        commit = CommitInfo(
+            hash="1",
+            type="feat",
+            scope="usuarios",
+            description="adicionar validação @Valid nos DTOs",
+            author_name="Thiago Ferreira dos Santos",
+            author_email="thiagoferreira2004f@gmail.com",
+        )
+        notes = generate_fallback_notes([commit])
+        # Body mention @Valid is backticked
+        self.assertIn("`@Valid`", notes)
+        # Author mention @thiago-f-santos is raw without backticks
+        self.assertIn("by @thiago-f-santos", notes)
+        self.assertNotIn("`@thiago-f-santos`", notes)
+
 
 class TestPromoteChangelog(unittest.TestCase):
     def setUp(self):
