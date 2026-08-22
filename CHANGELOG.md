@@ -8,24 +8,23 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Não Lançado]
 
-### Adicionado
-- **docker**: adicionar `docker-compose.yml`, `docker/init.sql` e `.env.example` para ambiente de desenvolvimento local com PostgreSQL multi-banco.
-
-### Modificado
-- **git**: adicionar `.env` e variações locais ao `.gitignore`.
-
-### Corrigido
-- **ms-usuarios**: adicionar chamada explícita de `flush()` em `CargoService.deletarCargo` e `UsuarioService.deletarUsuario` para forçar execução imediata de restrições de integridade SQL dentro do bloco `try/catch` da transação (#22).
-- **ms-usuarios**: adicionar manipulador para `DataIntegrityViolationException` no `GlobalExceptionHandler` retornando HTTP 409 Conflict com mensagem amigável (#22).
-
 ---
 
 ## [0.7.0] - 2026-08-22
 
 ### Adicionado
+- **docker**: adicionar `docker-compose.yml`, `docker/init.sql` e `.env.example` para ambiente de desenvolvimento local com PostgreSQL multi-banco by @thiago-f-santos
 - **ci**: enriquecer automaticamente itens do [Não Lançado] com autoria by `@User` by @thiago-f-santos
 
+### Modificado
+- **git**: adicionar `.env` e variações locais ao `.gitignore` by @thiago-f-santos
+
+### Corrigido
+- **ms-usuarios**: adicionar chamada explícita de `flush()` em `CargoService.deletarCargo` e `UsuarioService.deletarUsuario` para forçar execução imediata de restrições de integridade SQL dentro do bloco `try/catch` da transação (#22) by @thiago-f-santos
+- **ms-usuarios**: adicionar manipulador para `DataIntegrityViolationException` no `GlobalExceptionHandler` retornando HTTP 409 Conflict com mensagem amigável (#22) by @thiago-f-santos
+
 ### Outros
+- Merge pull request #28 from thiago-f-santos/fix/22-flush-integridade-referencial-409 by @thiago-f-santos
 - Merge pull request #27 from thiago-f-santos/fix/ci-skip-and-contributor-mentions by @thiago-f-santos
 - **ci**: validar mencao crua a usuario sem crases e protecao de anotacoes by @thiago-f-santos
 ---
