@@ -6,7 +6,11 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
-## [Não Lançado] - Unreleased
+## [Não Lançado]
+
+---
+
+## [0.3.0] - 2026-08-22
 
 ### Adicionado
 - **RBAC Dinâmico via Banco de Dados (`ms-usuarios`)**:
