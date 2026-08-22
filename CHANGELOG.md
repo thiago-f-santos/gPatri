@@ -10,6 +10,12 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [0.4.1] - 2026-08-22
+
+### Corrigido
+- **ci**: sanitizar mencoes com @ em notas de release para evitar mencao indevida a usuarios do github
+---
+
 ## [0.4.0] - 2026-08-22
 
 ### Adicionado
