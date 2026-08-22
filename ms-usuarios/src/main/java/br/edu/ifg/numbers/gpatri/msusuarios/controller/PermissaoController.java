@@ -6,7 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -16,15 +16,11 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/permissoes")
+@RequiredArgsConstructor
 @Tag(name = "Permissão", description = "Endpoints relacionados ao gerenciamento e consulta de permissões")
 public class PermissaoController {
 
     private final PermissaoService permissaoService;
-
-    @Autowired
-    public PermissaoController(PermissaoService permissaoService) {
-        this.permissaoService = permissaoService;
-    }
 
     @Operation(summary = "Retorna uma lista de permissões, opcionalmente filtrada por categoria")
     @ApiResponses(value = {
