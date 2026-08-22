@@ -10,6 +10,15 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ---
 
+## [0.5.0] - 2026-08-22
+
+### Adicionado
+- **ci**: adicionar secao de contribuidores com @ nas release notes
+
+### 👥 Contribuidores
+- `@Thiago`
+---
+
 ## [0.4.1] - 2026-08-22
 
 ### Corrigido

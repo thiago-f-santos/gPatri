@@ -5,12 +5,12 @@
 	<parent>
 		<groupId>br.edu.ifg.numbers</groupId>
 		<artifactId>gPatri</artifactId>
-		<version>0.4.1</version>
+		<version>0.5.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<groupId>br.edu.ifg.numbers.refriged</groupId>
 	<artifactId>ms-eureka</artifactId>
-	<version>0.4.1</version>
+	<version>0.5.0</version>
 	<name>ms-eureka</name>
 	<description>ms-eureka</description>
 	<url/>
