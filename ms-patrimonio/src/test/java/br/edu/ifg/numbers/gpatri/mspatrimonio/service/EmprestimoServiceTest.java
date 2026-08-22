@@ -3,6 +3,7 @@ import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.Emprestimo;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.ItemEmprestimo;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.ItemPatrimonio;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.SituacaoEmprestimo;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.client.dto.ExternalUserDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.*;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.ItemEmUsoException;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.exception.QuantidadeItemIndisponivelException;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import java.time.Instant;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -79,6 +81,8 @@ class EmprestimoServiceTest {
         emprestimo.setId(idEmprestimo);
         emprestimo.setIdUsuario(idUsuario);
         emprestimo.setSituacao(SituacaoEmprestimo.EM_ESPERA);
+        emprestimo.setDataEmprestimo(new Date());
+        emprestimo.setDataDevolucao(Date.from(Instant.now().plusSeconds(86400)));
         emprestimo.setItensEmprestimo(new ArrayList<>());
 
         emprestimoAprovado = new Emprestimo();
@@ -101,7 +105,9 @@ class EmprestimoServiceTest {
 
         emprestimoResponseDTO = new EmprestimoResponseDTO();
         emprestimoResponseDTO.setId(idEmprestimo);
-        emprestimoResponseDTO.setIdUsuario(idUsuario);
+        ExternalUserDTO userDTO = new ExternalUserDTO();
+        userDTO.setId(idUsuario);
+        emprestimoResponseDTO.setUsuario(userDTO);
         emprestimoResponseDTO.setSituacao(SituacaoEmprestimo.EM_ESPERA);
 
         itemPatrimonio = new ItemPatrimonio();
@@ -121,7 +127,7 @@ class EmprestimoServiceTest {
     void salvarEmprestimo() {
         when(emprestimoMapper.createDtoToEmprestimo(any(EmprestimoCreateDTO.class))).thenReturn(emprestimo);
         when(emprestimoRepository.save(any(Emprestimo.class))).thenReturn(emprestimo);
-        when(itemPatrimonioRepository.findById(idItemPatrimonio)).thenReturn(Optional.of(itemPatrimonio));
+        when(itemPatrimonioRepository.findAllById(anyList())).thenReturn(Collections.singletonList(itemPatrimonio));
         when(itemEmprestimoMapper.createDtoToItemEmprestimo(any(ItemEmprestimoCreateDTO.class))).thenReturn(itemEmprestimo);
         when(emprestimoMapper.emprestimoToEmprestimoResponseDto(any(Emprestimo.class))).thenReturn(emprestimoResponseDTO);
 
@@ -130,8 +136,8 @@ class EmprestimoServiceTest {
         assertNotNull(response);
         assertEquals(SituacaoEmprestimo.EM_ESPERA, emprestimo.getSituacao());
         verify(emprestimoRepository, times(1)).save(any(Emprestimo.class));
-        verify(itemPatrimonioRepository, times(1)).save(any(ItemPatrimonio.class));
-        verify(itemEmprestimoRepository, times(1)).save(any(ItemEmprestimo.class));
+        verify(itemPatrimonioRepository, times(1)).saveAll(any());
+        verify(itemEmprestimoRepository, times(1)).saveAll(any());
     }
 
     @Test
@@ -153,7 +159,7 @@ class EmprestimoServiceTest {
         when(emprestimoMapper.createDtoToEmprestimo(any(EmprestimoCreateDTO.class))).thenReturn(emprestimo);
         when(emprestimoRepository.save(any(Emprestimo.class))).thenReturn(emprestimo);
         itemPatrimonio.setQuantidade(0);
-        when(itemPatrimonioRepository.findById(idItemPatrimonio)).thenReturn(Optional.of(itemPatrimonio));
+        when(itemPatrimonioRepository.findAllById(anyList())).thenReturn(Collections.singletonList(itemPatrimonio));
 
         assertThrows(ItemEmUsoException.class, () -> emprestimoService.save(idUsuario, emprestimoCreateDTO));
 
@@ -167,7 +173,7 @@ class EmprestimoServiceTest {
         when(emprestimoRepository.save(any(Emprestimo.class))).thenReturn(emprestimo);
         itemPatrimonio.setQuantidade(1);
         itemEmprestimoCreateDTO.setQuantidade(5);
-        when(itemPatrimonioRepository.findById(idItemPatrimonio)).thenReturn(Optional.of(itemPatrimonio));
+        when(itemPatrimonioRepository.findAllById(anyList())).thenReturn(Collections.singletonList(itemPatrimonio));
 
         assertThrows(QuantidadeItemIndisponivelException.class, () -> emprestimoService.save(idUsuario, emprestimoCreateDTO));
 
@@ -203,14 +209,14 @@ class EmprestimoServiceTest {
     void deletarEmprestimo() {
         when(emprestimoRepository.findById(idEmprestimo)).thenReturn(Optional.of(emprestimo));
         when(itemEmprestimoRepository.findAllByEmprestimo_IdEquals(idEmprestimo)).thenReturn(itensEmprestimoList);
-        when(itemPatrimonioRepository.findById(idItemPatrimonio)).thenReturn(Optional.of(itemPatrimonio));
+        when(itemPatrimonioRepository.findAllById(anyList())).thenReturn(Collections.singletonList(itemPatrimonio));
 
         assertDoesNotThrow(() -> emprestimoService.delete(idEmprestimo));
 
         verify(emprestimoRepository, times(1)).findById(idEmprestimo);
         verify(emprestimoRepository, times(1)).delete(emprestimo);
-        verify(itemPatrimonioRepository, times(1)).save(any(ItemPatrimonio.class));
-        verify(itemEmprestimoRepository, times(1)).delete(any(ItemEmprestimo.class));
+        verify(itemPatrimonioRepository, times(1)).saveAll(any());
+        verify(itemEmprestimoRepository, times(1)).deleteAll(itensEmprestimoList);
     }
 
     @Test
@@ -266,7 +272,7 @@ class EmprestimoServiceTest {
         UUID idUsuarioAvaliador = UUID.randomUUID();
         when(emprestimoRepository.findById(idEmprestimo)).thenReturn(Optional.of(emprestimo));
         when(itemEmprestimoRepository.findAllByEmprestimo_IdEquals(any(UUID.class))).thenReturn(itensEmprestimoList);
-        when(itemPatrimonioRepository.findById(any(UUID.class))).thenReturn(Optional.of(itemPatrimonio));
+        when(itemPatrimonioRepository.findAllById(anyList())).thenReturn(Collections.singletonList(itemPatrimonio));
         when(emprestimoRepository.save(any(Emprestimo.class))).thenReturn(emprestimo);
         when(emprestimoMapper.emprestimoToEmprestimoResponseDto(any(Emprestimo.class))).thenReturn(emprestimoResponseDTO);
 
@@ -275,7 +281,7 @@ class EmprestimoServiceTest {
         assertNotNull(resultado);
         assertEquals(SituacaoEmprestimo.NEGADO, emprestimo.getSituacao());
         verify(emprestimoRepository, times(1)).save(any(Emprestimo.class));
-        verify(itemPatrimonioRepository, times(1)).save(any(ItemPatrimonio.class));
+        verify(itemPatrimonioRepository, times(1)).saveAll(any());
     }
 
     @Test
@@ -283,7 +289,7 @@ class EmprestimoServiceTest {
     void devolverEmprestimoComSucesso() {
         when(emprestimoRepository.findById(idEmprestimo)).thenReturn(Optional.of(emprestimoAprovado));
         when(itemEmprestimoRepository.findAllByEmprestimo_IdEquals(any(UUID.class))).thenReturn(itensEmprestimoList);
-        when(itemPatrimonioRepository.findById(any(UUID.class))).thenReturn(Optional.of(itemPatrimonio));
+        when(itemPatrimonioRepository.findAllById(anyList())).thenReturn(Collections.singletonList(itemPatrimonio));
         when(emprestimoRepository.save(any(Emprestimo.class))).thenReturn(emprestimoAprovado);
         when(emprestimoMapper.emprestimoToEmprestimoResponseDto(any(Emprestimo.class))).thenReturn(emprestimoResponseDTO);
 
@@ -292,6 +298,6 @@ class EmprestimoServiceTest {
         assertNotNull(resultado);
         assertEquals(SituacaoEmprestimo.DEVOLVIDO, emprestimoAprovado.getSituacao());
         verify(emprestimoRepository, times(1)).save(any(Emprestimo.class));
-        verify(itemPatrimonioRepository, times(1)).save(any(ItemPatrimonio.class));
+        verify(itemPatrimonioRepository, times(1)).saveAll(any());
     }
 }

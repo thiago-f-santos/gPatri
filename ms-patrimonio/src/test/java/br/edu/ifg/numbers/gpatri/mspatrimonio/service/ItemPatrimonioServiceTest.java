@@ -3,6 +3,7 @@ package br.edu.ifg.numbers.gpatri.mspatrimonio.service;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.ItemPatrimonio;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.Patrimonio;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.CondicaoProduto;
+import br.edu.ifg.numbers.gpatri.mspatrimonio.domain.enums.TipoControle;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemPatrimonioCreateDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemPatrimonioResponseDTO;
 import br.edu.ifg.numbers.gpatri.mspatrimonio.dto.ItemPatrimonioUpdateDTO;
@@ -66,6 +67,7 @@ class ItemPatrimonioServiceTest {
 
         patrimonio = new Patrimonio();
         patrimonio.setId(patrimonioId);
+        patrimonio.setTipoControle(TipoControle.ESTOQUE);
 
         itemPatrimonio = new ItemPatrimonio();
         itemPatrimonio.setId(itemId);
@@ -77,7 +79,8 @@ class ItemPatrimonioServiceTest {
 
         itemPatrimonioResponseDTO = new ItemPatrimonioResponseDTO();
         itemPatrimonioResponseDTO.setId(itemId);
-        itemPatrimonioResponseDTO.setPatrimonio(new PatrimonioResponseDTO()); // Mock de PatrimonioResponseDTO
+        itemPatrimonioResponseDTO.setPatrimonioId(patrimonioId);
+        itemPatrimonioResponseDTO.setNomePatrimonio("Patrimônio de Teste");
         itemPatrimonioResponseDTO.setCondicaoProduto(CondicaoProduto.BOM);
         itemPatrimonioResponseDTO.setCondicaoDescricao("Item em boas condições");
         itemPatrimonioResponseDTO.setQuantidade(10);

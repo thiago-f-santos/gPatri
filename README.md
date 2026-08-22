@@ -18,18 +18,18 @@ Navegue ate o diretorio do projeto
   cd gPatri
 ```
 
-### 1. Configure o banco de dados: 
+### 1. Configure o banco de dados com Docker: 
 
-Inicie uma instância do PostgreSQL na porta 5432
-
-E crie os bancos de dados, um banco para ms-usuarios e um para ms-patrimonio
+Inicie o container do PostgreSQL (já configurado para criar automaticamente os bancos `gpatri_usuarios` e `gpatri_patrimonios`):
 
 ```bash
-  CREATE DATABASE gaptri_usuarios;
+docker compose up -d
 ```
 
+As variáveis de ambiente estão centralizadas no arquivo `.env`. Você pode copiar de `.env.example` caso necessário:
+
 ```bash
-  CREATE DATABASE gpatri_patrimonios;
+cp .env.example .env
 ```
 Para evitar a modificação manual dos arquivos application.yml, você pode definir as seguintes variáveis de ambiente. Elas são essenciais para a conexão com o banco de dados e para a comunicação entre os microsserviços.
 
