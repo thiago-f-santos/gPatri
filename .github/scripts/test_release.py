@@ -155,6 +155,42 @@ class TestDetermineBumpType(unittest.TestCase):
         ]
         self.assertEqual(determine_bump_type(commits), "patch")
 
+    def test_skip_ci_commits_ignored_returns_none(self):
+        commits = [
+            CommitInfo(
+                hash="1",
+                type="chore",
+                description="update docs [skip ci]",
+                raw="chore: update docs [skip ci]",
+            ),
+            CommitInfo(
+                hash="2",
+                type="chore",
+                scope="release",
+                description="v0.4.0 [skip ci]",
+                raw="chore(release): v0.4.0 [skip ci]",
+            ),
+        ]
+        self.assertEqual(determine_bump_type(commits), "none")
+
+    def test_skip_ci_mixed_with_real_feat(self):
+        commits = [
+            CommitInfo(
+                hash="1",
+                type="chore",
+                scope="release",
+                description="v0.4.0 [skip ci]",
+                raw="chore(release): v0.4.0 [skip ci]",
+            ),
+            CommitInfo(
+                hash="2",
+                type="feat",
+                description="add new endpoint",
+                raw="feat: add new endpoint",
+            ),
+        ]
+        self.assertEqual(determine_bump_type(commits), "minor")
+
 
 class TestCalculateNextVersion(unittest.TestCase):
     def test_patch_bump(self):
@@ -455,17 +491,37 @@ class TestGetAuthorHandle(unittest.TestCase):
         )
         self.assertEqual(get_author_handle(commit), "@EduardoFerreiraB")
 
-    def test_get_author_handle_from_single_word_name(self):
+    def test_get_author_handle_from_mapped_email(self):
         commit = CommitInfo(
             hash="2",
-            author_name="thiago-f-santos",
+            author_name="Thiago Ferreira",
             author_email="thiagoferreira2004f@gmail.com",
         )
         self.assertEqual(get_author_handle(commit), "@thiago-f-santos")
 
+    def test_generic_human_names_do_not_get_at_handle(self):
+        commit1 = CommitInfo(
+            hash="3",
+            author_name="Thiago",
+            author_email="thiago@outradominio.com",
+        )
+        commit2 = CommitInfo(
+            hash="4",
+            author_name="Contribuidor",
+            author_email="cont@empresa.com",
+        )
+        commit3 = CommitInfo(
+            hash="5",
+            author_name="User",
+            author_email="user@empresa.com",
+        )
+        self.assertIsNone(get_author_handle(commit1))
+        self.assertIsNone(get_author_handle(commit2))
+        self.assertIsNone(get_author_handle(commit3))
+
     def test_get_author_handle_ignores_bot(self):
         commit = CommitInfo(
-            hash="3",
+            hash="6",
             author_name="github-actions[bot]",
             author_email="github-actions[bot]@users.noreply.github.com",
         )
