@@ -36,3 +36,8 @@ build/
 .worktrees/
 .superpowers/
 release_notes.md
+
+### Python ###
+__pycache__/
+*.py[cod]
+*$py.class
