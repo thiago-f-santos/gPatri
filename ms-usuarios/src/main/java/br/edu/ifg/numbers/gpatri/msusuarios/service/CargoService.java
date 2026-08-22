@@ -91,6 +91,7 @@ public class CargoService {
         }
         try {
             cargoRepository.deleteById(id);
+            cargoRepository.flush();
         } catch (DataIntegrityViolationException e) {
             throw new ConflictException(String.format("Não é possivel deletar o cargo de ID '%s' pois ele está " +
                     "vinculado a um ou mais usuários. Antes de deletar, remova os usuários vinculados a este cargo.", id));

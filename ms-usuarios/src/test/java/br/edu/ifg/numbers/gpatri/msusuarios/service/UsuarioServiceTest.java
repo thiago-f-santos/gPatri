@@ -222,6 +222,7 @@ class UsuarioServiceTest {
 
         verify(userRepository, times(1)).existsById(usuarioId);
         verify(userRepository, times(1)).deleteById(usuarioId);
+        verify(userRepository, times(1)).flush();
     }
 
     @Test
@@ -234,6 +235,7 @@ class UsuarioServiceTest {
 
         verify(userRepository, times(1)).existsById(usuarioId);
         verify(userRepository, never()).deleteById(any(UUID.class));
+        verify(userRepository, never()).flush();
     }
 
     @Test
@@ -247,6 +249,20 @@ class UsuarioServiceTest {
 
         verify(userRepository, times(1)).existsById(usuarioId);
         verify(userRepository, times(1)).deleteById(usuarioId);
+    }
+
+    @Test
+    @DisplayName("Deve lançar ConflictException ao tentar deletar usuário vinculado a registros no flush")
+    void deletarUsuarioVinculadoNoFlush() {
+
+        when(userRepository.existsById(usuarioId)).thenReturn(true);
+        doThrow(DataIntegrityViolationException.class).when(userRepository).flush();
+
+        assertThrows(ConflictException.class, () -> usuarioService.deletarUsuario(usuarioId));
+
+        verify(userRepository, times(1)).existsById(usuarioId);
+        verify(userRepository, times(1)).deleteById(usuarioId);
+        verify(userRepository, times(1)).flush();
     }
 
     @Test

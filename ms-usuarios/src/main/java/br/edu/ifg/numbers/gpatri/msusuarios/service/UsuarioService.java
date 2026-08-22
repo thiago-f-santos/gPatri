@@ -92,6 +92,7 @@ public class UsuarioService {
 
         try {
             userRepository.deleteById(id);
+            userRepository.flush();
         } catch (DataIntegrityViolationException e) {
             throw new ConflictException(String.format("Não foi possível deletar o usuário de ID '%s'. Existem registros vinculados a este usuários.", id));
         }

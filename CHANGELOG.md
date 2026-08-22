@@ -8,12 +8,16 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Não Lançado]
 
+### Corrigido
+- **ms-usuarios**: adicionar chamada explícita de `flush()` em `CargoService.deletarCargo` e `UsuarioService.deletarUsuario` para forçar execução imediata de restrições de integridade SQL dentro do bloco `try/catch` da transação (#22).
+- **ms-usuarios**: adicionar manipulador para `DataIntegrityViolationException` no `GlobalExceptionHandler` retornando HTTP 409 Conflict com mensagem amigável (#22).
+
 ---
 
 ## [0.7.0] - 2026-08-22
 
 ### Adicionado
-- **ci**: enriquecer automaticamente itens do [Não Lançado] com autoria by @User by @thiago-f-santos
+- **ci**: enriquecer automaticamente itens do [Não Lançado] com autoria by `@User` by @thiago-f-santos
 
 ### Outros
 - Merge pull request #27 from thiago-f-santos/fix/ci-skip-and-contributor-mentions by @thiago-f-santos
