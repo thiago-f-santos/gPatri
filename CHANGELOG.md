@@ -8,6 +8,12 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Não Lançado]
 
+### Adicionado
+- **docker**: adicionar `docker-compose.yml`, `docker/init.sql` e `.env.example` para ambiente de desenvolvimento local com PostgreSQL multi-banco.
+
+### Modificado
+- **git**: adicionar `.env` e variações locais ao `.gitignore`.
+
 ### Corrigido
 - **ms-usuarios**: adicionar chamada explícita de `flush()` em `CargoService.deletarCargo` e `UsuarioService.deletarUsuario` para forçar execução imediata de restrições de integridade SQL dentro do bloco `try/catch` da transação (#22).
 - **ms-usuarios**: adicionar manipulador para `DataIntegrityViolationException` no `GlobalExceptionHandler` retornando HTTP 409 Conflict com mensagem amigável (#22).
