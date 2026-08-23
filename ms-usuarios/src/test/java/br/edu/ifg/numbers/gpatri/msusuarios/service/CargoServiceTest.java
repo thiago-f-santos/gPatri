@@ -91,18 +91,18 @@ class CargoServiceTest {
 
         cargo = Cargo.builder()
                 .id(cargoId)
-                .nome("ADMINISTRADOR")
+                .nome("OPERADOR")
                 .permissoes(new HashSet<>(Set.of(permissao1, permissao2)))
                 .build();
 
         cargoRequestDTO = CargoRequestDTO.builder()
-                .nome("ADMINISTRADOR")
+                .nome("OPERADOR")
                 .permissoesIds(permissoesIds)
                 .build();
 
         cargoResponseDTO = CargoResponseDTO.builder()
                 .id(cargoId)
-                .nome("ADMINISTRADOR")
+                .nome("OPERADOR")
                 .permissoes(Set.of(permissaoResponseDTO1, permissaoResponseDTO2))
                 .build();
     }
@@ -217,15 +217,15 @@ class CargoServiceTest {
     @Test
     @DisplayName("Deve buscar cargo por nome com sucesso")
     void buscarCargoPorNome() {
-        when(cargoRepository.findByNome("ADMINISTRADOR")).thenReturn(Optional.of(cargo));
+        when(cargoRepository.findByNome("OPERADOR")).thenReturn(Optional.of(cargo));
         when(cargoMapper.toDto(cargo)).thenReturn(cargoResponseDTO);
 
-        CargoResponseDTO response = cargoService.buscarPorNome("ADMINISTRADOR");
+        CargoResponseDTO response = cargoService.buscarPorNome("OPERADOR");
 
         assertNotNull(response);
         assertEquals(cargoResponseDTO.getNome(), response.getNome());
 
-        verify(cargoRepository, times(1)).findByNome("ADMINISTRADOR");
+        verify(cargoRepository, times(1)).findByNome("OPERADOR");
         verify(cargoMapper, times(1)).toDto(cargo);
     }
 
@@ -245,14 +245,14 @@ class CargoServiceTest {
     void buscarTodosCargos() {
         Cargo outroCargo = Cargo.builder()
                 .id(UUID.randomUUID())
-                .nome("OPERADOR")
+                .nome("SUPERVISOR")
                 .permissoes(Collections.emptySet())
                 .build();
         List<Cargo> cargos = List.of(this.cargo, outroCargo);
 
         CargoResponseDTO outroCargoDTO = CargoResponseDTO.builder()
                 .id(outroCargo.getId())
-                .nome("OPERADOR")
+                .nome("SUPERVISOR")
                 .permissoes(Collections.emptySet())
                 .build();
         List<CargoResponseDTO> listaRespostas = List.of(this.cargoResponseDTO, outroCargoDTO);
@@ -329,7 +329,7 @@ class CargoServiceTest {
     @DisplayName("Deve atualizar um cargo com sucesso mantendo o mesmo nome")
     void atualizarCargoMantendoMesmoNome() {
         CargoRequestDTO dtoAtualizacao = CargoRequestDTO.builder()
-                .nome("ADMINISTRADOR")
+                .nome("OPERADOR")
                 .permissoesIds(permissoesIds)
                 .build();
 
@@ -342,6 +342,92 @@ class CargoServiceTest {
 
         assertNotNull(response);
         assertEquals(cargoResponseDTO.getNome(), response.getNome());
+
+        verify(cargoRepository, times(1)).findById(cargoId);
+        verify(cargoRepository, never()).findByNome(anyString());
+        verify(permissaoRepository, times(1)).findAllById(permissoesIds);
+        verify(cargoRepository, times(1)).save(any(Cargo.class));
+    }
+
+    @Test
+    @DisplayName("Deve lançar BadRequestException ao tentar renomear cargo Administrador")
+    void deveLancarBadRequestExceptionAoTentarRenomearCargoAdministrador() {
+        Cargo cargoAdmin = Cargo.builder()
+                .id(cargoId)
+                .nome(CargoService.CARGO_ADMINISTRADOR)
+                .permissoes(new HashSet<>(Set.of(permissao1)))
+                .build();
+
+        CargoRequestDTO dtoRenomeacao = CargoRequestDTO.builder()
+                .nome("SUPER_ADMIN")
+                .permissoesIds(permissoesIds)
+                .build();
+
+        when(cargoRepository.findById(cargoId)).thenReturn(Optional.of(cargoAdmin));
+
+        BadRequestException ex = assertThrows(BadRequestException.class, () -> cargoService.atualizarCargo(cargoId, dtoRenomeacao));
+        assertEquals("Cargos essenciais do sistema não podem ser renomeados.", ex.getMessage());
+
+        verify(cargoRepository, times(1)).findById(cargoId);
+        verify(cargoRepository, never()).findByNome(anyString());
+        verify(permissaoRepository, never()).findAllById(any());
+        verify(cargoRepository, never()).save(any(Cargo.class));
+    }
+
+    @Test
+    @DisplayName("Deve lançar BadRequestException ao tentar renomear cargo Usuário")
+    void deveLancarBadRequestExceptionAoTentarRenomearCargoUsuario() {
+        Cargo cargoUser = Cargo.builder()
+                .id(cargoId)
+                .nome(CargoService.CARGO_USUARIO)
+                .permissoes(new HashSet<>(Set.of(permissao1)))
+                .build();
+
+        CargoRequestDTO dtoRenomeacao = CargoRequestDTO.builder()
+                .nome("CLIENTE")
+                .permissoesIds(permissoesIds)
+                .build();
+
+        when(cargoRepository.findById(cargoId)).thenReturn(Optional.of(cargoUser));
+
+        BadRequestException ex = assertThrows(BadRequestException.class, () -> cargoService.atualizarCargo(cargoId, dtoRenomeacao));
+        assertEquals("Cargos essenciais do sistema não podem ser renomeados.", ex.getMessage());
+
+        verify(cargoRepository, times(1)).findById(cargoId);
+        verify(cargoRepository, never()).findByNome(anyString());
+        verify(permissaoRepository, never()).findAllById(any());
+        verify(cargoRepository, never()).save(any(Cargo.class));
+    }
+
+    @Test
+    @DisplayName("Deve permitir atualizar permissões de cargo essencial mantendo o mesmo nome")
+    void devePermitirAtualizarPermissoesDeCargoEssencialMantendoMesmoNome() {
+        Cargo cargoAdmin = Cargo.builder()
+                .id(cargoId)
+                .nome(CargoService.CARGO_ADMINISTRADOR)
+                .permissoes(new HashSet<>(Set.of(permissao1)))
+                .build();
+
+        CargoRequestDTO dtoAtualizacao = CargoRequestDTO.builder()
+                .nome(CargoService.CARGO_ADMINISTRADOR)
+                .permissoesIds(permissoesIds)
+                .build();
+
+        CargoResponseDTO dtoResponse = CargoResponseDTO.builder()
+                .id(cargoId)
+                .nome(CargoService.CARGO_ADMINISTRADOR)
+                .permissoes(Set.of(permissaoResponseDTO1, permissaoResponseDTO2))
+                .build();
+
+        when(cargoRepository.findById(cargoId)).thenReturn(Optional.of(cargoAdmin));
+        when(permissaoRepository.findAllById(permissoesIds)).thenReturn(List.of(permissao1, permissao2));
+        when(cargoRepository.save(any(Cargo.class))).thenReturn(cargoAdmin);
+        when(cargoMapper.toDto(cargoAdmin)).thenReturn(dtoResponse);
+
+        CargoResponseDTO response = cargoService.atualizarCargo(cargoId, dtoAtualizacao);
+
+        assertNotNull(response);
+        assertEquals(CargoService.CARGO_ADMINISTRADOR, response.getNome());
 
         verify(cargoRepository, times(1)).findById(cargoId);
         verify(cargoRepository, never()).findByNome(anyString());
@@ -390,7 +476,7 @@ class CargoServiceTest {
     @DisplayName("Deve lançar BadRequestException quando as permissões de atualização são nulas ou vazias")
     void deveLancarBadRequestExceptionQuandoPermissoesDeAtualizacaoSaoVazias() {
         CargoRequestDTO dtoAtualizacao = CargoRequestDTO.builder()
-                .nome("ADMINISTRADOR")
+                .nome("OPERADOR")
                 .permissoesIds(Collections.emptySet())
                 .build();
 
@@ -410,7 +496,7 @@ class CargoServiceTest {
         Set<UUID> idsInexistentes = Set.of(idInexistente);
 
         CargoRequestDTO dtoAtualizacao = CargoRequestDTO.builder()
-                .nome("ADMINISTRADOR")
+                .nome("OPERADOR")
                 .permissoesIds(idsInexistentes)
                 .build();
 
@@ -426,25 +512,61 @@ class CargoServiceTest {
     }
 
     @Test
-    @DisplayName("Deve deletar um cargo com sucesso quando ele existe")
+    @DisplayName("Deve deletar um cargo com sucesso quando ele existe e não é essencial")
     void deveDeletarCargoComSucessoQuandoExiste() {
-        when(cargoRepository.existsById(cargoId)).thenReturn(true);
+        when(cargoRepository.findById(cargoId)).thenReturn(Optional.of(cargo));
 
         assertDoesNotThrow(() -> cargoService.deletarCargo(cargoId));
 
-        verify(cargoRepository, times(1)).existsById(cargoId);
+        verify(cargoRepository, times(1)).findById(cargoId);
         verify(cargoRepository, times(1)).deleteById(cargoId);
         verify(cargoRepository, times(1)).flush();
     }
 
     @Test
+    @DisplayName("Deve lançar BadRequestException ao tentar deletar o cargo Administrador")
+    void deveLancarBadRequestExceptionAoTentarDeletarCargoAdministrador() {
+        Cargo cargoAdmin = Cargo.builder()
+                .id(cargoId)
+                .nome(CargoService.CARGO_ADMINISTRADOR)
+                .build();
+
+        when(cargoRepository.findById(cargoId)).thenReturn(Optional.of(cargoAdmin));
+
+        BadRequestException ex = assertThrows(BadRequestException.class, () -> cargoService.deletarCargo(cargoId));
+        assertEquals("Cargos essenciais do sistema não podem ser excluídos.", ex.getMessage());
+
+        verify(cargoRepository, times(1)).findById(cargoId);
+        verify(cargoRepository, never()).deleteById(any());
+        verify(cargoRepository, never()).flush();
+    }
+
+    @Test
+    @DisplayName("Deve lançar BadRequestException ao tentar deletar o cargo Usuário")
+    void deveLancarBadRequestExceptionAoTentarDeletarCargoUsuario() {
+        Cargo cargoUser = Cargo.builder()
+                .id(cargoId)
+                .nome(CargoService.CARGO_USUARIO)
+                .build();
+
+        when(cargoRepository.findById(cargoId)).thenReturn(Optional.of(cargoUser));
+
+        BadRequestException ex = assertThrows(BadRequestException.class, () -> cargoService.deletarCargo(cargoId));
+        assertEquals("Cargos essenciais do sistema não podem ser excluídos.", ex.getMessage());
+
+        verify(cargoRepository, times(1)).findById(cargoId);
+        verify(cargoRepository, never()).deleteById(any());
+        verify(cargoRepository, never()).flush();
+    }
+
+    @Test
     @DisplayName("Deve lançar ResourceNotFoundException quando o cargo a ser deletado não existe")
     void deveLancarResourceNotFoundExceptionQuandoCargoParaDeletarNaoExiste() {
-        when(cargoRepository.existsById(cargoId)).thenReturn(false);
+        when(cargoRepository.findById(cargoId)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class, () -> cargoService.deletarCargo(cargoId));
 
-        verify(cargoRepository, times(1)).existsById(cargoId);
+        verify(cargoRepository, times(1)).findById(cargoId);
         verify(cargoRepository, never()).deleteById(any(UUID.class));
         verify(cargoRepository, never()).flush();
     }
@@ -452,24 +574,24 @@ class CargoServiceTest {
     @Test
     @DisplayName("Deve lançar ConflictException quando o cargo não pode ser deletado devido a FK com usuários")
     void deveLancarConflictExceptionQuandoCargoTemAssociacoes() {
-        when(cargoRepository.existsById(cargoId)).thenReturn(true);
+        when(cargoRepository.findById(cargoId)).thenReturn(Optional.of(cargo));
         doThrow(DataIntegrityViolationException.class).when(cargoRepository).deleteById(cargoId);
 
         assertThrows(ConflictException.class, () -> cargoService.deletarCargo(cargoId));
 
-        verify(cargoRepository, times(1)).existsById(cargoId);
+        verify(cargoRepository, times(1)).findById(cargoId);
         verify(cargoRepository, times(1)).deleteById(cargoId);
     }
 
     @Test
     @DisplayName("Deve lançar ConflictException quando o cargo não pode ser deletado devido a FK com usuários no flush")
     void deveLancarConflictExceptionQuandoCargoTemAssociacoesNoFlush() {
-        when(cargoRepository.existsById(cargoId)).thenReturn(true);
+        when(cargoRepository.findById(cargoId)).thenReturn(Optional.of(cargo));
         doThrow(DataIntegrityViolationException.class).when(cargoRepository).flush();
 
         assertThrows(ConflictException.class, () -> cargoService.deletarCargo(cargoId));
 
-        verify(cargoRepository, times(1)).existsById(cargoId);
+        verify(cargoRepository, times(1)).findById(cargoId);
         verify(cargoRepository, times(1)).deleteById(cargoId);
         verify(cargoRepository, times(1)).flush();
     }

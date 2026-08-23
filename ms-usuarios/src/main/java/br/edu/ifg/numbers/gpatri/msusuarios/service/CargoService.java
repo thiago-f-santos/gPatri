@@ -25,6 +25,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CargoService {
 
+    public static final String CARGO_ADMINISTRADOR = "Administrador";
+    public static final String CARGO_USUARIO = "Usuário";
+    private static final Set<String> CARGOS_ESSENCIAIS = Set.of(CARGO_ADMINISTRADOR, CARGO_USUARIO);
+
     private final CargoRepository cargoRepository;
     private final PermissaoRepository permissaoRepository;
     private final CargoMapper cargoMapper;
@@ -71,6 +75,10 @@ public class CargoService {
         Cargo cargo = cargoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Cargo de ID '%s' não encontrado.", id)));
 
+        if (CARGOS_ESSENCIAIS.contains(cargo.getNome()) && !cargo.getNome().equals(cargoRequestDTO.getNome())) {
+            throw new BadRequestException("Cargos essenciais do sistema não podem ser renomeados.");
+        }
+
         if (!cargo.getNome().equals(cargoRequestDTO.getNome()) && cargoRepository.findByNome(cargoRequestDTO.getNome()).isPresent()) {
             throw new ConflictException(String.format("Já existe um cargo com o nome: %s", cargoRequestDTO.getNome()));
         }
@@ -86,9 +94,13 @@ public class CargoService {
 
     @Transactional
     public void deletarCargo(UUID id) {
-        if (!cargoRepository.existsById(id)) {
-            throw new ResourceNotFoundException(String.format("Cargo de ID '%s' não encontrado.", id));
+        Cargo cargo = cargoRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Cargo de ID '%s' não encontrado.", id)));
+
+        if (CARGOS_ESSENCIAIS.contains(cargo.getNome())) {
+            throw new BadRequestException("Cargos essenciais do sistema não podem ser excluídos.");
         }
+
         try {
             cargoRepository.deleteById(id);
             cargoRepository.flush();

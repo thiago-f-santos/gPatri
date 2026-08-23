@@ -6,6 +6,7 @@ import br.edu.ifg.numbers.gpatri.msusuarios.domain.Usuario;
 import br.edu.ifg.numbers.gpatri.msusuarios.repository.CargoRepository;
 import br.edu.ifg.numbers.gpatri.msusuarios.repository.PermissaoRepository;
 import br.edu.ifg.numbers.gpatri.msusuarios.repository.UserRepository;
+import br.edu.ifg.numbers.gpatri.msusuarios.service.CargoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -33,7 +34,7 @@ public class InitialSetupConfig implements CommandLineRunner {
         cargoAdmin();
         cargoUsuario();
 
-        Optional<Cargo> admin = cargoRepository.findByNome("Administrador");
+        Optional<Cargo> admin = cargoRepository.findByNome(CargoService.CARGO_ADMINISTRADOR);
 
         if (admin.isPresent()) {
             Cargo cargoAdmin = admin.get();
@@ -42,7 +43,7 @@ public class InitialSetupConfig implements CommandLineRunner {
 
             if (adminUser.isEmpty()) {
                 Usuario adminUsuario = new Usuario();
-                adminUsuario.setNome("Administrador");
+                adminUsuario.setNome(CargoService.CARGO_ADMINISTRADOR);
                 adminUsuario.setSobrenome("Geral");
                 adminUsuario.setEmail("admin@admin.com");
                 adminUsuario.setSenha(passwordEncoder.encode("admin123"));
@@ -103,9 +104,9 @@ public class InitialSetupConfig implements CommandLineRunner {
     }
 
     private void cargoAdmin() {
-        if (cargoRepository.findByNome("Administrador").isEmpty()) {
+        if (cargoRepository.findByNome(CargoService.CARGO_ADMINISTRADOR).isEmpty()) {
             List<Permissao> todasPermissoes = permissaoRepository.findAll();
-            Cargo cargo = new Cargo("Administrador", new HashSet<>(todasPermissoes));
+            Cargo cargo = new Cargo(CargoService.CARGO_ADMINISTRADOR, new HashSet<>(todasPermissoes));
             cargoRepository.save(cargo);
             log.info("Cargo Administrador criado com sucesso com todas as permissões.");
         } else {
@@ -114,7 +115,7 @@ public class InitialSetupConfig implements CommandLineRunner {
     }
 
     private void cargoUsuario() {
-        if (cargoRepository.findByNome("Usuário").isEmpty()) {
+        if (cargoRepository.findByNome(CargoService.CARGO_USUARIO).isEmpty()) {
             Set<String> nomesPermissoes = Set.of(
                     "USUARIO_EDITAR", "EMPRESTIMO_EDITAR", "EMPRESTIMO_EXCLUIR",
                     "EMPRESTIMO_LISTAR", "EMPRESTIMO_SOLICITAR", "PATRIMONIO_LISTAR",
@@ -125,7 +126,7 @@ public class InitialSetupConfig implements CommandLineRunner {
                     .filter(p -> nomesPermissoes.contains(p.getNome()))
                     .collect(Collectors.toSet());
 
-            Cargo cargo = new Cargo("Usuário", permissoesUsuario);
+            Cargo cargo = new Cargo(CargoService.CARGO_USUARIO, permissoesUsuario);
             cargoRepository.save(cargo);
             log.info("Cargo Usuário criado com sucesso.");
         } else {
