@@ -8,6 +8,9 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Não Lançado]
 
+### Adicionado
+- **ms-usuarios**: adicionar testes de integração e segurança com MockMvc para `PermissaoController` e `CargoController` cobrindo todas as rotas, códigos de status HTTP e controle de acesso RBAC com autoridades dinâmicas (#23)
+
 ---
 
 ## [0.7.1] - 2026-08-22
