@@ -45,8 +45,8 @@ public class UsuarioService {
             throw new ConflictException(String.format("O email '%s' já está cadastrado por outro usuário.", userRequestDTO.getEmail()));
         }
 
-        Cargo cargo = cargoRepository.findByNome("Usuário")
-                .orElseThrow(() -> new ResourceNotFoundException("Cargo 'Usuário' não encontrado."));
+        Cargo cargo = cargoRepository.findByNome(CargoService.CARGO_USUARIO)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Cargo '%s' não encontrado.", CargoService.CARGO_USUARIO)));
 
         Usuario usuario = usuarioMapper.toEntity(userRequestDTO);
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));

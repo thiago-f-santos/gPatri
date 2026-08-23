@@ -8,6 +8,9 @@ O formato é baseado no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.
 
 ## [Não Lançado]
 
+### Adicionado
+- **ms-usuarios**: proteger cargos essenciais do sistema (`Administrador` e `Usuário`) contra exclusão e renomeação física no `CargoService` (#24)
+
 ---
 
 ## [0.7.1] - 2026-08-22
